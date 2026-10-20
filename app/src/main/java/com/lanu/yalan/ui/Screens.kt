@@ -202,7 +202,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
 @Composable private fun Result(session:Session,vm:GameViewModel) {
     val v=session.turns.last().verdict
     val passed=v.score>=Rules.threshold(session.level)
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
         item {
             Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
                 Image(painterResource(R.drawable.mascot),null,Modifier.size(100.dp).clip(RoundedCornerShape(28.dp)))
@@ -248,7 +248,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     var remove by remember { mutableStateOf(false) }
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
     if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Tekrar oynamak için modeli indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Biraz sivri dil",fontWeight=FontWeight.Bold);Text("Hafif argo ve daha iğneleyici espriler. Ağır hakaret yok.",color=Muted,fontSize=13.sp,modifier=Modifier.padding(top=5.dp)) }
