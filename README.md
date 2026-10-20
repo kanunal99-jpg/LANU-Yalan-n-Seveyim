@@ -1,3 +1,49 @@
 # LANU Yalanını Seveyim
 
-Android için cihaz içi yapay zekâ ile eğlencelik hikâye sorgulama oyunu.
+Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar; cihazda çalışan **gerçek Qwen3 1.7B** sorular sorar, önceki yanıtları karşılaştırır ve inandırıcılığı puanlar. Şablon tabanlı sorular gerçek yapay zekâ gibi sunulmaz; model yoksa oyun başlamaz.
+
+## Oynanış
+
+- Kullanıcının belirlediği konu, her turda 5 soru, 100 ilerlemeli seviye.
+- Tutarlılık, makullük, ayrıntı ve soruya karşı savunma: her biri 0–25. Final puanı son soruda tüm hikâye üzerinden belirlenir.
+- Başarı eşiği seviyeye göre 40–73; başarısız seviyeler tekrar oynanabilir. Önceki seviyeleri tekrar oynamak seviye atlatmaz.
+- Türk mizahına yönelik sistem yönergesi, isteğe bağlı hafif argo. Kimliğe, bedene, aileye veya dine yönelik aşağılama istenmez.
+- Eğlencelik değerlendirmedir; gerçek yalan tespiti veya doğruluk ölçümü değildir.
+
+## Ücretsiz çalışma modeli
+
+Ücretli API, sunucu, hesap, reklam veya abonelik yoktur. İlk açılışta **1.282.439.264 bayt (~1,28 GB)** Qwen3 Q4_K_M modeli Hugging Face'ten indirilir. Mobil veri operatör ücreti kullanıcıya aittir. Ardından oyun çevrimdışıdır. İndirme ekranda başlatılır, duraklatılabilir; uygulama kapanırsa sonraki deneme kaldığı yerden devam eder. Kurulum öncesinde SHA-256 doğrulanır. Model Apache 2.0 lisanslıdır.
+
+Hedef cihaz **Samsung Galaxy A55**, Android 8+ ARM64. Fiziksel A55 hız/ısınma/mizah kalite testi henüz yapılmadı. Küçük yerel model büyük bulut modelleriyle aynı muhakeme kalitesini garanti etmez.
+
+## Mimari
+
+Kotlin, Jetpack Compose / Material 3, MVVM, Hilt, Coroutines / StateFlow; C++ JNI üzerinden sabit commit'li llama.cpp CPU çıkarımı. 4096 token bağlam, 4 iş parçacığı, 150 saniyelik üretim sınırı. Dilbilgisi kısıtlı JSON ve aralık doğrulaması; başarısız model yanıtında sahte puan üretilmez. İlerleme ve son hikâye Android Keystore AES-GCM ile şifreli, atomik dosyada tutulur. Android yedeklemeleri kapalıdır; konuşmalar loglanmaz.
+
+## Derleme
+
+JDK 17, Android SDK 35, NDK 27.2.12479018, CMake 3.22.1 gerekir.
+
+```sh
+./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease
+```
+
+`assembleDebug` yüklenebilir test APK'sını oluşturur. `assembleRelease` R8 ve kaynak küçültmeyi doğrular; üretim imzası sağlanmazsa çıktısı imzasızdır.
+
+Üretim imzası için `LANU_KEYSTORE`, `LANU_STORE_PASSWORD`, `LANU_KEY_ALIAS`, `LANU_KEY_PASSWORD` ortam değişkenlerini güvenli CI secrets üzerinden sağla. Anahtarları depoya ekleme. **Test APK'ları debug imzalıdır; farklı CI çalıştırmalarının imzaları değişebilir. Yerinde güncelleme ve kalıcı imza hazır kabul edilmez.**
+
+GitHub Actions ana dalda ve PR'larda test/lint/debug+release derlemesini yapar. `v*` etiketi kalite kontrollerinden sonra debug/test APK'sını indirilebilir prerelease'e ekler. OTA bu sürümün kapsamında değildir.
+
+## Firebase / hata raporlama durumu
+
+Crashlytics bağımlılığı ve koşullu Gradle yapılandırması hazırlanmıştır; kullanıcıya ait Firebase projesi ve `app/google-services.json` sağlanmadığından **aktif değildir**. Raporlama manifestte varsayılan kapalıdır. Etkinleştirilmeden önce kullanıcı onayı, veri politikası ve test crash doğrulaması tamamlanmalıdır. Oyun Firebase olmadan çalışır. Yakalanan hatalar kullanıcı dostu yeniden denemeye döner; fatal handler Android'in asıl handler'ına devreder, uygulamayı sahte biçimde çalışır tutmaz.
+
+## Kaynaklar ve lisanslar
+
+- [Qwen3 1.7B model kartı](https://huggingface.co/Qwen/Qwen3-1.7B)
+- [Sabit GGUF dosyası](https://huggingface.co/ggml-org/Qwen3-1.7B-GGUF/tree/daeb8e2d528a760970442092f6bf1e55c3b659eb)
+- [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/d8d92973c8c21bb4dd5d592f0fec26fe2cd1e654)
+- Lisans metinleri: `docs/licenses/`.
+- LANU maskotu bu proje için imagegen ile üretildi; uygulama için WebP olarak optimize edildi.
+
+Detaylı doğrulama ve kalan cihaz kontrolleri: [docs/VALIDATION.md](docs/VALIDATION.md).

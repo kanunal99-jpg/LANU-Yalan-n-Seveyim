@@ -1,0 +1,2 @@
+-keep class com.lanu.yalan.ai.NativeBridge { *; }
+-keepclasseswithmembernames,includedescriptorclasses class * { native <methods>; }
