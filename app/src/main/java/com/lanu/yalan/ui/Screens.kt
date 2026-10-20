@@ -32,6 +32,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lanu.yalan.BuildConfig
 import com.lanu.yalan.R
 import com.lanu.yalan.domain.*
+import kotlinx.coroutines.delay
 
 private val Ink=Color(0xFF130D23)
 private val Panel=Color(0xFF241A36)
@@ -126,10 +127,12 @@ private fun Home(s: UiState,vm: GameViewModel) {
 }
 @Composable private fun Tag(text: String) { Surface(color=Color(0xFF50346A),shape=RoundedCornerShape(8.dp)) { Text(text,Modifier.padding(horizontal=9.dp,vertical=6.dp),color=Color(0xFFF5E6FF),fontSize=11.sp) } }
 @Composable private fun Busy(s:UiState,vm:GameViewModel) {
+    var elapsed by remember { mutableIntStateOf(0) }
+    LaunchedEffect(Unit) { while(true) { delay(1000); elapsed++ } }
     Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
         Text(s.status,Modifier.padding(top=12.dp),color=Muted,fontSize=13.sp)
-        Text("Telefonda hazırlanıyor; ilk yanıt daha uzun sürebilir.",color=Muted,fontSize=11.sp)
+        Text("$elapsed sn · İlk yanıt daha uzun sürebilir.",color=Muted,fontSize=11.sp)
         TextButton(onClick=vm::cancel) { Text("Durdur") }
     }
 }
@@ -137,7 +140,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     Card(colors=CardDefaults.cardColors(containerColor=Panel),shape=RoundedCornerShape(22.dp)) {
         Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             Text(if(s.ready) "Oyun beyni hazır ✓" else "Önce LANU’nun beynini indirelim",fontSize=18.sp,fontWeight=FontWeight.Bold)
-            Text("Qwen3 1.7B · 1,28 GB\nBir kez indir, sonra internetsiz oyna. API ücreti, üyelik ve reklam yok. İndirme için Wi-Fi önerilir.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
+            Text("Qwen3.5 4B · 2,74 GB\nBir kez indir, sonra internetsiz oyna. API ücreti, üyelik ve reklam yok. İndirme için Wi-Fi önerilir.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
             if(s.downloading) {
                 LinearProgressIndicator(progress={s.progress},Modifier.fillMaxWidth())
                 Text(s.status,fontSize=13.sp)
@@ -243,7 +246,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     var reset by remember { mutableStateOf(false) }
     var remove by remember { mutableStateOf(false) }
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
-    if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 1,28 GB alan açılır. Tekrar oynamak için modeli indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
+    if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Tekrar oynamak için modeli indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
@@ -251,11 +254,11 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Switch(checked=s.save.spicy,onCheckedChange=vm::spicy,enabled=!s.busy)
         } } }
         item { ModelCard(s,vm) }
-        if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 1,28 GB") } }
-        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Sohbet ve ilerleme Android Keystore ile şifreli saklanır. Yedeklemeye dahil edilmez. Model indirildikten sonra oyun internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
+        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Model indirildikten sonra oyun internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Model dört alana 0–25 puan verir. Son sorudaki değerlendirme tüm hikâyenin final puanıdır. Seviye yükseldikçe geçme eşiği 40’tan 73’e çıkar. Yapay zekâ bazen yanlış yorumlayabilir; puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("ARM64 Android 8+ için hazırlanmıştır. Samsung A55 hedef cihazdır; fiziksel cihaz performansı henüz doğrulanmadı. Uzun oyunlarda ısınma ve pil tüketimi olabilir. Üretim 150 saniyede durdurulur; tekrar deneyebilirsin.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3 1.7B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("ARM64 Android 8+ için hazırlanmıştır. Samsung, Xiaomi ve Huawei dahil ARM64 Android cihazlar içindir. 8 GB RAM önerilir; fiziksel cihaz performansı henüz doğrulanmadı. Uzun oyunlarda ısınma ve pil tüketimi olabilir. Üretim 150 saniyede durdurulur; tekrar deneyebilirsin.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3.5 4B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { OutlinedButton(onClick={reset=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()) { Text("İlerlemeyi sıfırla") } }
         item { Text("LANU Yalanını Seveyim\n${BuildConfig.VERSION_NAME} · İlk test sürümü",color=Muted,fontSize=12.sp) }
     }

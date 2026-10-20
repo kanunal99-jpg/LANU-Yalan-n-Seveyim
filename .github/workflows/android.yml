@@ -40,7 +40,7 @@ jobs:
             app/build/reports/tests
             app/build/reports/lint-results-debug.html
   prerelease:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-alpha]'))
     needs: build
     runs-on: ubuntu-latest
     permissions:
@@ -54,15 +54,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v0.1.0-alpha' }}
+          COMMIT: ${{ github.sha }}
         run: |
           mv apk/app-debug.apk apk/LANU-Yalanini-Seveyim-${TAG}-arm64-test.apk
           sha256sum apk/*.apk > apk/SHA256SUMS.txt
           cat > notes.md <<'NOTES'
-          İlk Android test sürümü: cihaz içi Qwen3 1.7B, 100 seviye, beş soruluk turlar, AI puanlama, şifreli ilerleme ve özgün LANU maskotu.
+          İlk Android test sürümü: cihaz içi Qwen3.5 4B, 100 seviye, beş soruluk turlar, AI puanlama, şifreli ilerleme ve özgün LANU maskotu.
 
-          İlk açılışta yaklaşık 1,28 GB model indirilir. Model indirildikten sonra çevrimdışı oynanır. Fiziksel Samsung A55 testi henüz yapılmadı; yanıt hızı ve Türkçe mizah kalitesi cihazda doğrulanmalıdır.
+          İlk açılışta yaklaşık 2,74 GB model indirilir. Model indirildikten sonra çevrimdışı oynanır. Fiziksel Samsung A55 testi henüz yapılmadı; yanıt hızı ve Türkçe mizah kalitesi cihazda doğrulanmalıdır.
 
           Bu APK debug/test imzalıdır. Kalıcı üretim imzası yapılandırılmadığı için sonraki test APK'larına yerinde güncelleme garantisi yoktur. Üretim sürümü ve OTA henüz hazır değildir.
           NOTES
-          gh release create "$TAG" apk/* --repo "$REPO" --title "LANU $TAG · Android test sürümü" --notes-file notes.md --prerelease
+          gh release create "$TAG" apk/* --repo "$REPO" --title "LANU $TAG · Android test sürümü" --notes-file notes.md --prerelease --target "$COMMIT"

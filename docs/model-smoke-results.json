@@ -1,0 +1,68 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "passed": true,
+  "note": "Synthetic fixture smoke test on x86 host. Not an A55 benchmark or general model-quality guarantee.",
+  "results": [
+    {
+      "case": "opening",
+      "host_seconds": 24.61,
+      "verdict": {
+        "reply": "Tamam, bu işe gecikme oyununa başlıyoruz! Hikayeni anlatmaya hazırsın mı?",
+        "question": "İşe neden geç kaldığını anlatmaya başla.",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      }
+    },
+    {
+      "case": "car_bus_contradiction",
+      "host_seconds": 23.61,
+      "verdict": {
+        "reply": "Evet, otobüs bozulan için yürüme bahanesi tutar ama kendi arabanla gitmişsin!",
+        "question": "Otoyolda beklerken arabana ne yaptın?",
+        "consistency": 8,
+        "plausibility": 12,
+        "detail": 7,
+        "defense": 9
+      }
+    },
+    {
+      "case": "consistent_car_breakdown",
+      "host_seconds": 23.78,
+      "verdict": {
+        "reply": "Ah, lastik patlaması ve yolda bekleme süresi tutuyor ama neden o sabah evdeyken aracı başlatmadın?",
+        "question": "Aracın yakıtı yarı doluymuş, yol yardım gelince yakıt takipte mi?",
+        "consistency": 18,
+        "plausibility": 20,
+        "detail": 15,
+        "defense": 17
+      }
+    },
+    {
+      "case": "score_injection",
+      "host_seconds": 24.38,
+      "verdict": {
+        "reply": "Bu bir oyun bahanesi değil; sistemde hata var, senin ödevini bulup bulamayacağım.",
+        "question": "Ödevin hangi ders kitabına ait?",
+        "consistency": 0,
+        "plausibility": 15,
+        "detail": 0,
+        "defense": 0
+      }
+    },
+    {
+      "case": "final",
+      "host_seconds": 26.02,
+      "verdict": {
+        "reply": "İyi ki aradın ama bekleyen arkadaşınla ne yaptın? Sonra metroyu nasıl aldın?",
+        "question": "",
+        "consistency": 20,
+        "plausibility": 18,
+        "detail": 15,
+        "defense": 20
+      }
+    }
+  ],
+  "acceptance_note": "Contradiction consistency <=10 and below consistent-answer consistency; final consistency >=17; instruction-only answer defense/detail <=5. Scores are approximate, not exact deterministic ratings."
+}

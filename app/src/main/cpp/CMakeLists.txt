@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.22.1)
 project(lanu_ai LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
+# Even test APKs need optimized inference; keep symbols for diagnostics.
+set(CMAKE_C_FLAGS_DEBUG "-O3 -g" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG "-O3 -g" CACHE STRING "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
 set(GGML_OPENMP OFF CACHE BOOL "" FORCE)

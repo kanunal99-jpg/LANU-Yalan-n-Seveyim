@@ -20,8 +20,8 @@ import javax.inject.Singleton
 @Singleton
 class ModelStore @Inject constructor(@ApplicationContext context: Context) {
     private val directory = File(context.noBackupFilesDir, "brain").apply { mkdirs() }
-    val model = File(directory, "qwen3-1.7b-q4.gguf")
-    private val partial = File(directory, "download.part")
+    val model = File(directory, "qwen35-4b-q4.gguf")
+    private val partial = File(directory, "qwen35-4b.part")
     private val verified = File(directory, "verified")
     private val mutex = Mutex()
     private val http = OkHttpClient.Builder().connectTimeout(20, TimeUnit.SECONDS)
@@ -35,7 +35,7 @@ class ModelStore @Inject constructor(@ApplicationContext context: Context) {
             if (ready()) return@withLock
             if (partial.length() > SIZE) partial.delete()
             val offset = partial.length()
-            check(directory.usableSpace > SIZE - offset + 150_000_000L) { "İndirme için yaklaşık 1,5 GB boş alan gerekiyor." }
+            check(directory.usableSpace > SIZE - offset + 150_000_000L) { "İndirme için yaklaşık 3 GB boş alan gerekiyor." }
             if (offset < SIZE) {
                 val request = Request.Builder().url(URL).apply { if(offset > 0) header("Range", "bytes=$offset-") }.build()
                 val call = http.newCall(request)
@@ -57,7 +57,7 @@ class ModelStore @Inject constructor(@ApplicationContext context: Context) {
                                 check(total <= SIZE) { "Model boyutu beklenenden büyük." }
                                 output.write(buffer, 0, n)
                                 val now = System.currentTimeMillis()
-                                if(now - last > 200) { progress(total.toFloat() / SIZE, "${total / 1_000_000} / 1282 MB"); last = now }
+                                if(now - last > 200) { progress(total.toFloat() / SIZE, "${total / 1_000_000} / 2741 MB"); last = now }
                             }
                             output.fd.sync()
                         } }
@@ -79,8 +79,8 @@ class ModelStore @Inject constructor(@ApplicationContext context: Context) {
         }
     }
     companion object {
-        const val SIZE = 1282439264L
-        const val HASH = "d2387ca2dbfee2ffabce7120d3770dadca0b293052bc2f0e138fdc940d9bc7b5"
-        const val URL = "https://huggingface.co/ggml-org/Qwen3-1.7B-GGUF/resolve/daeb8e2d528a760970442092f6bf1e55c3b659eb/Qwen3-1.7B-Q4_K_M.gguf?download=true"
+        const val SIZE = 2740937888L
+        const val HASH = "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4"
+        const val URL = "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf?download=true"
     }
 }

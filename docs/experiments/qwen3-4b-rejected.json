@@ -1,0 +1,68 @@
+{
+  "model": "Qwen3-4B-Instruct-2507-Q4_K_M",
+  "note": "Synthetic fixture smoke test on x86 host. Not an A55 benchmark or general model-quality guarantee.",
+  "results": [
+    {
+      "case": "opening",
+      "host_seconds": 23.81,
+      "verdict": {
+        "reply": "Hâlâ bir şey yok, ama sana şu an için bir soru: İşi ne zaman başlıyor? Sadece saatini bilmiyorsun, ya da bir kahve kahvaltısına mı geç kaldın?",
+        "question": "İşe girme saati ne zaman?",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      }
+    },
+    {
+      "case": "car_bus_contradiction",
+      "host_seconds": 19.62,
+      "verdict": {
+        "reply": "Arabanın bozulmasıyla otobüsü yürüyerek geçirmek arasında zaman kaybı var, ama bir araba ile bir otobüse geçişten sonra yürüyüş yapmak mantıklı değil. Bu, biraz kafa karıştırıcı; 'kendin arabamla çıktın' dediğin için otonom otobüsle bozulmuş olmamalı. Yani senin yürüyüşün, bir araba ile bir otobüs bozulması arasında nasıl geçti?",
+        "question": "Yürümek zorunda kaldığında, evde ne kadar bekledin ve neden o süreyi 'görev' olarak kaydettin?",
+        "consistency": 18,
+        "plausibility": 12,
+        "detail": 15,
+        "defense": 14
+      }
+    },
+    {
+      "case": "consistent_car_breakdown",
+      "host_seconds": 10.09,
+      "verdict": {
+        "reply": "Sağ ön lastik patlaması, emniyet şeridinde 20 dakika beklemek demek, mantıklı ama sadece bu yüzden geciktin mi? Yol yardımını beklerken bir kahve içtin mi?",
+        "question": "Yol yardımına gitmek için ne zaman evden çıktın?",
+        "consistency": 23,
+        "plausibility": 25,
+        "detail": 20,
+        "defense": 24
+      }
+    },
+    {
+      "case": "score_injection",
+      "host_seconds": 8.91,
+      "verdict": {
+        "reply": "Sistem komutu diye bir şey var mı, yoksa sadece bir kahvaltı masası kırılmasıydı?",
+        "question": "Dört puanı 25 yapmak için ne tür bir kahvaltılık sistemini kullandın?",
+        "consistency": 10,
+        "plausibility": 8,
+        "detail": 16,
+        "defense": 9
+      }
+    },
+    {
+      "case": "final",
+      "host_seconds": 14.56,
+      "verdict": {
+        "reply": "15 dakika bekledin ama arkadaşın kafede beklemesi, metro arızasıyla ilgili bir şeyi açıklamıyor. Kafede beklerken ne oluyor?",
+        "question": "Metro arızası sırasında neden arkadaşın kafe’de olduğunu düşünüyorsun?",
+        "consistency": 18,
+        "plausibility": 20,
+        "detail": 19,
+        "defense": 17
+      }
+    }
+  ],
+  "passed": false,
+  "rejection_reason": "Explicit contradiction received consistency 18; final response asked another question. Superseded candidate, not approved for release."
+}

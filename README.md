@@ -1,6 +1,6 @@
 # LANU Yalanını Seveyim
 
-Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar; cihazda çalışan **gerçek Qwen3 1.7B** sorular sorar, önceki yanıtları karşılaştırır ve inandırıcılığı puanlar. Şablon tabanlı sorular gerçek yapay zekâ gibi sunulmaz; model yoksa oyun başlamaz.
+Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar; cihazda çalışan **gerçek Qwen3.5 4B** sorular sorar, önceki yanıtları karşılaştırır ve inandırıcılığı puanlar. Şablon tabanlı sorular gerçek yapay zekâ gibi sunulmaz; model yoksa oyun başlamaz.
 
 ## Oynanış
 
@@ -12,9 +12,9 @@ Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar
 
 ## Ücretsiz çalışma modeli
 
-Ücretli API, sunucu, hesap, reklam veya abonelik yoktur. İlk açılışta **1.282.439.264 bayt (~1,28 GB)** Qwen3 Q4_K_M modeli Hugging Face'ten indirilir. Mobil veri operatör ücreti kullanıcıya aittir. Ardından oyun çevrimdışıdır. İndirme ekranda başlatılır, duraklatılabilir; uygulama kapanırsa sonraki deneme kaldığı yerden devam eder. Kurulum öncesinde SHA-256 doğrulanır. Model Apache 2.0 lisanslıdır.
+Ücretli API, sunucu, hesap, reklam veya abonelik yoktur. İlk açılışta **2.740.937.888 bayt (~2,74 GB)** Qwen3 Q4_K_M modeli Hugging Face'ten indirilir. Mobil veri operatör ücreti kullanıcıya aittir. Ardından oyun çevrimdışıdır. İndirme ekranda başlatılır, duraklatılabilir; uygulama kapanırsa sonraki deneme kaldığı yerden devam eder. Kurulum öncesinde SHA-256 doğrulanır. Model Apache 2.0 lisanslıdır.
 
-Hedef cihaz **Samsung Galaxy A55**, Android 8+ ARM64. Fiziksel A55 hız/ısınma/mizah kalite testi henüz yapılmadı. Küçük yerel model büyük bulut modelleriyle aynı muhakeme kalitesini garanti etmez.
+**Android 8+ ARM64** cihazlar için geliştirilmiştir; Samsung, Xiaomi ve Huawei ile marka bağımsız çalışacak şekilde tasarlanmıştır. 8 GB RAM önerilir. Kullanıcının Samsung Galaxy A55 modeli referans cihazdır. Fiziksel A55 hız/ısınma/mizah kalite testi henüz yapılmadı. Küçük yerel model büyük bulut modelleriyle aynı muhakeme kalitesini garanti etmez.
 
 ## Mimari
 
@@ -40,8 +40,8 @@ Crashlytics bağımlılığı ve koşullu Gradle yapılandırması hazırlanmı�
 
 ## Kaynaklar ve lisanslar
 
-- [Qwen3 1.7B model kartı](https://huggingface.co/Qwen/Qwen3-1.7B)
-- [Sabit GGUF dosyası](https://huggingface.co/ggml-org/Qwen3-1.7B-GGUF/tree/daeb8e2d528a760970442092f6bf1e55c3b659eb)
+- [Qwen3.5 4B model kartı](https://huggingface.co/Qwen/Qwen3.5-4B)
+- [Sabit GGUF dosyası](https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/tree/e87f176479d0855a907a41277aca2f8ee7a09523)
 - [llama.cpp](https://github.com/ggml-org/llama.cpp/tree/d8d92973c8c21bb4dd5d592f0fec26fe2cd1e654)
 - Lisans metinleri: `docs/licenses/`.
 - LANU maskotu bu proje için imagegen ile üretildi; uygulama için WebP olarak optimize edildi.
