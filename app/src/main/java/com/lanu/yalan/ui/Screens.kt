@@ -155,7 +155,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     if(session==null) { Text("Henüz hikâye yok.",Modifier.padding(24.dp)); return }
     if(session.finished) { Result(session,vm); return }
     val scroll=rememberLazyListState()
-    LaunchedEffect(session.turns.size,s.busy) { if(scroll.layoutInfo.totalItemsCount>0) scroll.animateScrollToItem(scroll.layoutInfo.totalItemsCount-1) }
+    LaunchedEffect(session.turns.size,s.busy) { scroll.animateScrollToItem(session.turns.size + if(s.busy) 1 else 0) }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal=24.dp,vertical=8.dp)) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {

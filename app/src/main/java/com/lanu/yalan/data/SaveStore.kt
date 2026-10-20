@@ -11,6 +11,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
+import java.io.FileNotFoundException
 import java.security.KeyStore
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
@@ -32,8 +33,13 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
         }.generateKey()
     }
     suspend fun read(): GameSave = withContext(Dispatchers.IO) {
-        if (!file.baseFile.exists()) return@withContext GameSave()
-        val bytes = file.readFully()
+        // Let AtomicFile recover its backup before deciding this is a new install.
+        val bytes = try { file.readFully() } catch (e: FileNotFoundException) {
+            if (!file.baseFile.exists() && !File(file.baseFile.path + ".bak").exists()) {
+                return@withContext GameSave()
+            }
+            throw e
+        }
         require(bytes.size > 28)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(0, 12)))
