@@ -69,7 +69,7 @@ Java_com_lanu_yalan_ai_NativeBridge_generate(JNIEnv* env, jobject, jbyteArray in
         auto deleter=[](llama_sampler* s){llama_sampler_free(s);};
         std::unique_ptr<llama_sampler,decltype(deleter)> sampler(llama_sampler_chain_init(llama_sampler_chain_default_params()),deleter);
         llama_sampler_chain_add(sampler.get(),grammar_sampler);
-        llama_sampler_chain_add(sampler.get(),llama_sampler_init_penalties(128,1.08f,0.0f,0.0f));
+        llama_sampler_chain_add(sampler.get(),llama_sampler_init_penalties(llama_vocab_n_tokens(vocab),128,1.08f,0.0f,0.0f));
         llama_sampler_chain_add(sampler.get(),llama_sampler_init_top_k(20));
         llama_sampler_chain_add(sampler.get(),llama_sampler_init_top_p(0.8f,1));
         llama_sampler_chain_add(sampler.get(),llama_sampler_init_temp(0.65f));
