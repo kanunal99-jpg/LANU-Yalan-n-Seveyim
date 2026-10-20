@@ -1,6 +1,7 @@
 package com.lanu.yalan.ai
 
 import com.lanu.yalan.domain.*
+import com.lanu.yalan.data.DeviceInfo
 import android.content.Context
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GameEngine @Inject constructor(private val models: ModelStore, @ApplicationContext private val context: Context) {
+class GameEngine @Inject constructor(private val models: ModelStore, @ApplicationContext private val context: Context, private val deviceInfo: DeviceInfo) {
     private val lock = Mutex()
     private var native: NativeBridge? = null
     private var loaded = false
@@ -23,8 +24,9 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
         lock.withLock {
             currentCoroutineContext().ensureActive()
             check(models.ready()) { "Önce oyun beynini indir." }
+            val profile = deviceInfo.ensureInferenceReady()
             val bridge = native ?: NativeBridge().also { native = it }
-            if (!loaded) { check(bridge.load(models.model.absolutePath)) { "Model açılamadı. Diğer uygulamaları kapatıp yeniden dene." }; loaded = true }
+            if (!loaded) { check(bridge.load(models.model.absolutePath, profile.inferenceThreads)) { "Model açılamadı. Diğer uygulamaları kapatıp yeniden dene." }; loaded = true }
             currentCoroutineContext().ensureActive()
             val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(answer == null, session.turns.size == 4 && answer != null), 420).decodeToString()
             currentCoroutineContext().ensureActive()

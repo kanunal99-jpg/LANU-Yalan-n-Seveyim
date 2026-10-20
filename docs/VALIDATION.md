@@ -18,11 +18,11 @@ Qwen3.5 4B aynı sentetik senaryolarda denenmektedir. `scripts/model_smoke.py` u
 
 Native API uyumsuzluğu düzeltildi. Android 8.0 üzerinde kullanılamayan navigation bar tema özelliği kaldırıldı. İlk/son tur çıktıları sadece yönergeye bırakılmayıp dilbilgisiyle sınırlandı. Debug APK içindeki native çıkarım motoru da -O3 ile derlenir.
 
-11 JVM testi: puan sınırları, tekrar puan yazmama, seviye atlama sınırları, 100. seviye, eksik/bozuk model yanıtı ve ilk/son tur dilbilgisi. GitHub Actions bu testleri, Android lint, debug ve R8 release derlemesini çalıştırır. Başarılı çalıştırma bağlantısı son doğrulamada eklenir.
+11 JVM testi: puan sınırları, tekrar puan yazmama, seviye atlama sınırları, 100. seviye, eksik/bozuk model yanıtı ve ilk/son tur dilbilgisi. GitHub Actions bu testleri, Android lint, debug ve R8 release derlemesini çalıştırır. 0.1.0 alfa için başarılı çalıştırma: https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/39429881928. Sonraki sürüm ayrıca donanım politikası ve AOSP arayüz testlerinden geçmelidir.
 
 ## Fiziksel cihaz kabul kontrolleri — henüz yapılmadı
 
-Samsung A55 referans olmak üzere Samsung/Xiaomi/Huawei dahil ARM64 Android cihazlarda:
+Samsung, Huawei, Xiaomi ve diğer markaların ARM64 Android cihazlarında:
 
 1. APK kurulumu, ilk açılış, büyük yazı tipi ve klavye açıkken cevap kutusu.
 2. Wi-Fi model indirme, duraklatma, ağ kesintisi, uygulama kapanması ve devam etme.

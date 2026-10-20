@@ -12,13 +12,13 @@ Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar
 
 ## Ücretsiz çalışma modeli
 
-Ücretli API, sunucu, hesap, reklam veya abonelik yoktur. İlk açılışta **2.740.937.888 bayt (~2,74 GB)** Qwen3 Q4_K_M modeli Hugging Face'ten indirilir. Mobil veri operatör ücreti kullanıcıya aittir. Ardından oyun çevrimdışıdır. İndirme ekranda başlatılır, duraklatılabilir; uygulama kapanırsa sonraki deneme kaldığı yerden devam eder. Kurulum öncesinde SHA-256 doğrulanır. Model Apache 2.0 lisanslıdır.
+Ücretli API, sunucu, hesap, reklam veya abonelik yoktur. İlk açılışta **2.740.937.888 bayt (~2,74 GB)** Qwen3.5 Q4_K_M modeli Hugging Face'ten indirilir. Mobil veri operatör ücreti kullanıcıya aittir. Ardından oyun çevrimdışıdır. İndirme ekranda başlatılır, duraklatılabilir; uygulama kapanırsa sonraki deneme kaldığı yerden devam eder. Kurulum öncesinde SHA-256 doğrulanır. Model Apache 2.0 lisanslıdır.
 
-**Android 8+ ARM64** cihazlar için geliştirilmiştir; Samsung, Xiaomi ve Huawei ile marka bağımsız çalışacak şekilde tasarlanmıştır. 8 GB RAM önerilir. Kullanıcının Samsung Galaxy A55 modeli referans cihazdır. Fiziksel A55 hız/ısınma/mizah kalite testi henüz yapılmadı. Küçük yerel model büyük bulut modelleriyle aynı muhakeme kalitesini garanti etmez.
+**Android 8+ ARM64** cihazlar için geliştirilmiştir; Samsung, Xiaomi ve Huawei ile marka bağımsız çalışacak şekilde tasarlanmıştır. 8 GB RAM önerilir. Marka veya model adına göre kısıt bulunmaz. Android APK destekleyen Huawei modelleri dahil Google Play Hizmetleri olmadan açılış desteklenir. Fiziksel Samsung/Huawei/Xiaomi hız, ısınma ve oyun kalitesi testleri henüz yapılmadı. Küçük yerel model büyük bulut modelleriyle aynı muhakeme kalitesini garanti etmez.
 
 ## Mimari
 
-Kotlin, Jetpack Compose / Material 3, MVVM, Hilt, Coroutines / StateFlow; C++ JNI üzerinden sabit commit'li llama.cpp CPU çıkarımı. 4096 token bağlam, 4 iş parçacığı, 150 saniyelik üretim sınırı. Dilbilgisi kısıtlı JSON ve aralık doğrulaması; başarısız model yanıtında sahte puan üretilmez. İlerleme ve son hikâye Android Keystore AES-GCM ile şifreli, atomik dosyada tutulur. Android yedeklemeleri kapalıdır; konuşmalar loglanmaz.
+Kotlin, Jetpack Compose / Material 3, MVVM, Hilt, Coroutines / StateFlow; C++ JNI üzerinden sabit commit'li llama.cpp CPU çıkarımı. 4096 token bağlam, çekirdek sayısı ve fiziksel RAM kapasitesine göre 1–4 iş parçacığı, 150 saniyelik üretim sınırı. Dilbilgisi kısıtlı JSON ve aralık doğrulaması; başarısız model yanıtında sahte puan üretilmez. İlerleme ve son hikâye Android Keystore AES-GCM ile şifreli, atomik dosyada tutulur. Android yedeklemeleri kapalıdır; konuşmalar loglanmaz.
 
 ## Derleme
 
@@ -36,7 +36,7 @@ GitHub Actions ana dalda ve PR'larda test/lint/debug+release derlemesini yapar. 
 
 ## Firebase / hata raporlama durumu
 
-Crashlytics bağımlılığı ve koşullu Gradle yapılandırması hazırlanmıştır; kullanıcıya ait Firebase projesi ve `app/google-services.json` sağlanmadığından **aktif değildir**. Raporlama manifestte varsayılan kapalıdır. Etkinleştirilmeden önce kullanıcı onayı, veri politikası ve test crash doğrulaması tamamlanmalıdır. Oyun Firebase olmadan çalışır. Yakalanan hatalar kullanıcı dostu yeniden denemeye döner; fatal handler Android'in asıl handler'ına devreder, uygulamayı sahte biçimde çalışır tutmaz.
+Crashlytics yalnızca gerçek Firebase konfigürasyonu bulunan derlemelere dahil edilir; koşullu Gradle yapılandırması hazırlanmıştır; kullanıcıya ait Firebase projesi ve `app/google-services.json` sağlanmadığından **aktif değildir**. Raporlama manifestte varsayılan kapalıdır. Etkinleştirilmeden önce kullanıcı onayı, veri politikası ve test crash doğrulaması tamamlanmalıdır. Oyun Firebase olmadan çalışır. Yakalanan hatalar kullanıcı dostu yeniden denemeye döner; fatal handler Android'in asıl handler'ına devreder, uygulamayı sahte biçimde çalışır tutmaz.
 
 ## Kaynaklar ve lisanslar
 
@@ -47,3 +47,5 @@ Crashlytics bağımlılığı ve koşullu Gradle yapılandırması hazırlanmı�
 - LANU maskotu bu proje için imagegen ile üretildi; uygulama için WebP olarak optimize edildi.
 
 Detaylı doğrulama ve kalan cihaz kontrolleri: [docs/VALIDATION.md](docs/VALIDATION.md).
+
+Android uyumluluk kapsamı, gereksinimler ve doğrulanmamış fiziksel cihaz matrisi: [docs/ANDROID_COMPATIBILITY.md](docs/ANDROID_COMPATIBILITY.md).

@@ -5,7 +5,7 @@ import androidx.annotation.Keep
 @Keep
 class NativeBridge {
     companion object { init { System.loadLibrary("lanu-ai") } }
-    external fun load(path: String): Boolean
+    external fun load(path: String, threads: Int): Boolean
     external fun generate(prompt: ByteArray, grammar: String, maxTokens: Int): ByteArray
     external fun cancel()
     external fun close()

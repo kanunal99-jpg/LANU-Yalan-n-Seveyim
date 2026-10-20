@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.lanu.yalan.ai.GameEngine
 import com.lanu.yalan.ai.ModelStore
 import com.lanu.yalan.data.SaveStore
+import com.lanu.yalan.data.DeviceInfo
+import com.lanu.yalan.data.DeviceProfile
+import com.lanu.yalan.data.DeviceNotReadyException
 import com.lanu.yalan.domain.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
@@ -27,13 +30,15 @@ data class UiState(
     val ready: Boolean = false,
     val error: String? = null,
     val recovery: Boolean = false,
-    val answer: String = ""
+    val answer: String = "",
+    val device: DeviceProfile? = null
 )
 @HiltViewModel
 class GameViewModel @Inject constructor(
     private val store: SaveStore,
     private val model: ModelStore,
-    private val engine: GameEngine
+    private val engine: GameEngine,
+    private val deviceInfo: DeviceInfo
 ) : ViewModel() {
     private val mutable = MutableStateFlow(UiState())
     val state = mutable.asStateFlow()
@@ -42,7 +47,7 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val saved = store.read()
-                mutable.update { it.copy(save=saved, selectedLevel=saved.unlocked, ready=model.ready(), loading=false) }
+                mutable.update { it.copy(save=saved, selectedLevel=saved.unlocked, ready=model.ready(), loading=false, device=deviceInfo.snapshot()) }
             } catch(e: Exception) {
                 mutable.update { it.copy(loading=false, recovery=true, error="Kayıt okunamadı. Veriyi sessizce silmedik. Ayarlardan sıfırlayabilir veya uygulamayı yeniden açabilirsin.") }
             }
@@ -60,6 +65,7 @@ class GameViewModel @Inject constructor(
             catch(e: CancellationException) { throw e }
             catch(e: Exception) {
                 mutable.update { it.copy(error=when {
+                    e is DeviceNotReadyException -> e.message ?: "Cihaz şu anda hazır değil."
                     it.downloading -> e.message ?: "İndirme durdu. Bağlantını kontrol edip devam et."
                     else -> "İşlem tamamlanamadı. Cevabın ve ilerlemen korunuyor. Diğer uygulamaları kapatıp yeniden deneyebilirsin."
                 }) }

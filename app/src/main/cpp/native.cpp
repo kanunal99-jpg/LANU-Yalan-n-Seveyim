@@ -1,6 +1,7 @@
 #include <jni.h>
 #include <llama.h>
 #include <atomic>
+#include <algorithm>
 #include <chrono>
 #include <mutex>
 #include <string>
@@ -19,7 +20,7 @@ void clear() { if(context) llama_free(context); if(model) llama_model_free(model
 void fail(JNIEnv* env, const char* text) { env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), text); }
 }
 extern "C" JNIEXPORT jboolean JNICALL
-Java_com_lanu_yalan_ai_NativeBridge_load(JNIEnv* env, jobject, jstring path) {
+Java_com_lanu_yalan_ai_NativeBridge_load(JNIEnv* env, jobject, jstring path, jint threads) {
     std::lock_guard<std::mutex> guard(engine_mutex);
     try {
         clear();
@@ -33,7 +34,8 @@ Java_com_lanu_yalan_ai_NativeBridge_load(JNIEnv* env, jobject, jstring path) {
         if(!model) return JNI_FALSE;
         auto cp = llama_context_default_params();
         cp.n_ctx=4096; cp.n_batch=256; cp.n_ubatch=128;
-        cp.n_threads=4; cp.n_threads_batch=4;
+        const int workers = std::max(1, std::min(4, static_cast<int>(threads)));
+        cp.n_threads=workers; cp.n_threads_batch=workers;
         context=llama_init_from_model(model, cp);
         if(!context) { clear(); return JNI_FALSE; }
         return JNI_TRUE;

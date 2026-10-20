@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -86,7 +87,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     var topic by rememberSaveable { mutableStateOf("") }
     var confirm by remember { mutableStateOf(false) }
     if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni hikâye açılsın mı?")},text={Text("Devam eden turun yerini yeni hikâye alacak. Kazandığın seviyeler korunur.")},confirmButton={TextButton(onClick={confirm=false;vm.start(topic)}){Text("Yeni hikâye")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})
-    LazyColumn(Modifier.fillMaxSize(),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
+    LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(Brush.linearGradient(listOf(Color(0xFF412161),Panel))).padding(24.dp)) {
                 Text("BAHANEN HAZIR MI?",color=Gold,fontSize=11.sp,fontWeight=FontWeight.Bold,letterSpacing=2.sp)
@@ -257,9 +258,10 @@ private fun Home(s: UiState,vm: GameViewModel) {
         if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
         item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Model indirildikten sonra oyun internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Model dört alana 0–25 puan verir. Son sorudaki değerlendirme tüm hikâyenin final puanıdır. Seviye yükseldikçe geçme eşiği 40’tan 73’e çıkar. Yapay zekâ bazen yanlış yorumlayabilir; puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("ARM64 Android 8+ için hazırlanmıştır. Samsung, Xiaomi ve Huawei dahil ARM64 Android cihazlar içindir. 8 GB RAM önerilir; fiziksel cihaz performansı henüz doğrulanmadı. Uzun oyunlarda ısınma ve pil tüketimi olabilir. Üretim 150 saniyede durdurulur; tekrar deneyebilirsin.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { s.device?.let { Text(it.summary,Modifier.testTag("device-summary"),color=Muted,fontSize=13.sp) } }
+        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. 8 GB RAM önerilir; fiziksel cihaz performansı henüz doğrulanmadı. Uzun oyunlarda ısınma ve pil tüketimi olabilir. Üretim 150 saniyede durdurulur; tekrar deneyebilirsin.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3.5 4B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { OutlinedButton(onClick={reset=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()) { Text("İlerlemeyi sıfırla") } }
-        item { Text("LANU Yalanını Seveyim\n${BuildConfig.VERSION_NAME} · İlk test sürümü",color=Muted,fontSize=12.sp) }
+        item { Text("LANU Yalanını Seveyim\n${BuildConfig.VERSION_NAME} · Android alfa sürümü",color=Muted,fontSize=12.sp) }
     }
 }
