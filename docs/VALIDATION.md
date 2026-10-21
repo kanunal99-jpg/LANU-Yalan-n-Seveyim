@@ -12,6 +12,10 @@ Yeni kontroller: 100 seviyede beş soruluk kurallı oyun, puan sınırları, tek
 
 Yerel 22 JVM testi geçti (8 Hızlı oyun/kayıt göçü, 9 ilerleme/puan, 2 JSON dilbilgisi, 3 donanım politikası). JNI kaynağı sabit llama.cpp başlıklarıyla C++17 sözdizimi kontrolünden geçti. AOSP kontrolü klavye ve 1,3 yazı ölçeği açıkken cevap düğmesinin görünmediğini yakaladı. Oyun ekranı kısa araç çubuğu, kaydırılan konu/konuşma ve altta kalan cevap alanı olarak düzenlendi; gönderimde klavye kapanır. Yayın için bu akışın hem klavye IME gönderimi hem düğme dokunuşuyla geçmesi gerekir; 3 saniyelik sınır değiştirilmez. Debug tanılaması yalnız istisna sınıfı ve kaynak konumu yazar; mesajlar ve konuşmalar loglanmaz.
 
+**0.2.0 sonucu:** [39539341724 numaralı CI çalıştırması](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/39539341724) başarılı. 22 JVM testi, lint, ARM64 debug ve R8 release derlemesi ile 3 AOSP testi geçti. Model olmadan ilk soru ve beş yanıt 3 saniye kapısını geçti; beş turda ölçülen süreler sırasıyla **302, 335, 414, 267 ve 387 ms**. Ölçüm, gönderim eyleminden sonraki soru göstergesi veya sonucun hazır olmasına kadardır; test çerçevesi gecikmesini de içerir. Hem IME hem düğme gönderimi, klavyede düğme görünürlüğü ve sonraki seviye doğrulandı. Ayrıntılar: [fast-game-smoke-results.json](fast-game-smoke-results.json). Bunlar emülatör ölçümleridir; fiziksel telefon veya gerçek AI çıkarım süresi değildir. Yayımlanan APK bu koşunun normal ARM64 paketidir; UI test paketi yayımlanmadı.
+
+**Kurulum doğrulaması:** Yayımlanan APK indirildi, GitHub SHA-256 özetiyle eşleşti ve apksigner doğrulaması geçti. Paket `com.lanu.yalan`, sürüm kodu 3, Android API 26+, hedef 35, ARM64. v0.1.1 ve v0.2.0 test sertifikaları karşılaştırıldı: farklıdır; v0.1.1 üstüne yerinde güncelleme yapılamaz. Eski uygulamayı kaldırmak eski kayıtları ve modeli siler. Hızlı oyun yeniden model indirmez; kalıcı özel imza hâlâ ayrıca yapılandırılmalıdır. Kayıt göçü kodunun geriye uyumlu olması, farklı imzalarla Android kurulum engelini ortadan kaldırmaz.
+
 ## Sabit kaynaklar
 
 - Seçilen aday: Qwen3.5 4B Q4_K_M, Qwen modelinin Unsloth GGUF dönüştürmesi.
