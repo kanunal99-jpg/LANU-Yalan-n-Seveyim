@@ -1,0 +1,29 @@
+{
+  "run": 39572158411,
+  "source_commit": "8543581c8b82aae6ffb4052fce96cad333ef467b",
+  "environment": "AOSP API 30 x86_64; no Google Play Services; font scale 1.3; emulator, not a physical phone",
+  "mode": "FAST",
+  "measurement": "UI submission action until the next question/result is rendered and asserted visible, including test-framework delay",
+  "turn_milliseconds": [
+    530,
+    516,
+    447,
+    414,
+    491
+  ],
+  "suites": [
+    {
+      "name": "com.lanu.yalan.AndroidCompatibilityTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "cases": [
+        "completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds",
+        "displaysDeviceDetailsAndSettingsInLargeFont",
+        "contradictoryClocksAreRenderedAsACrossCheckOfBothPlayerTimes",
+        "phoneAnswersRenderDifferentSpecificQuestionsInsteadOfGenericPrompts",
+        "opensAndNavigatesToLockedLevelMapWithoutGoogleServices"
+      ]
+    }
+  ]
+}

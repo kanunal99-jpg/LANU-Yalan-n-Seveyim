@@ -1,5 +1,15 @@
 # Doğrulama kaydı
 
+## 0.3.0 cevaba özel sorgulama
+
+Hızlı oyun artık cevabın neden, saat, süre, araç, kişi ve yer ayrıntılarına göre sorgu seçer; önceki ifadeleri karşılaştırır, sorulan açıyı kaydeder ve açıklanan boşluğu yeniden suçlamaz. Beş zorluk bandı ve hikâye başına espri çeşitleri var. Örnekler ve sınırlar: [DIALOGUE_QUALITY.md](DIALOGUE_QUALITY.md).
+
+[39572158411 numaralı CI çalıştırması](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/39572158411) başarılı: 37 JVM testi, lint, native ARM64 debug/R8 release ve beş Google hizmetsiz AOSP ekran testi geçti. Beş Hızlı oyun yanıtının sonraki soru/sonucu görünene kadar emülatör süreleri **530, 516, 447, 414, 491 ms**; test çerçevesi gecikmesi dahildir. Fiziksel telefon veya gerçek AI hız ölçümü değildir.
+
+Güncel gerçek model denemesinde yedi senaryonun ikisi otomatik kontrolden geçmedi; geçenlerde de Türkçe ve neden-sonuç kusurları var. Model mizah/muhakeme kalitesi onaylanmadı; Cihazda AI deneysel olarak etiketlidir. Bu sürümün doğrulanmış özgüllük iyileştirmesi Hızlı oyundadır. Ham çıktılar: [dialogue-ai-results.json](dialogue-ai-results.json).
+
+v0.3.0 APK yayımlanan bağlantıdan HTTP 200 ile indirildi; 25.450.302 bayt ve GitHub SHA-256 özeti eşleşti. `apksigner` doğrulaması geçti; paket kodu 4, sürüm 0.3.0-alpha, API 26+, hedef 35 ve ARM64. [Kurulum kaydı](dialogue-release-verification.json). Test sertifikası v0.2.0 ile farklıdır; eski APK üzerine güncelleme kurulamaz. Eski uygulamayı kaldırmak ilerlemeyi ve modeli siler. Kalıcı özel imza hâlâ yapılandırılmalıdır.
+
 ## 0.2.0 bekleme ve hata düzeltmesi
 
 Kullanıcının ekran görüntüsünde ilk soru gelmeden genel hata görülüyordu. Ekran görüntüsü tek başına asıl native istisnayı belirlemeye yetmez. Önceki sürüm model açılışı, üretim, eksik JSON ve diğer hataları aynı mesaj altında gizliyordu; 4B modeli ilk soru için de çalıştırıyor ve üretimi 150 saniyeye kadar bekletiyordu.

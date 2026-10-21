@@ -1,0 +1,17 @@
+{
+  "release": "v0.3.0-alpha",
+  "source_commit": "8543581c8b82aae6ffb4052fce96cad333ef467b",
+  "run": 39572158411,
+  "download_http_status": 200,
+  "apk_bytes": 25450302,
+  "sha256": "4f6ae094d421e31b20d996fc83d4f875e374f1df9ba8ff277fd2253306232855",
+  "signature_verified": true,
+  "certificate_sha256": "b7cc919bf3ef04fdfdfa00251272ca482db9010337936a81cdf2d059e6ffbdcb",
+  "package_metadata": [
+    "package: name='com.lanu.yalan' versionCode='4' versionName='0.3.0-alpha' platformBuildVersionName='15' platformBuildVersionCode='35' compileSdkVersion='35' compileSdkVersionCodename='15'",
+    "sdkVersion:'26'",
+    "targetSdkVersion:'35'",
+    "native-code: 'arm64-v8a'"
+  ],
+  "same_certificate_as_v0_2": false
+}

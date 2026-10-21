@@ -7,6 +7,8 @@ Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar
 | **Hızlı oyun** (varsayılan) | Hazır soru kalıpları ve yerel kurallar; dil modeli/AI değildir | Ek indirme yok; 2–3 saniyelik yanıt hedefi |
 | **Cihazda AI** | Gerçek Qwen3.5 4B; yanıtları model puanlar | İsteğe bağlı 2,74 GB; telefonda 2–3 saniye garantisi yok |
 
+Android test APK'sı: [v0.3.0-alpha indir](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.3.0-alpha/LANU-Yalanini-Seveyim-v0.3.0-alpha-arm64-test.apk). Cihazda AI deneysel; güncel model kalite denemesi henüz kabul eşiğini geçmedi. Ayrıntılar aşağıdaki kalite kaydındadır.
+
 Hızlı oyun; telefon/şarj, alarm, trafik, arıza, ödev, bağlantı ve diğer somut ayrıntılara göre farklı sorgulama yolları seçer. Saat sırası, bekleme aralığı, araç değişimi ve iletişimdeki boşlukları önceki cevaplarla karşılaştırır. Açıklanan bağlantıyı yeniden suçlamaz; sorulan açı şifreli kayıtta tutulur. Beş zorluk bandında soru mekanizması ve espri değişir. Kurallar dilin anlamını bütünüyle anlayamaz; gerçek AI olarak sunulmaz. İki seçenekte de ilk soru konuya göre hemen hazırlanır. AI modunda sonraki soruları/puanları model üretir; yalnız oyuncunun ifadelerini içeren vaka notları ve daha önce sorulan sorular modele yardımcı veri olarak iletilir.
 
 ## Oynanış

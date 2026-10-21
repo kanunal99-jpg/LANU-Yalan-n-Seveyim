@@ -28,12 +28,14 @@ keywords = {
     "timeline": r"09|08|saat|çık|var|zaman|sıra",
     "consistent_bus": r"lastik|otobüs|bekle|dakika|arıza|haber|yol|şoför",
 }
-with open("/tmp/lanu-quality-ai/server.log", "w") as log:
+log_path = Path(args.output).with_suffix(".server.log")
+log_path.parent.mkdir(parents=True, exist_ok=True)
+with log_path.open("w") as log:
     process = subprocess.Popen([args.server, "-m", args.model, "--ctx-size", "3072", "--threads", "4", "--parallel", "1", "--port", "8099", "--host", "127.0.0.1"], stdout=log, stderr=log)
     try:
         for _ in range(60):
             if process.poll() is not None:
-                raise RuntimeError("Inference server exited; inspect /tmp/lanu-quality-ai/server.log")
+                raise RuntimeError(f"Inference server exited; inspect {log_path}")
             try:
                 opener.open("http://127.0.0.1:8099/health", timeout=2)
                 break
