@@ -1,5 +1,15 @@
 # Doğrulama kaydı
 
+## 0.2.0 bekleme ve hata düzeltmesi
+
+Kullanıcının ekran görüntüsünde ilk soru gelmeden genel hata görülüyordu. Ekran görüntüsü tek başına asıl native istisnayı belirlemeye yetmez. Önceki sürüm model açılışı, üretim, eksik JSON ve diğer hataları aynı mesaj altında gizliyordu; 4B modeli ilk soru için de çalıştırıyor ve üretimi 150 saniyeye kadar bekletiyordu.
+
+Yeni varsayılan **Hızlı oyun** ayrı, açıkça etiketlenmiş Kotlin kurallarıdır; AI olarak sunulmaz. Model yüklemeden konuya göre ilk soru ve sonraki cevaplara göre yorum/puan üretir. Gerçek AI seçeneği korunur; ilk sorusu yerel hazırlanır, sonraki cevapları Qwen değerlendirir. AI yükleme ve üretimi 30 saniyelik ortak iptal bütçesi, 240 tokenlık daha kısa yanıt, 3072 bağlam ve tek çıktı için logits ayırma kullanır. Süre sınırı, bellek, bağlam ve bozuk çıktı hataları ayrı görünür. Modelin kendi RAM kullanımının her turu düşük bellek nedeniyle reddetmesi önlenir. Gerçek AI için 2–3 saniye garantisi verilmez.
+
+Yeni kontroller: 100 seviyede beş soruluk kurallı oyun, puan sınırları, tekrar etmeyen sorular, açık araç değişimi/aktarma/olumsuzlama, puan enjeksiyonu, somut/belirsiz/tekrar cevap ayrımı ve eski kayıt göçü. AOSP testi model bulunmadan tam Hızlı oyun, şifreli kayıt, sonraki seviyenin açılması ve her yanıtın 3 saniye altında görünmesi için kapı uygular. Koşulan kontrollerin sonuçları CI raporlarından doğrulanmalıdır; fiziksel telefon gecikmesi veya AI kalitesi bu testlerden çıkarılmaz.
+
+Önceki model kalite sonuçları aşağıda tarihsel kayıttır. 0.2.0 kısa çıktı yönergesi henüz fiziksel telefonda kalite onayı almadı.
+
 ## Sabit kaynaklar
 
 - Seçilen aday: Qwen3.5 4B Q4_K_M, Qwen modelinin Unsloth GGUF dönüştürmesi.

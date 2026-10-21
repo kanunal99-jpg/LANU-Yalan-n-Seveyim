@@ -21,16 +21,40 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
     fun cancel() { native?.cancel() }
     suspend fun release() = withContext(Dispatchers.Default) { lock.withLock { native?.close(); loaded = false } }
     suspend fun ask(session: Session, answer: String?, spicy: Boolean): Verdict = withContext(Dispatchers.Default) {
+        // Starting a story never needs model loading or a generated JSON score.
+        if(answer == null) return@withContext Verdict("Hadi hikâyeni kuralım.", FastGame.opening(session.topic), 0, 0, 0, 0)
+        if(session.mode == PlayMode.FAST) return@withContext FastGame.evaluate(session, answer, spicy)
         lock.withLock {
             currentCoroutineContext().ensureActive()
-            check(models.ready()) { "Önce oyun beynini indir." }
-            val profile = deviceInfo.ensureInferenceReady()
+            if(!models.ready()) throw AiException(AiFailure.MISSING_MODEL)
+            val profile = deviceInfo.ensureInferenceReady(checkMemory = !loaded)
             val bridge = native ?: NativeBridge().also { native = it }
-            if (!loaded) { check(bridge.load(models.model.absolutePath, profile.inferenceThreads)) { "Model açılamadı. Diğer uygulamaları kapatıp yeniden dene." }; loaded = true }
-            currentCoroutineContext().ensureActive()
-            val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(answer == null, session.turns.size == 4 && answer != null), 420).decodeToString()
-            currentCoroutineContext().ensureActive()
-            VerdictParser.parse(raw, session.turns.size == 4 && answer != null)
+            try {
+                // One budget covers BOTH loading and inference, rather than resetting after loading.
+                bridge.prepare(AI_TIMEOUT_SECONDS)
+                currentCoroutineContext().ensureActive()
+                if (!loaded) {
+                    if(!bridge.load(models.model.absolutePath, profile.inferenceThreads)) throw AiException(AiFailure.LOAD)
+                    loaded = true
+                }
+                currentCoroutineContext().ensureActive()
+                val final = session.turns.size == 4
+                val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(false, final), 240).decodeToString()
+                currentCoroutineContext().ensureActive()
+                try { VerdictParser.parse(raw, final) }
+                catch(e: IllegalArgumentException) { throw AiException(AiFailure.OUTPUT, e) }
+            } catch(e: IllegalStateException) {
+                currentCoroutineContext().ensureActive()
+                if(e is AiException) throw e
+                throw AiException(when(e.message) {
+                    "LANU_AI_TIMEOUT" -> AiFailure.TIMEOUT
+                    "LANU_AI_MEMORY" -> AiFailure.MEMORY
+                    "LANU_AI_CONTEXT" -> AiFailure.CONTEXT
+                    "LANU_AI_OUTPUT" -> AiFailure.OUTPUT
+                    "LANU_AI_LOAD" -> AiFailure.LOAD
+                    else -> AiFailure.ENGINE
+                }, e)
+            }
         }
     }
     internal fun prompt(s: Session, answer: String?, spicy: Boolean): String {
@@ -57,6 +81,7 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
         }
     }
     companion object {
+        const val AI_TIMEOUT_SECONDS = 30
         fun grammarFor(opening: Boolean, final: Boolean): String = GRAMMAR
             .replace("question-value ::= string", if(final) "question-value ::= \"\\\"\\\"\"" else "question-value ::= string")
             .replace("score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]", if(opening) "score ::= \"0\"" else "score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]")

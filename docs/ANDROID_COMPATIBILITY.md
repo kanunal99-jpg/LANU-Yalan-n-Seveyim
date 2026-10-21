@@ -5,20 +5,23 @@ Marka veya model adına göre kısıt yoktur. Hedef Samsung, Android tabanlı Hu
 | Alan | Kapsam |
 | --- | --- |
 | Telefon APK | Android 8.0 / API 26 ve üzeri, arm64-v8a / 64 bit Android |
-| Yapay zekâ | Aynı Qwen3.5 4B modeli CPU üzerinde; üretici GPU/NPU servisi gerektirmez |
-| Bellek | 8 GB RAM önerilir. Daha düşük kapasitelerde hız ve çalışabilirlik doğrulanmadı |
+| Hızlı oyun | Kotlin soru kalıpları ve kural tabanlı puanlama; büyük model, indirme ve JNI açılışı yok |
+| İsteğe bağlı yapay zekâ | Aynı Qwen3.5 4B modeli CPU üzerinde; üretici GPU/NPU servisi gerektirmez |
+| Bellek | AI modu için 8 GB RAM önerilir. Hızlı oyun büyük model yüklemez |
 | İşlemci kullanımı | En fazla 4 çekirdek; 6 GiB altı fiziksel bellekte en fazla 2; kullanılabilir çekirdek sayısı aşılmaz |
-| Bellek baskısı | Android düşük bellek bildiriyorsa model açılışı kullanıcı dostu mesajla ertelenir |
+| Bellek baskısı | Model ilk yüklenirken kontrol edilir; modelin kendisi RAM kullandıktan sonra sonraki turlar bu nedenle otomatik reddedilmez |
 | Google servisleri | Oyun, kayıt ve model indirme için GMS/Play Store veya üretici hesabı zorunlu değil |
 | Tanılama | Firebase konfigürasyonu yoksa Firebase/Crashlytics runtime bağımlılıkları APK'ya eklenmez |
-| İlk indirme | Yaklaşık 2,74 GB; sabit kaynak, SHA-256 kontrolü, kesintiden devam |
+| Model indirme | Yalnızca AI modu için yaklaşık 2,74 GB; sabit kaynak, SHA-256 kontrolü, kesintiden devam |
 | Kayıt | Android Keystore ve standart Android API'leri; üreticiye özel güvenlik SDK'sı yok |
 
 ## Otomatik doğrulama
 
 Normal CI gerçek ARM64 debug ve R8 release APK'sını derler. Cihaz kaynak politikası JVM testleriyle doğrulanır.
 
-Ayrı bir AOSP Android 11 / API 30 x86_64 emülatöründe Google Play Hizmetleri paketinin bulunmadığı adb ile kontrol edilir. Açılış, seviye kilitleri ve 1,3 yazı ölçeğiyle ayarlar/cihaz bilgisi ekranı test edilir. Bu test için -Planu.uiSmoke=true kullanılır: native model kitaplığı dahil edilmez, model yükleme bu test paketinde açıkça engellenir ve paket yayımlanmaz. Bu kontrol yalnızca uygulama açılışı ve arayüzün GMS gerektirmediğini gösterir; ARM64 model çıkarımı veya OEM ROM davranışı testi değildir.
+Ayrı bir AOSP Android 11 / API 30 x86_64 emülatöründe Google Play Hizmetleri paketinin bulunmadığı adb ile kontrol edilir. Açılış, seviye kilitleri, 1,3 yazı ölçeğiyle ayarlar ve gerçek şifreli kayıt kullanan beş soruluk Hızlı oyun test edilir. Hızlı oyun testi ilk soru ve beş yanıt için ayrı ayrı 3 saniyelik duvar süresi kapısı uygular; tur süreleri test çıktısına yazılır. Emülatör sonucu fiziksel telefon hız garantisi değildir.
+
+Bu test için -Planu.uiSmoke=true kullanılır: native model kitaplığı dahil edilmez, model yükleme bu test paketinde açıkça engellenir ve paket yayımlanmaz. Hızlı oyun üretimde de aynı Kotlin motorunu kullanır. Kontrol, ARM64 model çıkarımı veya OEM ROM davranışı testi değildir.
 
 Alfa yayını normal ARM64 derleme ve AOSP UI testinin ikisinin de başarılı olmasını bekler.
 

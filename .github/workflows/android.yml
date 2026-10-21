@@ -92,15 +92,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v0.1.1-alpha' }}
+          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v0.2.0-alpha' }}
           COMMIT: ${{ github.sha }}
         run: |
           mv apk/app-debug.apk apk/LANU-Yalanini-Seveyim-${TAG}-arm64-test.apk
           sha256sum apk/*.apk > apk/SHA256SUMS.txt
           cat > notes.md <<'NOTES'
-          Android marka bağımsızlığı güncellemesi: Samsung, Huawei, Xiaomi ve diğer 64 bit Android 8+ cihazları; donanıma göre 1–4 çıkarım iş parçacığı, düşük bellek mesajı ve isteğe bağlı Firebase bağımlılıkları.
+          Yanıt bekleme düzeltmesi: Varsayılan Hızlı oyun büyük model yüklemez, indirme gerektirmeden çevrimdışı çalışır. Hazır soru kalıpları ve kural tabanlı puanlama kullanır; dil modeli/AI gibi sunulmaz. Beş soruluk akış ve 3 saniyelik yanıt bütçesi AOSP emülatöründe yayın öncesi test edilir. Telefon performansı ayrıca ölçülmelidir.
 
-          İlk açılışta yaklaşık 2,74 GB model indirilir. Model indirildikten sonra çevrimdışı oynanır. Google servisleri olmayan AOSP ortamında açılış, seviye haritası ve büyük yazı tipiyle ayarlar testi yayın öncesi kapıdır. Bu test arayüz testidir; yerel modelin fiziksel Samsung/Huawei/Xiaomi cihazlarındaki hız ve oyun kalitesi testleri henüz yapılmadı. 8 GB RAM önerilir.
+          Gerçek Qwen3.5 4B, Cihazda AI seçeneğinde korunur (isteğe bağlı 2,74 GB indirme). İlk soru model yüklemeden açılır. AI yükleme + üretim bütçesi 30 saniye; daha kısa çıktı, daha düşük bağlam belleği ve ayrı süre/bellek/çıktı hata mesajları vardır. 2–3 saniyede tam AI yanıtı garanti edilmez. AI hatasında yazdığın cevabı koruyarak Hızlı oyuna geçebilirsin; sessiz puanlama değişimi yapılmaz. Eski AI hikâyelerinin modu ve kazanılan seviyeler korunur.
+
+          Samsung, Huawei, Xiaomi ve diğer ARM64 Android 8+ cihazları için aynı standart Android yolu kullanılır. Google Play Hizmetleri gerekmez. AI modu için 8 GB RAM önerilir. Fiziksel cihazlar üzerinde AI hız/kalite doğrulaması yapılmadı.
 
           Bu APK debug/test imzalıdır. Kalıcı üretim imzası yapılandırılmadığı için sonraki test APK'larına yerinde güncelleme garantisi yoktur. Üretim sürümü ve OTA henüz hazır değildir.
           NOTES

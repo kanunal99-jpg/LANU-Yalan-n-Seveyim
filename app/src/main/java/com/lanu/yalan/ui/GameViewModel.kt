@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lanu.yalan.ai.GameEngine
 import com.lanu.yalan.ai.ModelStore
+import com.lanu.yalan.ai.AiException
 import com.lanu.yalan.data.SaveStore
 import com.lanu.yalan.data.DeviceInfo
 import com.lanu.yalan.data.DeviceProfile
@@ -31,8 +32,13 @@ data class UiState(
     val error: String? = null,
     val recovery: Boolean = false,
     val answer: String = "",
-    val device: DeviceProfile? = null
-)
+    val device: DeviceProfile? = null,
+    val aiError: Boolean = false,
+    val responseMs: Long? = null
+) {
+    val canStart: Boolean get() = save.mode == PlayMode.FAST || ready
+    val canAnswer: Boolean get() = save.session?.mode == PlayMode.FAST || ready
+}
 @HiltViewModel
 class GameViewModel @Inject constructor(
     private val store: SaveStore,
@@ -56,46 +62,61 @@ class GameViewModel @Inject constructor(
     fun navigate(screen: Screen) { if(!mutable.value.busy && !mutable.value.loading) mutable.update { it.copy(screen=screen,error=null) } }
     fun select(level: Int) { if(Rules.canPlay(level,mutable.value.save)) mutable.update { it.copy(selectedLevel=level,screen=Screen.HOME) } }
     fun answer(value: String) { if(!mutable.value.busy) mutable.update { it.copy(answer=value.take(280)) } }
-    fun clearError() { mutable.update { it.copy(error=null) } }
+    fun clearError() { mutable.update { it.copy(error=null,aiError=false) } }
     private fun task(status: String, work: suspend () -> Unit) {
         if(mutable.value.busy || mutable.value.loading || mutable.value.recovery) return
-        mutable.update { it.copy(busy=true,status=status,error=null) }
+        mutable.update { it.copy(busy=true,status=status,error=null,aiError=false) }
         job = viewModelScope.launch {
             try { work() }
             catch(e: CancellationException) { throw e }
             catch(e: Exception) {
-                mutable.update { it.copy(error=when {
+                mutable.update { it.copy(aiError=e is AiException || e is DeviceNotReadyException,error=when {
+                    e is AiException -> "${e.reason.explanation} Cevabın duruyor. Yeniden deneyebilir veya bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-${e.reason.name}]"
                     e is DeviceNotReadyException -> e.message ?: "Cihaz şu anda hazır değil."
                     it.downloading -> e.message ?: "İndirme durdu. Bağlantını kontrol edip devam et."
-                    else -> "İşlem tamamlanamadı. Cevabın ve ilerlemen korunuyor. Diğer uygulamaları kapatıp yeniden deneyebilirsin."
+                    else -> "Kayıt işlemi tamamlanamadı. Önceki kaydın ve yazdığın cevap korunuyor. Boş depolama alanını kontrol edip yeniden dene. [SAVE]"
                 }) }
-            } catch(e: LinkageError) { mutable.update { it.copy(error="Yapay zekâ motoru bu cihazda açılamadı. ARM64 sürümünü kullandığından emin ol.") } }
+            } catch(e: LinkageError) { mutable.update { it.copy(aiError=true,error="AI kitaplığı bu cihazda açılamadı. Bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-LIBRARY]") } }
             finally { mutable.update { it.copy(busy=false,downloading=false,status="") } }
         }
     }
     private suspend fun persist(save: GameSave) { store.write(save); mutable.update { it.copy(save=save) } }
     fun start(topic: String) {
         val value=topic.trim()
-        if(value.length !in 3..100 || !mutable.value.ready) return
+        if(value.length !in 3..100 || !mutable.value.canStart) return
         task("LANU ilk soruyu hazırlıyor…") {
-            val s=Session(UUID.randomUUID().toString(),mutable.value.selectedLevel,value,"")
+            val started=System.nanoTime()
+            val s=Session(UUID.randomUUID().toString(),mutable.value.selectedLevel,value,"",mode=mutable.value.save.mode)
             val response=engine.ask(s,null,mutable.value.save.spicy)
             val session=s.copy(opening=response.question)
             persist(mutable.value.save.copy(session=session,onboarding=true))
-            mutable.update { it.copy(screen=Screen.GAME,answer="") }
+            mutable.update { it.copy(screen=Screen.GAME,answer="",responseMs=(System.nanoTime()-started)/1_000_000) }
         }
     }
     fun submit() {
         val before=mutable.value
         val s=before.save.session ?: return
         val answer=before.answer.trim()
-        if(answer.length !in 3..280 || s.finished || !before.ready) return
+        if(answer.length !in 3..280 || s.finished || !before.canAnswer) return
         task("LANU hikâyenin açıklarını arıyor…") {
+            val started=System.nanoTime()
             val verdict=engine.ask(s,answer,before.save.spicy)
             val session=s.copy(turns=s.turns+Turn(s.question,answer,verdict))
             val next=Rules.credit(before.save.copy(session=session))
             persist(next)
-            mutable.update { it.copy(answer="") }
+            mutable.update { it.copy(answer="",responseMs=(System.nanoTime()-started)/1_000_000) }
+        }
+    }
+    fun playMode(mode: PlayMode) = task("Oyun tercihi kaydediliyor…") {
+        if(mode == PlayMode.FAST) engine.release()
+        persist(mutable.value.save.copy(mode=mode))
+    }
+    fun continueFast() {
+        val s=mutable.value.save.session ?: return
+        if(s.finished) return
+        task("Hızlı oyuna geçiliyor…") {
+            engine.release()
+            persist(mutable.value.save.copy(mode=PlayMode.FAST,session=s.copy(mode=PlayMode.FAST)))
         }
     }
     fun download() {

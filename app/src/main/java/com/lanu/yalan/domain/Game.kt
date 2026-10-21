@@ -25,13 +25,17 @@ data class Verdict(
 @Serializable
 data class Turn(val question: String, val answer: String, val verdict: Verdict)
 @Serializable
+enum class PlayMode { FAST, LOCAL_AI }
+@Serializable
 data class Session(
     val id: String,
     val level: Int,
     val topic: String,
     val opening: String,
     val turns: List<Turn> = emptyList(),
-    val credited: Boolean = false
+    val credited: Boolean = false,
+    // Old saved stories were evaluated by Qwen. Never silently change their scorer.
+    val mode: PlayMode = PlayMode.LOCAL_AI
 ) {
     val finished: Boolean get() = turns.size >= 5
     val question: String get() = turns.lastOrNull()?.verdict?.question ?: opening
@@ -44,7 +48,8 @@ data class GameSave(
     val best: Map<Int, Int> = emptyMap(),
     val session: Session? = null,
     val spicy: Boolean = true,
-    val onboarding: Boolean = false
+    val onboarding: Boolean = false,
+    val mode: PlayMode = PlayMode.FAST
 )
 object Rules {
     fun threshold(level: Int) = 40 + (level.coerceIn(1, 100) - 1) / 3

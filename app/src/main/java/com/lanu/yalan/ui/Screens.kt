@@ -34,6 +34,7 @@ import com.lanu.yalan.BuildConfig
 import com.lanu.yalan.R
 import com.lanu.yalan.domain.*
 import kotlinx.coroutines.delay
+import java.util.Locale
 
 private val Ink=Color(0xFF130D23)
 private val Panel=Color(0xFF241A36)
@@ -65,10 +66,11 @@ fun LanuAppScreen(vm: GameViewModel) {
                         Column { Text("LANU",fontWeight=FontWeight.Black,letterSpacing=3.sp,fontSize=19.sp); Text("YALANINI SEVEYİM",color=Muted,fontSize=10.sp,letterSpacing=1.sp) }
                     }
                     if(s.screen==Screen.GAME) TextButton(onClick={vm.navigate(Screen.HOME)},enabled=!s.busy) { Text("Çık") }
-                    else Text("ÇEVRİMDIŞI AI",color=Mint,fontSize=10.sp,fontWeight=FontWeight.Bold)
+                    else Text(if(s.save.mode==PlayMode.FAST) "HIZLI OYUN" else "CİHAZDA AI",color=Mint,fontSize=10.sp,fontWeight=FontWeight.Bold)
                 }
                 if(s.error!=null) Card(Modifier.fillMaxWidth().padding(horizontal=20.dp),colors=CardDefaults.cardColors(containerColor=Color(0xFF482734))) {
                     Text(s.error!!,Modifier.padding(16.dp),fontSize=13.sp)
+                    if(s.aiError && s.save.session?.finished==false) TextButton(onClick=vm::continueFast,enabled=!s.busy) { Text("Bu hikâyeye hızlı devam et") }
                     TextButton(onClick=vm::clearError,Modifier.align(Alignment.End)) { Text("Anladım") }
                 }
                 when {
@@ -101,7 +103,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
             }
         }
         if(!s.save.onboarding) item { Text("Nasıl oynanır?\nBir konu seç, beş soruya aynı hikâyeyi koruyarak cevap ver. İnandırıcılık puanın yeterliyse sonraki seviye açılır.",color=Muted,lineHeight=22.sp) }
-        if(!s.ready) item { ModelCard(s,vm) }
+        item { ModeCard(s,vm) }
+        if(s.save.mode==PlayMode.LOCAL_AI && !s.ready) item { ModelCard(s,vm) }
         item {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                 Column { Text("SEVİYE ${s.selectedLevel.toString().padStart(2,'0')}",color=Gold,fontSize=12.sp,letterSpacing=2.sp); Text(Rules.rank(s.selectedLevel),fontSize=20.sp,fontWeight=FontWeight.Bold,modifier=Modifier.padding(top=4.dp)) }
@@ -110,23 +113,44 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
         if(s.save.session!=null) item {
             OutlinedButton(onClick={vm.navigate(Screen.GAME)},Modifier.fillMaxWidth(),enabled=!s.busy) {
-                Text(if(s.save.session.finished) "Son sonucu gör" else "Hikâyeye devam et · ${s.save.session.turns.size}/5")
+                Text(if(s.save.session.finished) "Son sonucu gör" else "Hikâyeye devam et · ${if(s.save.session.mode==PlayMode.FAST) "Hızlı" else "AI"} · ${s.save.session.turns.size}/5")
             }
         }
         item {
             Text("Bugünkü bahanen ne?",fontWeight=FontWeight.SemiBold,fontSize=17.sp)
-            OutlinedTextField(value=topic,onValueChange={topic=it.take(100)},Modifier.fillMaxWidth().padding(top=12.dp),enabled=!s.busy,
+            OutlinedTextField(value=topic,onValueChange={topic=it.take(100)},Modifier.fillMaxWidth().padding(top=12.dp).testTag("topic-input"),enabled=!s.busy,
                 placeholder={Text("Örn. İşe neden geç kaldım?")},minLines=2,maxLines=3,shape=RoundedCornerShape(18.dp),supportingText={Text("${topic.length}/100 · Konuyu sen belirle")})
             Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 listOf("İşe geç kaldım","Ödevi unuttum").forEach { example -> SuggestionChip(onClick={topic=example},label={Text(example,fontSize=12.sp)},enabled=!s.busy) }
             }
-            Button(onClick={if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp),enabled=s.ready && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
+            Button(onClick={if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
         }
         if(s.busy && !s.downloading) item { Busy(s,vm) }
         item { Text("Puanlar eğlence amaçlıdır. Gerçek bir yalan testi değildir. Konuşmaların bu cihazda kalır.",color=Muted,fontSize=12.sp,lineHeight=18.sp) }
     }
 }
 @Composable private fun Tag(text: String) { Surface(color=Color(0xFF50346A),shape=RoundedCornerShape(8.dp)) { Text(text,Modifier.padding(horizontal=9.dp,vertical=6.dp),color=Color(0xFFF5E6FF),fontSize=11.sp) } }
+@Composable private fun ModeCard(s:UiState,vm:GameViewModel) {
+    Card {
+        Column(Modifier.padding(16.dp),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+            Text("Nasıl oynayalım?",fontWeight=FontWeight.Bold)
+            Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected=s.save.mode==PlayMode.FAST,onClick={vm.playMode(PlayMode.FAST)},enabled=!s.busy,label={Text("Hızlı oyun")})
+                FilterChip(selected=s.save.mode==PlayMode.LOCAL_AI,onClick={vm.playMode(PlayMode.LOCAL_AI)},enabled=!s.busy,label={Text("Cihazda AI")})
+            }
+            Text(if(s.save.mode==PlayMode.FAST)
+                "Model indirmeden oyna. Hazır soru kalıpları ve kural tabanlı puanlama kullanır; dil modeli değildir. Yanıt hedefi 2–3 saniye."
+                else "Gerçek Qwen3.5 4B modeli cevaplarını değerlendirir. 2,74 GB indirme gerekir. Telefonda 2–3 saniye garanti edilemez; yükleme ve yanıt için toplam süre sınırı 30 saniye.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
+            if(s.save.session?.finished==false) Text("Bu seçim yeni hikâyeler içindir. Devam eden hikâyenin modu korunur.",color=Muted,fontSize=12.sp)
+        }
+    }
+}
+@Composable private fun ResponseTime(s:UiState) {
+    s.responseMs?.let { ms ->
+        Text("Son yanıt: " + if(ms<1000) "$ms ms" else String.format(Locale.forLanguageTag("tr-TR"),"%.1f sn",ms/1000.0),
+            Modifier.testTag("response-time"),color=Muted,fontSize=11.sp)
+    }
+}
 @Composable private fun Busy(s:UiState,vm:GameViewModel) {
     var elapsed by remember { mutableIntStateOf(0) }
     LaunchedEffect(Unit) { while(true) { delay(1000); elapsed++ } }
@@ -140,7 +164,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
 @Composable private fun ModelCard(s:UiState,vm:GameViewModel) {
     Card(colors=CardDefaults.cardColors(containerColor=Panel),shape=RoundedCornerShape(22.dp)) {
         Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            Text(if(s.ready) "Oyun beyni hazır ✓" else "Önce LANU’nun beynini indirelim",fontSize=18.sp,fontWeight=FontWeight.Bold)
+            Text(if(s.ready) "İsteğe bağlı AI modeli hazır ✓" else "İsteğe bağlı AI modeli",fontSize=18.sp,fontWeight=FontWeight.Bold)
             Text("Qwen3.5 4B · 2,74 GB\nBir kez indir, sonra internetsiz oyna. API ücreti, üyelik ve reklam yok. İndirme için Wi-Fi önerilir.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
             if(s.downloading) {
                 LinearProgressIndicator(progress={s.progress},Modifier.fillMaxWidth())
@@ -154,17 +178,19 @@ private fun Home(s: UiState,vm: GameViewModel) {
 @Composable private fun Game(s:UiState,vm:GameViewModel) {
     val session=s.save.session
     if(session==null) { Text("Henüz hikâye yok.",Modifier.padding(24.dp)); return }
-    if(session.finished) { Result(session,vm); return }
+    if(session.finished) { Result(session,s,vm); return }
     val scroll=rememberLazyListState()
     LaunchedEffect(session.turns.size,s.busy) { scroll.animateScrollToItem(session.turns.size + if(s.busy) 1 else 0) }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal=24.dp,vertical=8.dp)) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
                 Text("SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
-                Text("SORU ${session.turns.size+1} / 5",color=Muted,fontSize=12.sp)
+                Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
             }
             LinearProgressIndicator(progress={session.turns.size/5f},Modifier.fillMaxWidth().padding(top=10.dp))
             Text(session.topic,Modifier.padding(top=10.dp),fontWeight=FontWeight.SemiBold)
+            Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=11.sp)
+            ResponseTime(s)
         }
         LazyColumn(Modifier.weight(1f),state=scroll,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
             items(session.turns) { turn ->
@@ -177,15 +203,18 @@ private fun Home(s: UiState,vm: GameViewModel) {
             item { Bubble("LANU",session.question,false) }
             if(s.busy) item { Busy(s,vm) }
         }
-        if(!s.ready) Text("Devam etmek için Ana Sayfa’dan modeli indir.",Modifier.padding(16.dp),color=Gold)
+        if(!s.canAnswer) {
+            Text("AI için modeli indir veya bu hikâyeye Hızlı oyun ile devam et.",Modifier.padding(horizontal=16.dp),color=Gold)
+            TextButton(onClick=vm::continueFast,enabled=!s.busy) { Text("Bu hikâyeye hızlı devam et") }
+        }
         Surface(color=Panel) {
             Column(Modifier.fillMaxWidth().padding(horizontal=18.dp,vertical=10.dp)) {
-                OutlinedTextField(value=s.answer,onValueChange=vm::answer,Modifier.fillMaxWidth(),enabled=!s.busy && s.ready,
+                OutlinedTextField(value=s.answer,onValueChange=vm::answer,Modifier.fillMaxWidth().testTag("answer-input"),enabled=!s.busy && s.canAnswer,
                     placeholder={Text("Hadi, hikâyeyi kurtar…")},maxLines=4,shape=RoundedCornerShape(18.dp),
                     keyboardOptions=KeyboardOptions(imeAction=ImeAction.Send),keyboardActions=KeyboardActions(onSend={vm.submit()}))
                 Row(Modifier.fillMaxWidth().padding(top=8.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                     Text("${s.answer.length}/280",color=Muted,fontSize=12.sp)
-                    Button(onClick=vm::submit,enabled=!s.busy && s.ready && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
+                    Button(onClick=vm::submit,modifier=Modifier.testTag("send-answer"),enabled=!s.busy && s.canAnswer && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
                 }
             }
         }
@@ -199,7 +228,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
     }
 }
-@Composable private fun Result(session:Session,vm:GameViewModel) {
+@Composable private fun Result(session:Session,s:UiState,vm:GameViewModel) {
     val v=session.turns.last().verdict
     val passed=v.score>=Rules.threshold(session.level)
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(20.dp)) {
@@ -210,6 +239,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 Text("İNANDIRICILIK",color=Muted,fontSize=12.sp,letterSpacing=2.sp,modifier=Modifier.padding(top=22.dp))
                 Text("${v.score}",fontSize=80.sp,fontWeight=FontWeight.Black,color=Gold)
                 Text("100 üzerinden · Geçme puanı ${Rules.threshold(session.level)}",color=Muted,fontSize=13.sp)
+                Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=12.sp,modifier=Modifier.padding(top=8.dp))
+                ResponseTime(s)
                 Text("★".repeat(Rules.stars(v.score))+"☆".repeat(3-Rules.stars(v.score)),color=Gold,fontSize=28.sp,modifier=Modifier.padding(top=8.dp))
             }
         }
@@ -247,19 +278,20 @@ private fun Home(s: UiState,vm: GameViewModel) {
     var reset by remember { mutableStateOf(false) }
     var remove by remember { mutableStateOf(false) }
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
-    if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Tekrar oynamak için modeli indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
+    if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Hızlı oyun çalışmaya devam eder. AI modu için modeli yeniden indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
+        item { ModeCard(s,vm) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Biraz sivri dil",fontWeight=FontWeight.Bold);Text("Hafif argo ve daha iğneleyici espriler. Ağır hakaret yok.",color=Muted,fontSize=13.sp,modifier=Modifier.padding(top=5.dp)) }
             Switch(checked=s.save.spicy,onCheckedChange=vm::spicy,enabled=!s.busy)
         } } }
         item { ModelCard(s,vm) }
         if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
-        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Model indirildikten sonra oyun internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Model dört alana 0–25 puan verir. Son sorudaki değerlendirme tüm hikâyenin final puanıdır. Seviye yükseldikçe geçme eşiği 40’tan 73’e çıkar. Yapay zekâ bazen yanlış yorumlayabilir; puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Hızlı oyun hemen, AI modu ise model indirildikten sonra internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun; somut ayrıntı, tekrar, belirsiz cevap ve açıklanmayan araç değişimi gibi sınırlı kuralları kullanır. Anlamı bütünüyle anlayamaz. AI modunda puanları Qwen üretir. Final tüm cevapları dikkate alır. Seviye yükseldikçe geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { s.device?.let { Text(it.summary,Modifier.testTag("device-summary"),color=Muted,fontSize=13.sp) } }
-        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. 8 GB RAM önerilir; fiziksel cihaz performansı henüz doğrulanmadı. Uzun oyunlarda ısınma ve pil tüketimi olabilir. Üretim 150 saniyede durdurulur; tekrar deneyebilirsin.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. Hızlı oyun büyük model yüklemez. AI modu için 8 GB RAM önerilir ve 2–3 saniyelik yanıt garanti edilemez. AI yükleme ve üretim toplamında 30 saniyelik iptal bütçesi kullanılır. Fiziksel cihaz süreleri henüz doğrulanmadı.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3.5 4B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { OutlinedButton(onClick={reset=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()) { Text("İlerlemeyi sıfırla") } }
         item { Text("LANU Yalanını Seveyim\n${BuildConfig.VERSION_NAME} · Android alfa sürümü",color=Muted,fontSize=12.sp) }

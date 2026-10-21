@@ -25,12 +25,13 @@ class DeviceInfo @Inject constructor(@ApplicationContext private val context: Co
         return DeviceProfile(Build.VERSION.RELEASE, DevicePolicy.memoryClassGb(memory.totalMem),
             DevicePolicy.inferenceThreads(Runtime.getRuntime().availableProcessors(), memory.totalMem))
     }
-    fun ensureInferenceReady(): DeviceProfile {
+    fun ensureInferenceReady(checkMemory: Boolean = true): DeviceProfile {
         if (BuildConfig.UI_SMOKE) throw DeviceNotReadyException("Bu paket yalnızca otomatik arayüz testi içindir.")
         if (Build.VERSION.SDK_INT < 26 || !Build.SUPPORTED_ABIS.contains("arm64-v8a")) {
             throw DeviceNotReadyException("Cihaz içi yapay zekâ için Android 8 veya üzeri ve 64 bit Android gerekiyor.")
         }
-        if (memory().lowMemory) {
+        // A resident model itself consumes RAM. Do not reject every subsequent turn for that.
+        if (checkMemory && memory().lowMemory) {
             throw DeviceNotReadyException("Telefonun belleği şu anda dolu. Diğer uygulamaları kapatıp yeniden dene; ilerlemen korunuyor.")
         }
         return snapshot()
