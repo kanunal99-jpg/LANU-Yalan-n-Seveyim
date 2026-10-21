@@ -10,7 +10,7 @@ Yeni kontroller: 100 seviyede beş soruluk kurallı oyun, puan sınırları, tek
 
 Önceki model kalite sonuçları aşağıda tarihsel kayıttır. 0.2.0 kısa çıktı yönergesi henüz fiziksel telefonda kalite onayı almadı.
 
-Yerel 22 JVM testi geçti (8 Hızlı oyun/kayıt göçü, 9 ilerleme/puan, 2 JSON dilbilgisi, 3 donanım politikası). JNI kaynağı sabit llama.cpp başlıklarıyla C++17 sözdizimi kontrolünden geçti. İlk AOSP denemesi ilk yanıt sonrası 3 saniye görünürlük kapısında durdu; sonraki soruya kaydırma ve klavye gönderimi güncellendi. Yayın için bu akışın hem klavye IME gönderimi hem düğme dokunuşuyla geçmesi gerekir. Debug tanılaması yalnız istisna sınıfı ve kaynak konumu yazar; mesajlar ve konuşmalar loglanmaz.
+Yerel 22 JVM testi geçti (8 Hızlı oyun/kayıt göçü, 9 ilerleme/puan, 2 JSON dilbilgisi, 3 donanım politikası). JNI kaynağı sabit llama.cpp başlıklarıyla C++17 sözdizimi kontrolünden geçti. AOSP kontrolü klavye ve 1,3 yazı ölçeği açıkken cevap düğmesinin görünmediğini yakaladı. Oyun ekranı kısa araç çubuğu, kaydırılan konu/konuşma ve altta kalan cevap alanı olarak düzenlendi; gönderimde klavye kapanır. Yayın için bu akışın hem klavye IME gönderimi hem düğme dokunuşuyla geçmesi gerekir; 3 saniyelik sınır değiştirilmez. Debug tanılaması yalnız istisna sınıfı ve kaynak konumu yazar; mesajlar ve konuşmalar loglanmaz.
 
 ## Sabit kaynaklar
 

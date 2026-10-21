@@ -62,7 +62,7 @@ fun LanuAppScreen(vm: GameViewModel) {
             }
         }) { padding ->
             Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
-                Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=14.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.SpaceBetween) {
+                if(s.screen!=Screen.GAME || s.save.session?.finished==true) Row(Modifier.fillMaxWidth().padding(horizontal=24.dp,vertical=14.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.SpaceBetween) {
                     Row(verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
                         Image(painterResource(R.drawable.mascot),null,Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)))
                         Column { Text("LANU",fontWeight=FontWeight.Black,letterSpacing=3.sp,fontSize=19.sp); Text("YALANINI SEVEYİM",color=Muted,fontSize=10.sp,letterSpacing=1.sp) }
@@ -187,19 +187,25 @@ private fun Home(s: UiState,vm: GameViewModel) {
     if(session==null) { Text("Henüz hikâye yok.",Modifier.padding(24.dp)); return }
     if(session.finished) { Result(session,s,vm); return }
     val scroll=rememberLazyListState()
-    LaunchedEffect(session.turns.size,s.busy) { scroll.scrollToItem(session.turns.size + if(s.busy) 1 else 0) }
+    LaunchedEffect(session.turns.size,s.busy) {
+        scroll.scrollToItem(if(session.turns.isEmpty() && !s.busy) 0 else session.turns.size + 1 + if(s.busy) 1 else 0)
+    }
     Column(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(horizontal=24.dp,vertical=8.dp)) {
-            Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
-                Text("SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
-                Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
+        // Keep the composer reachable with the keyboard open, even at large font scales.
+        Row(Modifier.fillMaxWidth().padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+            Column(Modifier.weight(1f)) {
+                Text("LANU · SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
+                Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=10.sp)
             }
-            LinearProgressIndicator(progress={session.turns.size/5f},Modifier.fillMaxWidth().padding(top=10.dp))
-            Text(session.topic,Modifier.padding(top=10.dp),fontWeight=FontWeight.SemiBold)
-            Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=11.sp)
-            ResponseTime(s)
+            Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
+            TextButton(onClick={keyboard?.hide();focus.clearFocus();vm.navigate(Screen.HOME)},enabled=!s.busy,contentPadding=PaddingValues(8.dp)) { Text("Çık") }
         }
         LazyColumn(Modifier.weight(1f),state=scroll,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
+            item {
+                Text(session.topic,fontWeight=FontWeight.SemiBold)
+                LinearProgressIndicator(progress={session.turns.size/5f},Modifier.fillMaxWidth().padding(vertical=10.dp))
+                ResponseTime(s)
+            }
             items(session.turns) { turn ->
                 Bubble("LANU",turn.question,false)
                 Spacer(Modifier.height(12.dp))
