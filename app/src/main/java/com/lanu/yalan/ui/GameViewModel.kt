@@ -1,5 +1,6 @@
 package com.lanu.yalan.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.lanu.yalan.ai.GameEngine
@@ -10,6 +11,7 @@ import com.lanu.yalan.data.DeviceInfo
 import com.lanu.yalan.data.DeviceProfile
 import com.lanu.yalan.data.DeviceNotReadyException
 import com.lanu.yalan.domain.*
+import com.lanu.yalan.BuildConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,15 +72,20 @@ class GameViewModel @Inject constructor(
             try { work() }
             catch(e: CancellationException) { throw e }
             catch(e: Exception) {
+                diagnostic(e)
                 mutable.update { it.copy(aiError=e is AiException || e is DeviceNotReadyException,error=when {
                     e is AiException -> "${e.reason.explanation} Cevabın duruyor. Yeniden deneyebilir veya bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-${e.reason.name}]"
                     e is DeviceNotReadyException -> e.message ?: "Cihaz şu anda hazır değil."
                     it.downloading -> e.message ?: "İndirme durdu. Bağlantını kontrol edip devam et."
                     else -> "Kayıt işlemi tamamlanamadı. Önceki kaydın ve yazdığın cevap korunuyor. Boş depolama alanını kontrol edip yeniden dene. [SAVE]"
                 }) }
-            } catch(e: LinkageError) { mutable.update { it.copy(aiError=true,error="AI kitaplığı bu cihazda açılamadı. Bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-LIBRARY]") } }
+            } catch(e: LinkageError) { diagnostic(e); mutable.update { it.copy(aiError=true,error="AI kitaplığı bu cihazda açılamadı. Bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-LIBRARY]") } }
             finally { mutable.update { it.copy(busy=false,downloading=false,status="") } }
         }
+    }
+    private fun diagnostic(e: Throwable) {
+        // Debug diagnostics contain only types and source locations, never exception messages or story data.
+        if(BuildConfig.DEBUG) Log.w("LANU", e.javaClass.simpleName + " at " + e.stackTrace.filter { it.className.startsWith("com.lanu.") }.take(4).joinToString())
     }
     private suspend fun persist(save: GameSave) { store.write(save); mutable.update { it.copy(save=save) } }
     fun start(topic: String) {

@@ -10,6 +10,8 @@ Yeni kontroller: 100 seviyede beş soruluk kurallı oyun, puan sınırları, tek
 
 Önceki model kalite sonuçları aşağıda tarihsel kayıttır. 0.2.0 kısa çıktı yönergesi henüz fiziksel telefonda kalite onayı almadı.
 
+Yerel 22 JVM testi geçti (8 Hızlı oyun/kayıt göçü, 9 ilerleme/puan, 2 JSON dilbilgisi, 3 donanım politikası). JNI kaynağı sabit llama.cpp başlıklarıyla C++17 sözdizimi kontrolünden geçti. İlk AOSP denemesi ilk yanıt sonrası 3 saniye görünürlük kapısında durdu; sonraki soruya kaydırma ve klavye gönderimi güncellendi. Yayın için bu akışın hem klavye IME gönderimi hem düğme dokunuşuyla geçmesi gerekir. Debug tanılaması yalnız istisna sınıfı ve kaynak konumu yazar; mesajlar ve konuşmalar loglanmaz.
+
 ## Sabit kaynaklar
 
 - Seçilen aday: Qwen3.5 4B Q4_K_M, Qwen modelinin Unsloth GGUF dönüştürmesi.

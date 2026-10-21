@@ -23,6 +23,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -86,6 +88,8 @@ fun LanuAppScreen(vm: GameViewModel) {
 }
 @Composable
 private fun Home(s: UiState,vm: GameViewModel) {
+    val keyboard=LocalSoftwareKeyboardController.current
+    val focus=LocalFocusManager.current
     var topic by rememberSaveable { mutableStateOf("") }
     var confirm by remember { mutableStateOf(false) }
     if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni hikâye açılsın mı?")},text={Text("Devam eden turun yerini yeni hikâye alacak. Kazandığın seviyeler korunur.")},confirmButton={TextButton(onClick={confirm=false;vm.start(topic)}){Text("Yeni hikâye")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})
@@ -123,7 +127,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 listOf("İşe geç kaldım","Ödevi unuttum").forEach { example -> SuggestionChip(onClick={topic=example},label={Text(example,fontSize=12.sp)},enabled=!s.busy) }
             }
-            Button(onClick={if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
+            Button(onClick={keyboard?.hide();focus.clearFocus();if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
         }
         if(s.busy && !s.downloading) item { Busy(s,vm) }
         item { Text("Puanlar eğlence amaçlıdır. Gerçek bir yalan testi değildir. Konuşmaların bu cihazda kalır.",color=Muted,fontSize=12.sp,lineHeight=18.sp) }
@@ -157,7 +161,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
         Text(s.status,Modifier.padding(top=12.dp),color=Muted,fontSize=13.sp)
-        Text("$elapsed sn · İlk yanıt daha uzun sürebilir.",color=Muted,fontSize=11.sp)
+        Text(if((s.save.session?.mode ?: s.save.mode)==PlayMode.LOCAL_AI) "$elapsed sn · AI yükleme ve yanıt bütçesi: 30 sn" else "$elapsed sn",color=Muted,fontSize=11.sp)
         TextButton(onClick=vm::cancel) { Text("Durdur") }
     }
 }
@@ -176,11 +180,14 @@ private fun Home(s: UiState,vm: GameViewModel) {
     }
 }
 @Composable private fun Game(s:UiState,vm:GameViewModel) {
+    val keyboard=LocalSoftwareKeyboardController.current
+    val focus=LocalFocusManager.current
+    val send: () -> Unit = { keyboard?.hide();focus.clearFocus();vm.submit() }
     val session=s.save.session
     if(session==null) { Text("Henüz hikâye yok.",Modifier.padding(24.dp)); return }
     if(session.finished) { Result(session,s,vm); return }
     val scroll=rememberLazyListState()
-    LaunchedEffect(session.turns.size,s.busy) { scroll.animateScrollToItem(session.turns.size + if(s.busy) 1 else 0) }
+    LaunchedEffect(session.turns.size,s.busy) { scroll.scrollToItem(session.turns.size + if(s.busy) 1 else 0) }
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.padding(horizontal=24.dp,vertical=8.dp)) {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) {
@@ -211,10 +218,10 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Column(Modifier.fillMaxWidth().padding(horizontal=18.dp,vertical=10.dp)) {
                 OutlinedTextField(value=s.answer,onValueChange=vm::answer,Modifier.fillMaxWidth().testTag("answer-input"),enabled=!s.busy && s.canAnswer,
                     placeholder={Text("Hadi, hikâyeyi kurtar…")},maxLines=4,shape=RoundedCornerShape(18.dp),
-                    keyboardOptions=KeyboardOptions(imeAction=ImeAction.Send),keyboardActions=KeyboardActions(onSend={vm.submit()}))
+                    keyboardOptions=KeyboardOptions(imeAction=ImeAction.Send),keyboardActions=KeyboardActions(onSend={send()}))
                 Row(Modifier.fillMaxWidth().padding(top=8.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
                     Text("${s.answer.length}/280",color=Muted,fontSize=12.sp)
-                    Button(onClick=vm::submit,modifier=Modifier.testTag("send-answer"),enabled=!s.busy && s.canAnswer && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
+                    Button(onClick=send,modifier=Modifier.testTag("send-answer"),enabled=!s.busy && s.canAnswer && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
                 }
             }
         }

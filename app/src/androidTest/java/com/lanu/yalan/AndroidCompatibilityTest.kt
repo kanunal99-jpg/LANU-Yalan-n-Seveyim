@@ -61,10 +61,18 @@ class AndroidCompatibilityTest {
             "Şoför arızadan dolayı durakta beklememizi istedi.","Telefonla müdüre mesaj attım.","Otobüs biletim ve mesaj saatim beklediğimi gösterir.")
         answers.forEachIndexed { index, answer ->
             compose.onNodeWithTag("answer-input").performTextInput(answer)
+            compose.onNodeWithTag("send-answer").assertIsEnabled().assertIsDisplayed()
             val sent=SystemClock.elapsedRealtime()
-            compose.onNodeWithTag("send-answer").performClick()
-            compose.waitUntil(3_000) {
-                compose.onAllNodesWithText(if(index<4) "SORU ${index+2} / 5" else "İNANDIRICILIK").fetchSemanticsNodes().isNotEmpty()
+            if(index%2==0) compose.onNodeWithTag("answer-input").performImeAction()
+            else compose.onNodeWithTag("send-answer").performClick()
+            try {
+                compose.waitUntil(3_000) {
+                    compose.onAllNodesWithText(if(index<4) "SORU ${index+2} / 5" else "İNANDIRICILIK").fetchSemanticsNodes().isNotEmpty()
+                }
+            } catch(e: Throwable) {
+                println("LANU_FAST_FAILED_TURN=${index+1}")
+                println(compose.onRoot(useUnmergedTree=true).printToString())
+                throw e
             }
             val elapsed=SystemClock.elapsedRealtime()-sent
             println("LANU_FAST_TURN_${index+1}_MS=$elapsed")
