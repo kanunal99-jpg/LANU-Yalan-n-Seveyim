@@ -1,0 +1,54 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+  "passed": true,
+  "note": "Synthetic x86 host checks of specificity, basic scores and JSON. Humor still requires human review. Not physical-device latency or a general intelligence guarantee.",
+  "results": [
+    {
+      "case": "battery",
+      "host_seconds": 36.107,
+      "raw": "{\"reply\":\"Şarj bitti, telefon da seninle konuşmayı bıraktı; o sırada neredeydin?\",\"question\":\"Telefonun şarjı bitince ne yapmışsın; evde miydin yoksa başka yerden mi arayacaksın?\",\"consistency\":12,\"plausibility\":8,\"detail\":9,\"defense\":7}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Şarj bitti, telefon da seninle konuşmayı bıraktı; o sırada neredeydin?",
+        "question": "Telefonun şarjı bitince ne yapmışsın; evde miydin yoksa başka yerden mi arayacaksın?",
+        "consistency": 12,
+        "plausibility": 8,
+        "detail": 9,
+        "defense": 7
+      },
+      "passed": true
+    },
+    {
+      "case": "alarm",
+      "host_seconds": 35.029,
+      "raw": "{\"reply\":\"Alarm seninle yıllık izne çıkmış anlaşılan; mesainin bundan haberi yok.\",\"question\":\"Alarm kaçta çalmalıydı ki uyuyakalmana sebep olsun?\",\"consistency\":17,\"plausibility\":12,\"detail\":8,\"defense\":10}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Alarm seninle yıllık izne çıkmış anlaşılan; mesainin bundan haberi yok.",
+        "question": "Alarm kaçta çalmalıydı ki uyuyakalmana sebep olsun?",
+        "consistency": 17,
+        "plausibility": 12,
+        "detail": 8,
+        "defense": 10
+      },
+      "passed": true
+    }
+  ],
+  "scope": "Two style probes of the 0.3.0 system prompt, not a complete model acceptance test.",
+  "quality_approved": false,
+  "manual_review": [
+    "Alarm reply uses the requested Turkish joke, but its question reverses the causal relation between not ringing and oversleeping.",
+    "Phone reply has a grounded joke but repeats a question inside the verdict; the question remains awkward.",
+    "Automated keyword and JSON checks passed; these do not establish good humor, correct reasoning or phone latency."
+  ],
+  "system_prompt_sha256": "37621c6b5c8d0fe3b3f887b47ce3a2e94011f87b0b4bdb43b02ffad651a6b238"
+}

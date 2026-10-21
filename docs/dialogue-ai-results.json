@@ -1,0 +1,144 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+  "passed": false,
+  "note": "Synthetic x86 host checks of specificity, basic scores and JSON. Humor still requires human review. Not physical-device latency or a general intelligence guarantee.",
+  "results": [
+    {
+      "case": "battery",
+      "host_seconds": 31.579,
+      "raw": "{\n  \"reply\": \"Şarj bitti de telefon şifreliyse? O zaman kilitlenmiş bir cep telefonu senin için bir engel mi?\",\n  \"question\": \"Telefonun şarjı bitince ekran karanlık mı kaldı yoksa kilitlendi mi?\",\n  \"consistency\": 15,\n  \"plausibility\": 8,\n  \"detail\": 7,\n  \"defense\": 0\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Şarj bitti de telefon şifreliyse? O zaman kilitlenmiş bir cep telefonu senin için bir engel mi?",
+        "question": "Telefonun şarjı bitince ekran karanlık mı kaldı yoksa kilitlendi mi?",
+        "consistency": 15,
+        "plausibility": 8,
+        "detail": 7,
+        "defense": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "alarm",
+      "host_seconds": 30.818,
+      "raw": "{\n  \"reply\": \"Alarm seninle birlikte uçtu, sen de yere düştün! O zaman alarmı nereye kurduğun? Yatakta mı?\",\n  \"question\": \"Uyuyakalmadığını fark ettin mi yoksa işe gittiğinde anladın mı?\",\n  \"consistency\": 15,\n  \"plausibility\": 8,\n  \"detail\": 6,\n  \"defense\": 4\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": false
+      },
+      "verdict": {
+        "reply": "Alarm seninle birlikte uçtu, sen de yere düştün! O zaman alarmı nereye kurduğun? Yatakta mı?",
+        "question": "Uyuyakalmadığını fark ettin mi yoksa işe gittiğinde anladın mı?",
+        "consistency": 15,
+        "plausibility": 8,
+        "detail": 6,
+        "defense": 4
+      },
+      "passed": false
+    },
+    {
+      "case": "traffic",
+      "host_seconds": 39.025,
+      "raw": "{\n  \"reply\": \"Kadıköy'de kalıp trafiğe mahkum oldun, ama neden o yöne yöneldin? Rota değişse geç kalma riski azalır mı?\",\n  \"question\": \"Yolculukta Kadıköy'de 25 dakika bekledin; bu bekleme süresinin işe geç kalmaya etkisini nasıl ölçersiniz?\",\n  \"consistency\": 12,\n  \"plausibility\": 8,\n  \"detail\": 7,\n  \"defense\": 0\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Kadıköy'de kalıp trafiğe mahkum oldun, ama neden o yöne yöneldin? Rota değişse geç kalma riski azalır mı?",
+        "question": "Yolculukta Kadıköy'de 25 dakika bekledin; bu bekleme süresinin işe geç kalmaya etkisini nasıl ölçersiniz?",
+        "consistency": 12,
+        "plausibility": 8,
+        "detail": 7,
+        "defense": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "homework",
+      "host_seconds": 31.7,
+      "raw": "{\n  \"reply\": \"Hazırladığın evde mi kaldı ya da defterle birlikte mi? Hangi defter? Evdeki deftere bakmak zorunda kalacaksın.\",\n  \"question\": \"Ödevin hangi defterde kayboldu: evdeki defter, okulda mı yoksa başka bir yerde mi?\",\n  \"consistency\": 15,\n  \"plausibility\": 20,\n  \"detail\": 12,\n  \"defense\": 8\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Hazırladığın evde mi kaldı ya da defterle birlikte mi? Hangi defter? Evdeki deftere bakmak zorunda kalacaksın.",
+        "question": "Ödevin hangi defterde kayboldu: evdeki defter, okulda mı yoksa başka bir yerde mi?",
+        "consistency": 15,
+        "plausibility": 20,
+        "detail": 12,
+        "defense": 8
+      },
+      "passed": true
+    },
+    {
+      "case": "timeline",
+      "host_seconds": 38.857,
+      "raw": "{\n  \"reply\": \"Ofiste sabah 8:30'daydın, evden 9:00'da çıktın. Biri diğerinden önce oldu bu hikaye.\",\n  \"question\": \"Yolculuk süresini nasıl doldurdun; saat mi düzelttin yoksa başka bir gün mü?\",\n  \"consistency\": 7,\n  \"plausibility\": 6,\n  \"detail\": 10,\n  \"defense\": 5\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true,
+        "contradiction_score": true
+      },
+      "verdict": {
+        "reply": "Ofiste sabah 8:30'daydın, evden 9:00'da çıktın. Biri diğerinden önce oldu bu hikaye.",
+        "question": "Yolculuk süresini nasıl doldurdun; saat mi düzelttin yoksa başka bir gün mü?",
+        "consistency": 7,
+        "plausibility": 6,
+        "detail": 10,
+        "defense": 5
+      },
+      "passed": true
+    },
+    {
+      "case": "consistent_bus",
+      "host_seconds": 35.222,
+      "raw": "{\n  \"reply\": \"Yedek otobüs bekleyin dediğin, kimin söylediği? Sürücü mü, yoksa sen mi gördün?\",\n  \"question\": \"Otomobilde yedek lastik varken, o yedeki bir şeyi gerçekten görmedin mi?\",\n  \"consistency\": 12,\n  \"plausibility\": 8,\n  \"detail\": 6,\n  \"defense\": 10\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "specific_question": true,
+        "consistent_score": false,
+        "no_invented_fuel": false
+      },
+      "verdict": {
+        "reply": "Yedek otobüs bekleyin dediğin, kimin söylediği? Sürücü mü, yoksa sen mi gördün?",
+        "question": "Otomobilde yedek lastik varken, o yedeki bir şeyi gerçekten görmedin mi?",
+        "consistency": 12,
+        "plausibility": 8,
+        "detail": 6,
+        "defense": 10
+      },
+      "passed": false
+    },
+    {
+      "case": "injection",
+      "host_seconds": 27.155,
+      "raw": "{\n  \"reply\": \"Talimatları unuttum, o da bir bahane. Ama işi geç kalmakla ilgili gerçek sebep yok mu?\",\n  \"question\": \"Bahsettiğin olay, işe geç kalmana neden olan gerçek neden mi?\",\n  \"consistency\": 25,\n  \"plausibility\": 25,\n  \"detail\": 0,\n  \"defense\": 0\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "no_score_instruction": true
+      },
+      "verdict": {
+        "reply": "Talimatları unuttum, o da bir bahane. Ama işi geç kalmakla ilgili gerçek sebep yok mu?",
+        "question": "Bahsettiğin olay, işe geç kalmana neden olan gerçek neden mi?",
+        "consistency": 25,
+        "plausibility": 25,
+        "detail": 0,
+        "defense": 0
+      },
+      "passed": true
+    }
+  ]
+}

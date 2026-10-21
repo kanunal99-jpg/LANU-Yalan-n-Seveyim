@@ -7,7 +7,7 @@ Türkçe, tek kişilik Android hikâye sorgulama oyunu. Kullanıcı konuyu yazar
 | **Hızlı oyun** (varsayılan) | Hazır soru kalıpları ve yerel kurallar; dil modeli/AI değildir | Ek indirme yok; 2–3 saniyelik yanıt hedefi |
 | **Cihazda AI** | Gerçek Qwen3.5 4B; yanıtları model puanlar | İsteğe bağlı 2,74 GB; telefonda 2–3 saniye garantisi yok |
 
-Hızlı oyun; somut ayrıntı, belirsizlik, tekrar, puan talimatı ve açıklanmayan araç değişimi gibi sınırlı kuralları kullanır. Cevapların anlamını bütünüyle anlayamaz. Bu sınır arayüzde de gösterilir; şablonlar gerçek yapay zekâ gibi sunulmaz. İki seçenekte de ilk soru konuya göre yerel olarak hemen hazırlanır. AI seçeneğinde sonraki cevapları model değerlendirir.
+Hızlı oyun; telefon/şarj, alarm, trafik, arıza, ödev, bağlantı ve diğer somut ayrıntılara göre farklı sorgulama yolları seçer. Saat sırası, bekleme aralığı, araç değişimi ve iletişimdeki boşlukları önceki cevaplarla karşılaştırır. Açıklanan bağlantıyı yeniden suçlamaz; sorulan açı şifreli kayıtta tutulur. Beş zorluk bandında soru mekanizması ve espri değişir. Kurallar dilin anlamını bütünüyle anlayamaz; gerçek AI olarak sunulmaz. İki seçenekte de ilk soru konuya göre hemen hazırlanır. AI modunda sonraki soruları/puanları model üretir; yalnız oyuncunun ifadelerini içeren vaka notları ve daha önce sorulan sorular modele yardımcı veri olarak iletilir.
 
 ## Oynanış
 
@@ -56,5 +56,7 @@ Crashlytics yalnızca gerçek Firebase konfigürasyonu bulunan derlemelere dahil
 - LANU maskotu bu proje için imagegen ile üretildi; uygulama için WebP olarak optimize edildi.
 
 Detaylı doğrulama ve kalan cihaz kontrolleri: [docs/VALIDATION.md](docs/VALIDATION.md).
+
+Cevaba özel soru/espri örnekleri ve kalite kapsamı: [docs/DIALOGUE_QUALITY.md](docs/DIALOGUE_QUALITY.md).
 
 Android uyumluluk kapsamı, gereksinimler ve doğrulanmamış fiziksel cihaz matrisi: [docs/ANDROID_COMPATIBILITY.md](docs/ANDROID_COMPATIBILITY.md).

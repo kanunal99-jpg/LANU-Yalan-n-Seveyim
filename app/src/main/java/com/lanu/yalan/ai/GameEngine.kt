@@ -22,7 +22,7 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
     suspend fun release() = withContext(Dispatchers.Default) { lock.withLock { native?.close(); loaded = false } }
     suspend fun ask(session: Session, answer: String?, spicy: Boolean): Verdict = withContext(Dispatchers.Default) {
         // Starting a story never needs model loading or a generated JSON score.
-        if(answer == null) return@withContext Verdict("Hadi hikâyeni kuralım.", FastGame.opening(session.topic), 0, 0, 0, 0)
+        if(answer == null) return@withContext Verdict("Hadi hikâyeni kuralım.", FastGame.opening(session.topic,session.level), 0, 0, 0, 0)
         if(session.mode == PlayMode.FAST) return@withContext FastGame.evaluate(session, answer, spicy)
         lock.withLock {
             currentCoroutineContext().ensureActive()
@@ -39,9 +39,11 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
                 }
                 currentCoroutineContext().ensureActive()
                 val final = session.turns.size == 4
-                val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(false, final), 240).decodeToString()
+                val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(false, final,FastGame.isScoreInstruction(answer)), 240).decodeToString()
                 currentCoroutineContext().ensureActive()
-                try { VerdictParser.parse(raw, final) }
+                try { VerdictParser.parse(raw, final).copy(
+                    challengeKey=QuestionDirector.next(session,StoryEvidence.inspect(session,answer),spicy).key
+                ) }
                 catch(e: IllegalArgumentException) { throw AiException(AiFailure.OUTPUT, e) }
             } catch(e: IllegalStateException) {
                 currentCoroutineContext().ensureActive()
@@ -58,36 +60,19 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
         }
     }
     internal fun prompt(s: Session, answer: String?, spicy: Boolean): String {
-        fun safe(s: String) = s.replace("<|", "‹").replace("|>", "›").replace("<think>", "").replace("</think>", "")
-        val system = context.assets.open("system_prompt.txt").bufferedReader().use { it.readText() }
-            .replace("{{TONE}}", if(spicy) "Mild Turkish slang is allowed, such as 'yok artık be'. No heavy profanity." else "No profanity or slang. Friendly playful Turkish only.")
-            .replace("{{LEVEL}}", s.level.toString())
-            .replace("{{CHALLENGE}}", Rules.challenge(s.level))
-            .replace("{{ROUND}}", if(answer == null) "OPENING: No answers yet. Ask one specific question about the player's topic. All four scores MUST be 0."
-                else if(s.turns.size == 4) "FINAL ROUND: question MUST be empty. Give final scores for the complete story and a witty conclusion."
-                else "NEXT ROUND: evaluate the latest answer in context and ask one follow-up.")
-        return buildString {
-            append("<|im_start|>system\n$system<|im_end|>\n")
-            append("<|im_start|>user\nOyunun konusu: ${safe(s.topic)}<|im_end|>\n")
-            s.turns.forEach { turn ->
-                append("<|im_start|>assistant\n${safe(turn.question)}<|im_end|>\n")
-                append("<|im_start|>user\n${safe(turn.answer)}<|im_end|>\n")
-            }
-            if(answer != null) {
-                append("<|im_start|>assistant\n${safe(s.question)}<|im_end|>\n")
-                append("<|im_start|>user\n${safe(answer)}<|im_end|>\n")
-            }
-            append("<|im_start|>assistant\n<think>\n\n</think>\n\n")
-        }
+        val template=context.assets.open("system_prompt.txt").bufferedReader().use { it.readText() }
+        return PromptComposer.compose(template,s,answer,spicy)
     }
     companion object {
         const val AI_TIMEOUT_SECONDS = 30
-        fun grammarFor(opening: Boolean, final: Boolean): String = GRAMMAR
+        fun grammarFor(opening: Boolean, final: Boolean, scoreInstruction: Boolean = false): String = GRAMMAR
+            .replace("guarded-score ::= score", if(scoreInstruction) "guarded-score ::= \"0\"" else "guarded-score ::= score")
             .replace("question-value ::= string", if(final) "question-value ::= \"\\\"\\\"\"" else "question-value ::= string")
-            .replace("score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]", if(opening) "score ::= \"0\"" else "score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]")
+            .replace("score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]", if(opening || scoreInstruction) "score ::= \"0\"" else "score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]")
         val GRAMMAR = """
-            root ::= "{" ws "\"reply\"" ws ":" ws string "," ws "\"question\"" ws ":" ws question-value "," ws "\"consistency\"" ws ":" ws score "," ws "\"plausibility\"" ws ":" ws score "," ws "\"detail\"" ws ":" ws score "," ws "\"defense\"" ws ":" ws score ws "}"
+            root ::= "{" ws "\"reply\"" ws ":" ws string "," ws "\"question\"" ws ":" ws question-value "," ws "\"consistency\"" ws ":" ws score "," ws "\"plausibility\"" ws ":" ws score "," ws "\"detail\"" ws ":" ws guarded-score "," ws "\"defense\"" ws ":" ws guarded-score ws "}"
             question-value ::= string
+            guarded-score ::= score
             score ::= "0" | [1-9] | "1" [0-9] | "2" [0-5]
             string ::= "\"" char* "\""
             char ::= [^"\\\x00-\x1F] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])

@@ -74,6 +74,8 @@ class AndroidCompatibilityTest {
                 println(compose.onRoot(useUnmergedTree=true).printToString())
                 throw e
             }
+            if(index<4) compose.onNodeWithTag("current-question").assertIsDisplayed()
+            else compose.onNodeWithText("İNANDIRICILIK").assertIsDisplayed()
             val elapsed=SystemClock.elapsedRealtime()-sent
             println("LANU_FAST_TURN_${index+1}_MS=$elapsed")
             assertTrue("Turn ${index+1} exceeded 3s: $elapsed ms",elapsed<3_000)
@@ -82,5 +84,32 @@ class AndroidCompatibilityTest {
         compose.onNodeWithText("Çık").performClick()
         compose.onNodeWithText("Seviyeler").performClick()
         compose.onNodeWithText("02").assertIsEnabled()
+    }
+    private fun startSpecificStory() {
+        awaitHome()
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("topic-input"))
+        compose.onNodeWithTag("topic-input").performTextInput("İşe geç kaldım")
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("start-game"))
+        compose.onNodeWithTag("start-game").performClick()
+        compose.waitUntil(3_000) { compose.onAllNodesWithTag("answer-input").fetchSemanticsNodes().isNotEmpty() }
+    }
+    private fun sendSpecific(answer: String, next: Int) {
+        compose.onNodeWithTag("answer-input").performTextInput(answer)
+        compose.onNodeWithTag("answer-input").performImeAction()
+        compose.waitUntil(3_000) { compose.onAllNodesWithText("SORU $next / 5").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithTag("current-question").assertIsDisplayed()
+    }
+    @Test fun phoneAnswersRenderDifferentSpecificQuestionsInsteadOfGenericPrompts() {
+        startSpecificStory()
+        sendSpecific("Telefonumun şarjı bitti, o yüzden arayamadım.",2)
+        compose.onNodeWithText("Telefon tam hangi anda kapandı; o sırada neredeydin?").assertIsDisplayed()
+        sendSpecific("Şarjım bittiğinde duraktaydım ve telefon kapandı.",3)
+        compose.onNodeWithText("Telefon kapandıktan sonra hangi seçeneğin vardı; başka cihaz veya şarj imkânı varsa neden işlemedi?").assertIsDisplayed()
+    }
+    @Test fun contradictoryClocksAreRenderedAsACrossCheckOfBothPlayerTimes() {
+        startSpecificStory()
+        sendSpecific("Sabah 09:00'da evden çıktım.",2)
+        sendSpecific("Sabah 08:30'da ofisteydim.",3)
+        compose.onNodeWithText("09:00 çıkış ile 08:30 varış aynı gün mü; hangi saati düzeltiyorsun?").assertIsDisplayed()
     }
 }

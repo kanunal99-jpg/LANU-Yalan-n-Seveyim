@@ -66,7 +66,8 @@ class FastGameTest {
         val easy=FastGame.evaluate(story(1),answer,true)
         val hard=FastGame.evaluate(story(100),answer,true)
         assertTrue(hard.score<easy.score)
-        assertTrue(hard.question.contains("saat sırasıyla"))
+        assertNotEquals(easy.question,hard.question)
+        assertTrue(hard.question.contains("gözledin"))
     }
     @Test fun oldSavesKeepTheirAiStoryAndNewGamesDefaultToFast() {
         val old="""{"schema":1,"unlocked":4,"session":{"id":"old","level":4,"topic":"Konu","opening":"Ne oldu?"}}"""

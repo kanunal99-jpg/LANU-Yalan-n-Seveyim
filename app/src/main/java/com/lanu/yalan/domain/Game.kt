@@ -11,7 +11,9 @@ data class Verdict(
     val consistency: Int,
     val plausibility: Int,
     val detail: Int,
-    val defense: Int
+    val defense: Int,
+    // Suggested question angle, persisted in both modes. Not part of model-generated JSON.
+    val challengeKey: String? = null
 ) {
     val score: Int get() = consistency + plausibility + detail + defense
     fun validated(final: Boolean = false): Verdict {
@@ -19,6 +21,7 @@ data class Verdict(
         require(reply.isNotBlank() && reply.length <= 700) { "Yorum okunamadı" }
         require(final || question.isNotBlank()) { "Soru oluşturulamadı" }
         require(question.length <= 500) { "Soru çok uzun" }
+        require(challengeKey==null || challengeKey.length<=80) { "Sorgu kimliği geçersiz" }
         return this
     }
 }

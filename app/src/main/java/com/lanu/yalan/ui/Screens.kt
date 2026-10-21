@@ -143,8 +143,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 FilterChip(selected=s.save.mode==PlayMode.LOCAL_AI,onClick={vm.playMode(PlayMode.LOCAL_AI)},enabled=!s.busy,label={Text("Cihazda AI")})
             }
             Text(if(s.save.mode==PlayMode.FAST)
-                "Model indirmeden oyna. Hazır soru kalıpları ve kural tabanlı puanlama kullanır; dil modeli değildir. Yanıt hedefi 2–3 saniye."
-                else "Gerçek Qwen3.5 4B modeli cevaplarını değerlendirir. 2,74 GB indirme gerekir. Telefonda 2–3 saniye garanti edilemez; yükleme ve yanıt için toplam süre sınırı 30 saniye.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
+                "Cevabındaki telefon, trafik, alarm, saat ve diğer ayrıntılara göre sorgu değişir. Önceki cevaplarını karşılaştıran kurallar kullanır; dil modeli değildir. Yanıt hedefi 2–3 saniye."
+                else "Deneysel Qwen3.5 4B modeli cevaplarını değerlendirir; bazı soruları veya esprileri zayıf kalabilir. 2,74 GB indirme gerekir. Telefonda 2–3 saniye garanti edilemez; toplam süre sınırı 30 saniye.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
             if(s.save.session?.finished==false) Text("Bu seçim yeni hikâyeler içindir. Devam eden hikâyenin modu korunur.",color=Muted,fontSize=12.sp)
         }
     }
@@ -213,7 +213,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 Spacer(Modifier.height(12.dp))
                 Bubble("LANU · ${turn.verdict.score}/100",turn.verdict.reply,false)
             }
-            item { Bubble("LANU",session.question,false) }
+            item { Bubble("LANU",session.question,false,Modifier.testTag("current-question")) }
             if(s.busy) item { Busy(s,vm) }
         }
         if(!s.canAnswer) {
@@ -233,8 +233,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
     }
 }
-@Composable private fun Bubble(label:String,text:String,user:Boolean) {
-    Column(Modifier.fillMaxWidth(),horizontalAlignment=if(user) Alignment.End else Alignment.Start) {
+@Composable private fun Bubble(label:String,text:String,user:Boolean,modifier:Modifier=Modifier) {
+    Column(modifier.fillMaxWidth(),horizontalAlignment=if(user) Alignment.End else Alignment.Start) {
         Text(label,color=if(user) Lavender else Gold,fontSize=10.sp,fontWeight=FontWeight.Bold,letterSpacing=1.sp,modifier=Modifier.padding(bottom=6.dp))
         Surface(color=if(user) Color(0xFF493164) else Panel,shape=RoundedCornerShape(topStart=20.dp,topEnd=20.dp,bottomStart=if(user) 20.dp else 4.dp,bottomEnd=if(user) 4.dp else 20.dp)) {
             Text(text,Modifier.padding(17.dp),fontSize=16.sp,lineHeight=24.sp)
@@ -302,7 +302,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         item { ModelCard(s,vm) }
         if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
         item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Hızlı oyun hemen, AI modu ise model indirildikten sonra internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun; somut ayrıntı, tekrar, belirsiz cevap ve açıklanmayan araç değişimi gibi sınırlı kuralları kullanır. Anlamı bütünüyle anlayamaz. AI modunda puanları Qwen üretir. Final tüm cevapları dikkate alır. Seviye yükseldikçe geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun; saat sırası, bekleme süresi, araç değişimi ve iletişim sırası gibi sınırlı kurallarla önceki cevapları karşılaştırır. Şüpheli boşlukla açık çelişkiyi ayrı değerlendirir; açıkladığın bağlantıyı yeniden suçlama yapmaz. Anlamı bütünüyle anlayamaz. AI modunda puanları Qwen üretir. Final tüm cevapları dikkate alır. Geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { s.device?.let { Text(it.summary,Modifier.testTag("device-summary"),color=Muted,fontSize=13.sp) } }
         item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. Hızlı oyun büyük model yüklemez. AI modu için 8 GB RAM önerilir ve 2–3 saniyelik yanıt garanti edilemez. AI yükleme ve üretim toplamında 30 saniyelik iptal bütçesi kullanılır. Fiziksel cihaz süreleri henüz doğrulanmadı.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3.5 4B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
