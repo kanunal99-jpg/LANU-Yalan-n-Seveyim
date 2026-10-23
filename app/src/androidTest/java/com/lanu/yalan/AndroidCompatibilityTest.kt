@@ -65,6 +65,7 @@ class AndroidCompatibilityTest {
         compose.onNodeWithTag("install-update").assertDoesNotExist()
         compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("export-backup"))
         compose.onNodeWithTag("export-backup").assertIsDisplayed().assertIsEnabled().performClick()
+        awaitBackupDialog()
         compose.onNodeWithText("Yedeğine parola belirle").assertIsDisplayed()
         compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
         compose.onNodeWithTag("backup-passphrase").performTextInput("kisa")
@@ -80,9 +81,14 @@ class AndroidCompatibilityTest {
         compose.onNodeWithText("Parolalar aynı olmalı.").assertDoesNotExist()
         compose.onNodeWithText("Vazgeç").performClick()
         compose.onNodeWithTag("confirm-backup").assertDoesNotExist()
-        compose.onNodeWithTag("export-backup").performClick()
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("export-backup"))
+        compose.onNodeWithTag("export-backup").assertIsDisplayed().performClick()
+        awaitBackupDialog()
         compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
         compose.onNodeWithText("Vazgeç").performClick()
+    }
+    private fun awaitBackupDialog() {
+        compose.waitUntil(3_000) { compose.onAllNodesWithTag("confirm-backup").fetchSemanticsNodes().isNotEmpty() }
     }
     @Test fun completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds() {
         awaitHome()

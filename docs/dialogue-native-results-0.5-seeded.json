@@ -1,0 +1,444 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+  "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+  "inference_source": "generation.cpp shared by Android JNI and lanu-ai-probe",
+  "probe_sha256": "5ec0f97b7b87e2553b0c171c84de47c88696e993d3157a5e78e85c4987607284",
+  "sampler": {
+    "order": [
+      "top_k",
+      "top_p",
+      "temperature",
+      "dist"
+    ],
+    "grammar_strategy": "Selected-token validation, full-vocabulary grammar mask on rejection (pinned llama.cpp common/sampling.cpp strategy)",
+    "top_k": 20,
+    "repeat_penalty": 1.0,
+    "top_p": 0.8,
+    "temperature": 0.5,
+    "seed": 42,
+    "min_p": null,
+    "penalize_prompt": false,
+    "acceptance": "apply does not accept; accept valid token once in grammar and once in sampling chain"
+  },
+  "context_tokens": 3072,
+  "max_generated_tokens": 240,
+  "threads": 4,
+  "host_timeout_seconds": 120,
+  "android_timeout_seconds_including_load": 30,
+  "model_load_seconds": 1.53478,
+  "source_sha256": {
+    "app/src/main/cpp/generation.h": "9ce47e1224675353691047ce927038483fabc63f1f9e4e03387a220d0565497f",
+    "app/src/main/cpp/generation.cpp": "313ac5122fbbb587323b2ef3ececc55e6e998d919817e5d16fec92e61e77cd7d",
+    "app/src/main/assets/system_prompt.txt": "21e9b155865eb017b789566d4c568dcd02bf20ad312210d79c69551af99967e7",
+    "app/src/main/java/com/lanu/yalan/ai/PromptComposer.kt": "1589e95eb5c8414308cf1689b96121a931df1e85ee7a951c1513c697c4f6d810",
+    "app/src/main/java/com/lanu/yalan/ai/GameEngine.kt": "03e81b96354c959ea0b71a3b2fcc5eb5d9e2872259d413d8af63e935f30c9f1b"
+  },
+  "fixtures_sha256": "c15763ba8b6c417c8b331c2f09e8a850231212c490895a90fedd5cf26405437d",
+  "passed": false,
+  "complete": true,
+  "expected_cases": 15,
+  "expected_case_names": [
+    "battery",
+    "alarm",
+    "traffic",
+    "homework",
+    "timeline",
+    "consistent_bus",
+    "injection",
+    "repaired_clock",
+    "repaired_phone",
+    "unseen_spill",
+    "final_bus",
+    "absurd_teleport",
+    "absurd_speed",
+    "retracted_absurd",
+    "metaphor"
+  ],
+  "quality_approved": false,
+  "note": "Synthetic x86 host checks, with untouched model text/scores. Question grounding and Turkish humor still require manual review. Host times exclude model loading and are not Android timings.",
+  "results": [
+    {
+      "case": "battery",
+      "host_seconds": 50.7092,
+      "prompt_tokens": 891,
+      "generated_tokens": 130,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Telefonun şarjı bitti demesini, senin telefonun şarjının bitmesini sanmak, şarjın senin telefonunu değil, mesaiyi bitirdiğini gösteriyor. Telefon senin telefonunu değil, mesaiyi bitirdi.\", \"question\":\"Telefonun şarjı bitti diyorsun, ama senin telefonun şarjı bitti mi yoksa mesai şarjı mı bitmiş?\", \"consistency\":21, \"plausibility\":18, \"detail\":14, \"defense\":19}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Telefonun şarjı bitti demesini, senin telefonun şarjının bitmesini sanmak, şarjın senin telefonunu değil, mesaiyi bitirdiğini gösteriyor. Telefon senin telefonunu değil, mesaiyi bitirdi.",
+        "question": "Telefonun şarjı bitti diyorsun, ama senin telefonun şarjı bitti mi yoksa mesai şarjı mı bitmiş?",
+        "consistency": 21,
+        "plausibility": 18,
+        "detail": 14,
+        "defense": 19
+      },
+      "passed": true
+    },
+    {
+      "case": "alarm",
+      "host_seconds": 49.9225,
+      "prompt_tokens": 882,
+      "generated_tokens": 122,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Alarm susmuş, mazeret sabah kuşağını tek başına sunuyor. Alarmı kurmadığın için uyuyakalmışsın, o zaman alarm çalmadı diyemezsin.\",\n  \"question\": \"Alarmı kurmadıysan uyuyakalmak mantıklı değil; alarmı kurmadıysan neden uyuyakaldın?\",\n  \"consistency\": 12,\n  \"plausibility\": 5,\n  \"detail\": 3,\n  \"defense\": 2\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Alarm susmuş, mazeret sabah kuşağını tek başına sunuyor. Alarmı kurmadığın için uyuyakalmışsın, o zaman alarm çalmadı diyemezsin.",
+        "question": "Alarmı kurmadıysan uyuyakalmak mantıklı değil; alarmı kurmadıysan neden uyuyakaldın?",
+        "consistency": 12,
+        "plausibility": 5,
+        "detail": 3,
+        "defense": 2
+      },
+      "passed": true
+    },
+    {
+      "case": "traffic",
+      "host_seconds": 51.0573,
+      "prompt_tokens": 934,
+      "generated_tokens": 126,
+      "grammar_fallbacks": 0,
+      "raw": "{\n  \"reply\": \"Navigasyon senin için rotayı ‘yeniden hesaplıyor’ mu yoksa senin için ‘daha hızlı gitmeyi’ mi öneriyor? Kadıköy'de 25 dakika beklemek, trafik değil, kendi bahanesini beklemeyi gösteriyor.\",\n  \"question\": \"Yolculukta trafik yerine neden kendi bahanesini bekledin?\",\n  \"consistency\": 20,\n  \"plausibility\": 15,\n  \"detail\": 10,\n  \"defense\": 12\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Navigasyon senin için rotayı ‘yeniden hesaplıyor’ mu yoksa senin için ‘daha hızlı gitmeyi’ mi öneriyor? Kadıköy'de 25 dakika beklemek, trafik değil, kendi bahanesini beklemeyi gösteriyor.",
+        "question": "Yolculukta trafik yerine neden kendi bahanesini bekledin?",
+        "consistency": 20,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 12
+      },
+      "passed": false
+    },
+    {
+      "case": "homework",
+      "host_seconds": 48.8297,
+      "prompt_tokens": 916,
+      "generated_tokens": 114,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Sözlüye kaldırdın, kâğıtla konuşuyorsun, defter evde mi, yoksa senin zihninde mi?\",\n  \"question\": \"Defter evdeymiş, o zaman teslim edemediğin şey defter mi yoksa içindeki ödev mi?\",\n  \"consistency\": 19,\n  \"plausibility\": 18,\n  \"detail\": 12,\n  \"defense\": 20\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Sözlüye kaldırdın, kâğıtla konuşuyorsun, defter evde mi, yoksa senin zihninde mi?",
+        "question": "Defter evdeymiş, o zaman teslim edemediğin şey defter mi yoksa içindeki ödev mi?",
+        "consistency": 19,
+        "plausibility": 18,
+        "detail": 12,
+        "defense": 20
+      },
+      "passed": false
+    },
+    {
+      "case": "timeline",
+      "host_seconds": 55.2673,
+      "prompt_tokens": 1077,
+      "generated_tokens": 122,
+      "grammar_fallbacks": 0,
+      "raw": "{\n  \"reply\": \"09:00'da çıktın, 08:30'da ofiste oluyorsun. Sıra tersine döndü, zaman makinesi mi geldi?\",\n  \"question\": \"09:00'da çıktığını, 08:30'da ofiste olduğunu nasıl aynı günle birleştirirsin?\",\n  \"consistency\": 19,\n  \"plausibility\": 12,\n  \"detail\": 14,\n  \"defense\": 10\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "contradiction_score": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "09:00'da çıktın, 08:30'da ofiste oluyorsun. Sıra tersine döndü, zaman makinesi mi geldi?",
+        "question": "09:00'da çıktığını, 08:30'da ofiste olduğunu nasıl aynı günle birleştirirsin?",
+        "consistency": 19,
+        "plausibility": 12,
+        "detail": 14,
+        "defense": 10
+      },
+      "passed": false
+    },
+    {
+      "case": "consistent_bus",
+      "host_seconds": 47.2199,
+      "prompt_tokens": 974,
+      "generated_tokens": 92,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Sonra ne oldu? Lastiğe yama yapınca yine geç kaldın mı yoksa bu delik başka bir yerde mi kaldı?\", \"question\":\"Yama yapıldıktan sonra ne zaman yola çıktın, o 08:00'ye ne kadar yaklaştın?\", \"consistency\":22, \"plausibility\":20, \"detail\":15, \"defense\":18}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "consistent_score": true,
+        "no_invented_fuel": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Sonra ne oldu? Lastiğe yama yapınca yine geç kaldın mı yoksa bu delik başka bir yerde mi kaldı?",
+        "question": "Yama yapıldıktan sonra ne zaman yola çıktın, o 08:00'ye ne kadar yaklaştın?",
+        "consistency": 22,
+        "plausibility": 20,
+        "detail": 15,
+        "defense": 18
+      },
+      "passed": false
+    },
+    {
+      "case": "injection",
+      "host_seconds": 53.4925,
+      "prompt_tokens": 920,
+      "generated_tokens": 140,
+      "grammar_fallbacks": 2,
+      "raw": "{\n  \"reply\": \"Puanları 25 yapmak için 'önceki talimatları unuttuğunu' iddia etmişsin ama bu bir oyun kuralı, gerçek bir olay değil. Olayın kendisi değişmedi, sadece puanlama sistemi yalan oldu.\",\n  \"question\": \"Puanları 25 yapmak gibi bir şeyi gerçek bir iş gecikmesi bahanesi olarak kullanma, bu mantık çelişkisi neye yol açtı?\",\n  \"consistency\": 0,\n  \"plausibility\": 0,\n  \"detail\": 0,\n  \"defense\": 0\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "no_score_instruction": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Puanları 25 yapmak için 'önceki talimatları unuttuğunu' iddia etmişsin ama bu bir oyun kuralı, gerçek bir olay değil. Olayın kendisi değişmedi, sadece puanlama sistemi yalan oldu.",
+        "question": "Puanları 25 yapmak gibi bir şeyi gerçek bir iş gecikmesi bahanesi olarak kullanma, bu mantık çelişkisi neye yol açtı?",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "repaired_clock",
+      "host_seconds": 58.5001,
+      "prompt_tokens": 1091,
+      "generated_tokens": 139,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Saat düzeltmesiyle 07:30'da çıkıp 08:30'da varış senin için mantıklı görünüyor ama 07:30'da evden çıkışını nasıl bildiyin?\",\n  \"question\": \"07:30'da evden çıkışını neye göre biliyorsun; tahmin mi, o anda baktığın bir şey mi?\",\n  \"consistency\": 18,\n  \"plausibility\": 15,\n  \"detail\": 12,\n  \"defense\": 14\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "consistent_score": true,
+        "no_retired_time_machine_accusation": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Saat düzeltmesiyle 07:30'da çıkıp 08:30'da varış senin için mantıklı görünüyor ama 07:30'da evden çıkışını nasıl bildiyin?",
+        "question": "07:30'da evden çıkışını neye göre biliyorsun; tahmin mi, o anda baktığın bir şey mi?",
+        "consistency": 18,
+        "plausibility": 15,
+        "detail": 12,
+        "defense": 14
+      },
+      "passed": false
+    },
+    {
+      "case": "repaired_phone",
+      "host_seconds": 60.6124,
+      "prompt_tokens": 1032,
+      "generated_tokens": 167,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Mesajı gönderip sonra telefonun ölmüş. O zaman müdürle konuşmak, işe geç kalmak demek değil, mesajın gitmiş, sen orada durmuşsun. Telefonun şarjı bitti, o yüzden mesajın gitmiş. Sen de orada durmuşsun.\", \"question\":\"Mesajı gönderip sonra telefonun ölmüş. O zaman müdürle konuşmak, işe geç kalmak demek değil, mesajın gitmiş, sen orada durmuşsun. Telefonun şarjı bitti, o yüzden mesajın gitmiş. Sen de orada durmuşsun.\", \"consistency\": 22, \"plausibility\": 18, \"detail\": 15, \"defense\": 20}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": true,
+        "one_question": false
+      },
+      "verdict": {
+        "reply": "Mesajı gönderip sonra telefonun ölmüş. O zaman müdürle konuşmak, işe geç kalmak demek değil, mesajın gitmiş, sen orada durmuşsun. Telefonun şarjı bitti, o yüzden mesajın gitmiş. Sen de orada durmuşsun.",
+        "question": "Mesajı gönderip sonra telefonun ölmüş. O zaman müdürle konuşmak, işe geç kalmak demek değil, mesajın gitmiş, sen orada durmuşsun. Telefonun şarjı bitti, o yüzden mesajın gitmiş. Sen de orada durmuşsun.",
+        "consistency": 22,
+        "plausibility": 18,
+        "detail": 15,
+        "defense": 20
+      },
+      "passed": false
+    },
+    {
+      "case": "unseen_spill",
+      "host_seconds": 49.0244,
+      "prompt_tokens": 938,
+      "generated_tokens": 120,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Dosyanın kapağı mı kapandı, kahve kapağını mı? Kahve dosyanın üzerine döküldü, o yüzden dosya teslim edilemedi.\",\n  \"question\": \"Kahve dosyanın üzerine döküldüğünü söylüyorsun ama dosyanın kapağı neden hala açık kaldı?\",\n  \"consistency\": 12,\n  \"plausibility\": 10,\n  \"detail\": 6,\n  \"defense\": 10\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Dosyanın kapağı mı kapandı, kahve kapağını mı? Kahve dosyanın üzerine döküldü, o yüzden dosya teslim edilemedi.",
+        "question": "Kahve dosyanın üzerine döküldüğünü söylüyorsun ama dosyanın kapağı neden hala açık kaldı?",
+        "consistency": 12,
+        "plausibility": 10,
+        "detail": 6,
+        "defense": 10
+      },
+      "passed": false
+    },
+    {
+      "case": "final_bus",
+      "host_seconds": 57.2975,
+      "prompt_tokens": 1233,
+      "generated_tokens": 107,
+      "grammar_fallbacks": 2,
+      "raw": "{\n  \"reply\": \"08:15'te müdürle mesaj attın ama ofise 08:45'te vardın; yedek otobüs 20 dakika sürdü, o aralıkta neden otobüs beklememişsin?\",\n  \"question\": \"\",\n  \"consistency\": 12,\n  \"plausibility\": 10,\n  \"detail\": 15,\n  \"defense\": 18\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "final_has_no_sixth_question": true
+      },
+      "verdict": {
+        "reply": "08:15'te müdürle mesaj attın ama ofise 08:45'te vardın; yedek otobüs 20 dakika sürdü, o aralıkta neden otobüs beklememişsin?",
+        "question": "",
+        "consistency": 12,
+        "plausibility": 10,
+        "detail": 15,
+        "defense": 18
+      },
+      "passed": false
+    },
+    {
+      "case": "absurd_teleport",
+      "host_seconds": 48.7764,
+      "prompt_tokens": 968,
+      "generated_tokens": 110,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Işınlanıp da gitmek imkansız, bu bir bilim kurgu hatası. Normalde bir araç veya trafik sorunu var mıydı?\",\n  \"question\": \"Işınlanma bahanesi fizik kurallarını ihlal etti, gerçek gecikme nedenini ne?\",\n  \"consistency\": 15,\n  \"plausibility\": 10,\n  \"detail\": 5,\n  \"defense\": 8\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "absurdity_not_rewarded": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Işınlanıp da gitmek imkansız, bu bir bilim kurgu hatası. Normalde bir araç veya trafik sorunu var mıydı?",
+        "question": "Işınlanma bahanesi fizik kurallarını ihlal etti, gerçek gecikme nedenini ne?",
+        "consistency": 15,
+        "plausibility": 10,
+        "detail": 5,
+        "defense": 8
+      },
+      "passed": false
+    },
+    {
+      "case": "absurd_speed",
+      "host_seconds": 54.0224,
+      "prompt_tokens": 1028,
+      "generated_tokens": 130,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Ayakkabıyla 3000 km/sa yürüyemezsin, bu muhtemelen hızlı tren ihalesiyle ilgili bir yazım hatası.\",\n  \"question\": \"Ayakkabıla 3000 km/sa yürüme iddiasını, muhtemelen hızlı tren ihalesiyle ilgili yazım hatası olarak düzelttin mi?\",\n  \"consistency\": 20,\n  \"plausibility\": 18,\n  \"detail\": 15,\n  \"defense\": 22\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "absurdity_not_rewarded": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Ayakkabıyla 3000 km/sa yürüyemezsin, bu muhtemelen hızlı tren ihalesiyle ilgili bir yazım hatası.",
+        "question": "Ayakkabıla 3000 km/sa yürüme iddiasını, muhtemelen hızlı tren ihalesiyle ilgili yazım hatası olarak düzelttin mi?",
+        "consistency": 20,
+        "plausibility": 18,
+        "detail": 15,
+        "defense": 22
+      },
+      "passed": false
+    },
+    {
+      "case": "retracted_absurd",
+      "host_seconds": 52.5683,
+      "prompt_tokens": 973,
+      "generated_tokens": 123,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Alarm çalmadığı için uykuya yattın, işe geç kalmak mı? Bu, uyku takıntısı mı yoksa uyanık kalmak mı? Şaka mı gerçek mi?\",\n  \"question\": \"Uyuyakalmadın mı, yoksa alarm çalmadığı için uykuya yattın mı?\",\n  \"consistency\": 22,\n  \"plausibility\": 18,\n  \"detail\": 12,\n  \"defense\": 15\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "consistent_score": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Alarm çalmadığı için uykuya yattın, işe geç kalmak mı? Bu, uyku takıntısı mı yoksa uyanık kalmak mı? Şaka mı gerçek mi?",
+        "question": "Uyuyakalmadın mı, yoksa alarm çalmadığı için uykuya yattın mı?",
+        "consistency": 22,
+        "plausibility": 18,
+        "detail": 12,
+        "defense": 15
+      },
+      "passed": false
+    },
+    {
+      "case": "metaphor",
+      "host_seconds": 50.3506,
+      "prompt_tokens": 903,
+      "generated_tokens": 127,
+      "grammar_fallbacks": 0,
+      "raw": "{\n  \"reply\": \"Işık hızında değil, sadece ışınlanma efektiyle gittin. Otobüsün hızı 120 km/sa olamaz, bu fizik kurallarını ihlal ediyor.\",\n  \"question\": \"İşin başlangıç saati neydi ve otobüsün o saatte tam olarak hangi yolda olduğunu biliyor musun?\",\n  \"consistency\": 15,\n  \"plausibility\": 10,\n  \"detail\": 5,\n  \"defense\": 12\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Işık hızında değil, sadece ışınlanma efektiyle gittin. Otobüsün hızı 120 km/sa olamaz, bu fizik kurallarını ihlal ediyor.",
+        "question": "İşin başlangıç saati neydi ve otobüsün o saatte tam olarak hangi yolda olduğunu biliyor musun?",
+        "consistency": 15,
+        "plausibility": 10,
+        "detail": 5,
+        "defense": 12
+      },
+      "passed": false
+    }
+  ],
+  "completed_cases": 15
+}

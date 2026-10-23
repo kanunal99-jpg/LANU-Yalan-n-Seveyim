@@ -2,7 +2,7 @@ name: Native AI diagnostics
 on:
   workflow_dispatch:
   push:
-    branches: [codex/premium-ota-20261023, codex/claim-review-20261023]
+    branches: [codex/premium-ota-20261023, codex/claim-review-20261023, codex/ai-grounding-20261023]
     paths:
       - 'app/src/main/cpp/**'
       - 'app/src/main/java/com/lanu/yalan/ai/**'

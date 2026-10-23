@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+capture_on_failure() {
+  local status=$?
+  if (( status != 0 )); then
+    mkdir -p app/build/reports/ota-upgrade
+    adb pull /data/local/tmp/lanu-comic-objection.png app/build/reports/ota-upgrade/comic-objection.png || true
+    adb pull /data/local/tmp/lanu-persistent-objection.png app/build/reports/ota-upgrade/persistent-objection.png || true
+  fi
+  return "$status"
+}
+trap capture_on_failure EXIT
 # Controlled CI emulator only. Explicit opt-in avoids resetting a physical phone.
 ./gradlew -Planu.uiSmoke=true -Planu.versionCode=8 -Planu.versionName=0.5.1-alpha assembleDebug --stacktrace --max-workers=2
 cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/lanu-ota-next.apk"

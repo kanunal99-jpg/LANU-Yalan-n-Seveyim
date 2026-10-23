@@ -29,6 +29,8 @@ object PromptComposer {
             if(answer!=null) put("yerel_ipucu",Json.parseToJsonElement(notes(s,answer,spicy)))
         }
         return "<|im_start|>system\n$system<|im_end|>\n"+
+            "<|im_start|>user\n{\"konu\":\"Raporu gönderemedim\",\"ifadeler\":[{\"soru\":\"Göndermeyi ne engelledi?\",\"cevap\":\"Raporu bitirdim ama yanlış adrese gönderdim.\"}]}<|im_end|>\n"+
+            "<|im_start|>assistant\n{\"reply\":\"Rapor yola çıkmış, adres çuvallamış; dosyanın değil pusulanın ayarı kaçmış.\",\"question\":\"Yanlış adresi fark ettiğinde doğru adrese yeniden göndermeni ne engelledi?\",\"consistency\":20,\"plausibility\":20,\"detail\":15,\"defense\":18}<|im_end|>\n"+
             "<|im_start|>user\n$record<|im_end|>\n"+
             "<|im_start|>assistant\n<think>\n\n</think>\n\n"
     }
@@ -38,7 +40,6 @@ object PromptComposer {
         return buildJsonObject {
             put("kaynak","Yerel kuralların önerisi; kesin kanıt değil.")
             put("candidate_angle",safe(beat.question))
-            put("punchline_seed",safe(beat.reaction))
             if(FastGame.isScoreInstruction(answer)) put("score_instruction_detected",true)
             a.conflict?.let { c -> put("possible_gap",buildJsonObject {
                 put("earlier_quote",safe(c.earlier.take(160)));put("later_quote",safe(c.later.take(160)))

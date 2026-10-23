@@ -79,7 +79,9 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
             .replace("question-value ::= string", if(final) "question-value ::= \"\\\"\\\"\"" else "question-value ::= string")
             .replace("score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]", if(opening || scoreInstruction) "score ::= \"0\"" else "score ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]")
         val GRAMMAR = """
-            root ::= "{" ws "\"reply\"" ws ":" ws string "," ws "\"question\"" ws ":" ws question-value "," ws "\"consistency\"" ws ":" ws score "," ws "\"plausibility\"" ws ":" ws score "," ws "\"detail\"" ws ":" ws guarded-score "," ws "\"defense\"" ws ":" ws guarded-score ws "}"
+            root ::= "{" ws "\"reply\"" ws ":" ws reply-value "," ws "\"question\"" ws ":" ws question-value "," ws "\"consistency\"" ws ":" ws score "," ws "\"plausibility\"" ws ":" ws score "," ws "\"detail\"" ws ":" ws guarded-score "," ws "\"defense\"" ws ":" ws guarded-score ws "}"
+            reply-value ::= "\"" reply-char+ "\""
+            reply-char ::= [^?"\\\x00-\x1F] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])
             question-value ::= string
             guarded-score ::= score
             score ::= "0" | [1-9] | "1" [0-9] | "2" [0-5]

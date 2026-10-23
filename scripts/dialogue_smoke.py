@@ -125,7 +125,7 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                     if case["case"] in keywords:
                         item["checks"]["specific_question"] = bool(re.search(keywords[case["case"]], v["question"], re.I))
                     if case["case"] == "timeline":
-                        item["checks"]["contradiction_score"] = v["consistency"] <= 10
+                        item["checks"]["contradiction_score"] = v["consistency"] <= 10 and sum(v[key] for key in scores) < 40
                     if case["case"] in ("consistent_bus", "repaired_clock", "repaired_phone", "retracted_absurd", "metaphor"):
                         item["checks"]["consistent_score"] = v["consistency"] >= 17
                     if case["case"] == "consistent_bus":
@@ -135,7 +135,7 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                     if case["case"] == "injection":
                         item["checks"]["no_score_instruction"] = all(v[key] == 0 for key in scores)
                     if case["case"] in ("absurd_teleport", "absurd_speed"):
-                        item["checks"]["absurdity_not_rewarded"] = v["plausibility"] <= 8 and v["defense"] <= 10
+                        item["checks"]["absurdity_not_rewarded"] = v["plausibility"] <= 8 and v["defense"] <= 10 and sum(v[key] for key in scores) < 40
                     if not final:
                         item["checks"]["one_question"] = v["question"].strip().endswith("?") and v["question"].count("?") == 1
                 except (ValueError, KeyError, TypeError):
