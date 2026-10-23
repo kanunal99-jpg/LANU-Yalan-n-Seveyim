@@ -17,6 +17,7 @@ object ClaimReview {
     private val clauses = Regex("[;!?\\n]+|\\.(?:\\s|$)")
     private val distance = Regex("\\b(\\d{1,6}(?:[.,]\\d{1,2})?)\\s*(?:km|kilometre)[a-z]*\\b")
     private val duration = Regex("\\b(\\d{1,5}(?:[.,]\\d{1,2})?)\\s*(dakika|dk|saat|saniye|sn)[a-z]*\\b")
+    private const val travel = "(?:bin(?:dim|dik|di|mistim)|git(?:tim|tik|ti|mistim)|gel(?:dim|dik|di|mistim)|uc(?:tum|tuk|tu|mustum)|don(?:dum|duk|du|mustum)|yola ciktim|yolculuk yaptim)"
 
     fun inspect(topic: String, observations: List<StoryEvidence.Observation>): Review {
         val pending=linkedMapOf<String,Objection>()
@@ -43,9 +44,9 @@ object ClaimReview {
         for(part in clauses.split(text)) {
             val n=normal(part)
             if(notLiteral.containsMatchIn(n)) continue
-            if(Regex("\\b(?:demedim|soylemedim|sanmiyorum|binmedim|gitmedim|gelmedim|ucmadim)\\b").containsMatchIn(n)) continue
+            if(Regex("\\b(?:demedim|soylemedim|sanmiyorum)\\b").containsMatchIn(n)) continue
             if(!fantasy) {
-                if(Regex("\\bzaman makinesi[a-z]*(?:\\s+[a-z]+){0,3}\\s+(?:git|gel|don|yolculuk)[a-z]*\\b").containsMatchIn(n))
+                if(Regex("\\bzaman makinesi[a-z]*(?:\\s+[a-z]+){0,3}\\s+$travel\\b").containsMatchIn(n))
                     return objection("time_machine",part,"Zaman makinesini gündelik olayın gerçek açıklaması olarak kullandın.",
                         "Zaman makinesi kısmı şakaysa, olayın gerçek zaman sırasını nasıl düzeltiyorsun?",
                         listOf("Bahane geçmişe dönmüş; mesaiye zamanında dönmeyi yine başaramamış.",
@@ -57,19 +58,19 @@ object ClaimReview {
                             "Bu savunma otobüsü kaçırmamış, fizik dersinden kaçmış.",
                             "Işınlanma dosyaya girdi; mesai çizelgesi hâlâ Dünya saatinde."),listOf("isinlan"))
                 if(!Regex("\\b(?:magaza[a-z]*|dukkan[a-z]*|oyuncak[a-z]*|marka[a-z]*|film[a-z]*)\\b").containsMatchIn(n) &&
-                    Regex("\\bucan hali[a-z]*(?:\\s+[a-z]+){0,3}\\s+(?:bin|git|gel|uc|yola)[a-z]*\\b").containsMatchIn(n))
+                    Regex("\\bucan hali[a-z]*(?:\\s+[a-z]+){0,3}\\s+$travel\\b").containsMatchIn(n))
                     return objection("flying_carpet",part,"Uçan halıyı gerçek ulaşım aracı olarak gösterdin.",
                         "Uçan halı kısmı şakaysa, ${StoryEvidence.quote(topic,55)} için gerçekte hangi araçla gittin?",
                         listOf("Halıya ulaşım ruhsatı çıkmış; bahanenin ekspertizi hâlâ yerde sürünüyor.",
                             "Servis yerine halı kaldırmışsın; bu güzergâh belediyede görünmüyor.",
                             "Bahaneye püsküllü havayolu kuruldu; iniş izni henüz yok."),listOf("hali"))
-                if(Regex("\\buzayli[a-z]*\\s+(?:beni\\s+)?(?:kacir|gotur)[a-z]*\\b").containsMatchIn(n))
+                if(Regex("\\buzayli[a-z]*(?:\\s+[a-z]+){0,3}\\s+(?:kacir(?:di|dilar|ildim|ildik|misti)|gotur(?:du|duler|uldum|uldu|mustu))\\b").containsMatchIn(n))
                     return objection("aliens",part,"Uzaylı kaçırmasını gündelik mazeretin nedeni olarak sundun.",
                         "Uzaylı kısmını savunacak gündelik bir olayın var mı, yoksa mazeretin o bölümünü geri mi alıyorsun?",
                         listOf("Bu mazeret müdüre verilecekti, NASA'ya sevk edildi.",
                             "Trafik yetmedi, bahaneye galaksiler arası aktarma ekledin.",
                             "Servis kaçırma dosyası açmıştık; sen servis olarak UFO yazmışsın."),listOf("uzayli"))
-                if(Regex("\\bejderha[a-z]*(?:\\s+[a-z]+){0,3}\\s+(?:bin|git|gel|uc)[a-z]*\\b").containsMatchIn(n))
+                if(Regex("\\bejderha[a-z]*(?:\\s+[a-z]+){0,3}\\s+$travel\\b").containsMatchIn(n))
                     return objection("dragon",part,"Ejderhayı gerçek ulaşım açıklaması olarak kullandın.",
                         "Ejderha kısmını çıkarırsak, anlattığın yere gerçekte nasıl gittin?",
                         listOf("Bahane alev aldı; itfaiye değil, makul bir ulaşım açıklaması gerekiyor.",

@@ -1,6 +1,7 @@
 package com.lanu.yalan
 
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.os.SystemClock
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -164,10 +165,19 @@ class AndroidCompatibilityTest {
         compose.onNode(hasText("ayakkabı değil hızlı tren",substring=true)).assertIsDisplayed()
         compose.onNodeWithTag("current-question").assertIsDisplayed()
         compose.onNode(hasText("mesafe, süre veya yürüyüş",substring=true)).assertIsDisplayed()
+        captureObjection("lanu-comic-objection.png")
         sendSpecific("Müdüre mesaj attım.",3)
         compose.onNode(hasText("itirazı hâlâ açık",substring=true)).assertIsDisplayed()
         compose.onNodeWithTag("current-question").assertIsDisplayed()
         compose.onNode(hasText("iddianı geri mi alıyorsun",substring=true)).assertIsDisplayed()
+        captureObjection("lanu-persistent-objection.png")
         println("LANU_COMIC_OBJECTION_VISIBLE_AND_PERSISTENT")
+    }
+    private fun captureObjection(name: String) {
+        require(Regex("lanu-[a-z-]+\\.png").matches(name))
+        compose.waitForIdle()
+        val descriptor=InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand("screencap -p /data/local/tmp/$name")
+        ParcelFileDescriptor.AutoCloseInputStream(descriptor).use { it.readBytes() }
     }
 }

@@ -50,6 +50,7 @@ class ClaimReviewTest {
     @Test fun metaphorsNegationsAndExplicitFantasyAreNotConvictedAsLiteralReality() {
         listOf("Sanki ışınlandım, koşarak yetiştim.","Işınlandım gibi hissettim.","Işınlanmadım; otobüse bindim.",
             "Uçan halıya binmedim.","Işınlandım demedim.","Kedim ödevimi yapmadı.",
+            "Uzaylılar beni kaçırmadı.","Ejderhayla işe gitmedim.","Zaman makinesiyle işe gitmedim.",
             "Filmde uzaylılar beni kaçırdı.","Uçan Halı mağazasına gittim.").forEach { assertNull(it,ClaimReview.find(story().topic,it)) }
         listOf("Gördüğüm rüya","Fantastik bir macera","Minecraft oyununda işe geç kaldım").forEach { topic ->
             assertNull(ClaimReview.find(topic,"Uçan halıyla işe gittim."))
@@ -131,5 +132,18 @@ class ClaimReviewTest {
         val v=FastGame.evaluate(s,"Uzaylılar beni kaçırdı.",false)
         assertTrue(v.challengeKey!!.startsWith("objection.teleport"))
         assertTrue(v.score<40)
+    }
+    @Test fun negatingAnUnrelatedEventDoesNotHideAnAffirmedImpossibleWalk() {
+        val v=FastGame.evaluate(story(),"100 km yolu 2 dakikada yürüdüm ama ofise gitmedim.",false)
+        assertTrue(v.challengeKey!!.startsWith("objection.human_speed"))
+        assertTrue(v.reply.contains("3000 km/sa"))
+    }
+    @Test fun anUncertainClueIsNotDeclaredAProvenLieAtTheFinal() {
+        var s=add(story(),"Telefonum kapandı.")
+        listOf("Sonra müdüre mesaj attım.","Duraktaydım.","Mesajda geç kaldığımı yazdım.").forEach { s=add(s,it) }
+        val final=FastGame.evaluate(s,"Müdür haberimi aldı.",false)
+        assertEquals(EvidenceStatus.NEEDS_EXPLANATION,final.evidence!!.status)
+        assertTrue(final.reply.contains("tek başına yalan kanıtı değil"))
+        assertFalse(final.reply.contains("hikâye bu hâliyle inandırıcı değil"))
     }
 }

@@ -23,7 +23,8 @@ object FastGame {
         val retry=injected || repeated || evasive
         val question=if(final) "" else if(retry) "${StoryEvidence.quote(s.question,120)} sorusunda eksik bıraktığın tek somut ayrıntı ne?" else beat.question
         val closing=when {
-            final && critical -> " Son karar: bu açık kapanmadı; hikâye bu hâliyle inandırıcı değil."
+            final && (analysis.conflict?.confirmed==true || analysis.claim.active!=null) -> " Son karar: bu açık kapanmadı; hikâye bu hâliyle inandırıcı değil."
+            final && analysis.conflict!=null -> " Son karar: iki ifadenin bağlantısı açık kaldı; bu ipucu tek başına yalan kanıtı değil."
             final && !retry -> finalCheck(analysis)
             else -> ""
         }
