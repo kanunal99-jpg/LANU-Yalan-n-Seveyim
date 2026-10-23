@@ -35,7 +35,14 @@ object QuestionDirector {
                 "${c.finding} ${if(spicy) "Yok artık be, aynı bahaneye iki ayrı senaryo yazmışız." else "Aynı bahaneye iki ayrı senaryo yazılmış."}")
             add("conflict.${c.key}.sequence","${q(c.earlier)} ile ${q(c.later)} arasına eksik olayı koy; hangi sırayla yaşandı?",
                 "${c.finding} Kurgu masasındaki makas izleri hâlâ görünüyor.")
+            // An unresolved contradiction never expires because its three prepared angles were used.
+            val selected=beats.firstOrNull { it.key !in used } ?: Beat("conflict.${c.key}.hold.${s.turns.size}",
+                "${q(c.earlier)} ile ${q(c.later)} hâlâ bağlanmadı; hangi ifadeyi düzeltiyor veya hangi geçişi ekliyorsun?",
+                "${c.finding} Konuyu değiştirdin diye bu açık dosyadan düşmüyor; bahane zamanaşımına uğramadı.")
+            val joke=StoryHumor.select(s,a,selected.key,selected.reaction,spicy)
+            return selected.copy(reaction=joke.text,jokeKey=joke.key)
         }
+        a.claim.active?.let { return ClaimReview.beat(s,it) }
         val repairedQuestion=when {
             o.clocks.isNotEmpty() -> "Açıkladığın geçişi kabul ettim. ${o.clocks.last().label} anını hangi olayla sabitliyorsun; tahmin mi, o anda bildiğin saat mi?"
             o.messaged -> "Açıkladığın geçişi kabul ettim. Haber verdiğin anda karşı taraf ne biliyordu; sonradan öğrendiğin kısmı ayırır mısın?"

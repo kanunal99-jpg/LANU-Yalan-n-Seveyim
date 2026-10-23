@@ -20,6 +20,8 @@ object ReasonedScoring {
         val duplicate=repeated(s,o.text)
         val difficulty=(s.level.coerceIn(1,100)-1)/25
         val evidence=evidence(s,a)
+        val objection=a.claim.active
+        val unresolved=a.conflict?.confirmed==true || objection!=null
         if(isScoreInstruction(o.text)) return Assessment(0,0,0,0,ScoreReasons(
             "Puan veya rol talimatı, hikâyenin tutarlılığına kanıt sağlamaz.",
             "Talimat vermek, anlattığın olayın makullüğünü savunmaz.",
@@ -35,12 +37,10 @@ object ReasonedScoring {
             else -> 23
         }
         val concrete=a.observations.zip(coverages).map { (e,c) -> if(c.evasive) rawDetail(e).coerceAtMost(8) else rawDetail(e) }.average().roundToInt()
-        val fantasy=StoryEvidence.has(s.topic,"fantastik","ruya","uzay","masal","oyun")
-        val impossible=!fantasy && a.observations.any { StoryEvidence.has(it.text,"isinlandim","ejderhayla") || StoryEvidence.normal(it.text).contains("zaman makinesiyle") }
-        val plausibility=when { impossible -> 4; coverage.evasive -> 10; else -> (15+concrete/3).coerceAtMost(23) }
-        val detail=(if(duplicate) concrete.coerceAtMost(12) else concrete)-difficulty
+        val plausibility=when { objection!=null -> 4; unresolved -> 8; coverage.evasive -> 10; else -> (15+concrete/3).coerceAtMost(23) }
+        val detail=(when { objection!=null -> concrete.coerceAtMost(8);unresolved || duplicate -> concrete.coerceAtMost(12);else -> concrete })-difficulty
         val meanDefense=coverages.map { it.score }.average().roundToInt()
-        val defense=(when { duplicate -> meanDefense.coerceAtMost(8);coverage.evasive -> meanDefense.coerceAtMost(12);else -> meanDefense })-difficulty
+        val defense=(when { objection!=null -> meanDefense.coerceAtMost(4);unresolved || duplicate -> meanDefense.coerceAtMost(8);coverage.evasive -> meanDefense.coerceAtMost(12);else -> meanDefense })-difficulty
         val consistencyReason=when {
             a.conflict?.confirmed==true -> "${a.conflict.finding} Bu açıklanmamış çelişki tutarlılığı düşürdü."
             a.conflict!=null -> "${a.conflict.finding} Bağlantı eksik; bu tek başına yalan kanıtı sayılmadı."
@@ -51,7 +51,7 @@ object ReasonedScoring {
             else -> "Şimdiye kadar tanınan saat, süre, araç ve iletişim izlerinde açıklanmamış çelişki yok."
         }
         val plausibilityReason=when {
-            impossible -> "Gündelik konu içinde ışınlanma/ejderha gibi olağan dışı neden kullanıldı; konu fantastik olarak seçilmemiş."
+            objection!=null -> "${objection.finding} Bu itiraz henüz açıklanmadığı için makullük düşük."
             coverage.evasive -> "Sorunun istediği bağlantı açık kaldığı için neden-sonuç zinciri yeterince savunulmadı."
             a.conflict?.confirmed==true -> "Bazı olay ayrıntıları makul olabilir; bunlar zaman/araç çelişkisini kendiliğinden çözmez."
             else -> "Tanınan olay nedenleri ve ayrıntılar gündelik bir açıklamayı destekliyor; dışarıdan doğrulanmış kanıt sayılmıyor."
@@ -64,17 +64,25 @@ object ReasonedScoring {
             if(a.observations.any { it.proof || it.messaged }) add("iletişim/kayıt iddiası")
         }
         val detailReason=when {
+            unresolved -> "Kritik iddia henüz savunulmadı; etrafına eklenen saat, kişi veya kelime sayısı yararlı ayrıntı gibi ödüllendirilmedi."
             duplicate -> "Aynı ifade tekrarlandı; kelime eklemek veya tekrarlamak yeni ayrıntı puanı sağlamaz."
             seen.isEmpty() -> "Kontrol edilebilir zaman, yer, kişi, neden veya iletişim ayrıntısı tanınamadı."
             else -> "Hikâyede ${seen.joinToString(", ")} tanındı. Puan, cevap uzunluğuna değil yararlı ayrıntı türlerine göre verildi."
         }+if(difficulty>0) " Seviye ayrıntı beklentisi: −$difficulty puan." else ""
-        val defenseReason=(if(duplicate) "Aynı cevap tekrarlandı; ${coverage.explanation}" else coverage.explanation)+
+        val defenseReason=(when {
+            objection!=null -> "${objection.finding} Önce bu iddiayı açıklaman gerekiyor; başka ayrıntılar itirazı kapatmadı."
+            unresolved -> "${a.conflict!!.finding} Sorunun ana itirazı kapanmadığı için savunma düşük kaldı."
+            duplicate -> "Aynı cevap tekrarlandı; ${coverage.explanation}"
+            else -> coverage.explanation
+        })+
             if(difficulty>0) " Seviye savunma beklentisi: −$difficulty puan." else ""
         return Assessment(consistency,plausibility,detail.coerceIn(0,25),defense.coerceIn(0,25),
             ScoreReasons(consistencyReason,plausibilityReason,detailReason,defenseReason).validated(),evidence,coverage.evasive)
     }
     fun evidence(s: Session,a: StoryEvidence.Analysis): EvidenceCard? {
         a.conflict?.let { c -> return EvidenceCard(if(c.confirmed) EvidenceStatus.CONTRADICTION else EvidenceStatus.NEEDS_EXPLANATION,c.earlier.take(280),c.later.take(280),c.finding.take(400)).validated() }
+        a.claim.active?.let { return EvidenceCard(EvidenceStatus.NEEDS_EXPLANATION,s.topic.take(280),it.quote,it.finding).validated() }
+        a.claim.resolved?.let { return EvidenceCard(EvidenceStatus.RESOLVED,it.quote,a.latest.text.take(280),"Olağan dışı iddianı açıkça geri alıp yerine somut bir açıklama verdin; eski itiraz artık aktif değil.").validated() }
         if(a.repaired && s.turns.isNotEmpty()) {
             val previous=StoryEvidence.inspect(s.copy(turns=s.turns.dropLast(1)),s.turns.last().answer).conflict
             previous?.let { return EvidenceCard(EvidenceStatus.RESOLVED,it.earlier.take(280),a.latest.text.take(280),"Eklediğin açıklama önceki ifadeler arasındaki boşluğu kapattı; eski açık yeniden cezalandırılmadı.").validated() }

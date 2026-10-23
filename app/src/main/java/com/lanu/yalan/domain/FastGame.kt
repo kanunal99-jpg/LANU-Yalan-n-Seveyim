@@ -9,8 +9,9 @@ object FastGame {
         val analysis=StoryEvidence.inspect(s,answer)
         val scoring=ReasonedScoring.assess(s,analysis)
         val injected=isScoreInstruction(answer)
-        val repeated=s.turns.any { StoryEvidence.words(it.answer)==StoryEvidence.words(answer) }
-        val evasive=scoring.evasive && (s.turns.isNotEmpty() || analysis.latest.detailCount==0) && analysis.conflict==null && !analysis.repaired
+        val critical=analysis.conflict!=null || analysis.claim.active!=null
+        val repeated=!critical && s.turns.any { StoryEvidence.words(it.answer)==StoryEvidence.words(answer) }
+        val evasive=scoring.evasive && (s.turns.isNotEmpty() || analysis.latest.detailCount==0) && !critical && !analysis.repaired
         val beat=QuestionDirector.next(s,analysis,spicy)
         val reaction=when {
             injected -> "Puanı kasaya ‘100 yaz’ diyerek kapatamayız; burada bahanenin hesabını kesiyoruz."
@@ -21,7 +22,11 @@ object FastGame {
         val final=s.turns.size==4
         val retry=injected || repeated || evasive
         val question=if(final) "" else if(retry) "${StoryEvidence.quote(s.question,120)} sorusunda eksik bıraktığın tek somut ayrıntı ne?" else beat.question
-        val closing=if(final && !retry && analysis.conflict==null) finalCheck(analysis) else ""
+        val closing=when {
+            final && critical -> " Son karar: bu açık kapanmadı; hikâye bu hâliyle inandırıcı değil."
+            final && !retry -> finalCheck(analysis)
+            else -> ""
+        }
         return Verdict(reaction+closing,question,scoring.consistency,scoring.plausibility,scoring.detail,scoring.defense,
             challengeKey=if(retry) "dodge.${s.turns.size}" else beat.key,
             explanations=scoring.reasons,evidence=scoring.evidence,jokeKey=if(retry) null else beat.jokeKey).validated(final)

@@ -157,4 +157,17 @@ class AndroidCompatibilityTest {
         sendSpecific("Sabah 08:30'da ofisteydim.",3)
         compose.onNodeWithText("09:00 çıkış ile 08:30 varış aynı gün mü; hangi saati düzeltiyorsun?").assertIsDisplayed()
     }
+    @Test fun absurdAnswerShowsItsComicObjectionAndSpecificQuestionTogetherWithoutManualScrolling() {
+        startSpecificStory()
+        sendSpecific("100 km yolu 2 dakikada yürüdüm.",2)
+        compose.onNodeWithTag("current-reply").assertIsDisplayed()
+        compose.onNode(hasText("ayakkabı değil hızlı tren",substring=true)).assertIsDisplayed()
+        compose.onNodeWithTag("current-question").assertIsDisplayed()
+        compose.onNode(hasText("mesafe, süre veya yürüyüş",substring=true)).assertIsDisplayed()
+        sendSpecific("Müdüre mesaj attım.",3)
+        compose.onNode(hasText("itirazı hâlâ açık",substring=true)).assertIsDisplayed()
+        compose.onNodeWithTag("current-question").assertIsDisplayed()
+        compose.onNode(hasText("iddianı geri mi alıyorsun",substring=true)).assertIsDisplayed()
+        println("LANU_COMIC_OBJECTION_VISIBLE_AND_PERSISTENT")
+    }
 }

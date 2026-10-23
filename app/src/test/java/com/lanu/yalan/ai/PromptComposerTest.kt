@@ -42,4 +42,11 @@ class PromptComposerTest {
         assertTrue(notes.contains("\"gap_explained\":true"))
         assertFalse(notes.contains("possible_gap"))
     }
+    @Test fun absurdClaimIsQuotedAsAPendingObjectionRatherThanAStatementOfFact() {
+        val s=Session("absurd",50,"İşe geç kaldım","Ne oldu?",mode=PlayMode.LOCAL_AI)
+        val notes=PromptComposer.notes(s,"100 km yolu 2 dakikada yürüdüm.",false)
+        assertTrue(notes.contains("pending_objection"))
+        assertTrue(notes.contains("3000 km/sa"))
+        assertTrue(notes.contains("must_resolve_before_new_angle"))
+    }
 }

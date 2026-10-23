@@ -31,7 +31,8 @@ object StoryEvidence {
             focuses.any { it!=Focus.GENERAL },proof || messaged).count { it }
     }
     data class Conflict(val key: String, val earlier: String, val later: String, val finding: String, val question: String, val joke: String, val confirmed: Boolean)
-    data class Analysis(val observations: List<Observation>, val conflict: Conflict?, val repaired: Boolean) {
+    data class Analysis(val observations: List<Observation>, val conflict: Conflict?, val repaired: Boolean,
+        val claim: ClaimReview.Review = ClaimReview.Review(null,null)) {
         val latest: Observation get() = observations.last()
     }
 
@@ -46,7 +47,8 @@ object StoryEvidence {
         val observations=(s.turns.map { it.answer }+answer).mapIndexed { i,text -> observe(text,i+1) }
         val conflict=findConflict(observations)
         val before=if(observations.size>1) findConflict(observations.dropLast(1)) else null
-        return Analysis(observations,conflict,before!=null && conflict==null)
+        val claim=ClaimReview.inspect(s.topic,observations)
+        return Analysis(observations,conflict,conflict==null && (before!=null || claim.resolved!=null),claim)
     }
     fun observe(text: String, turn: Int = 1): Observation {
         val n=normal(text)

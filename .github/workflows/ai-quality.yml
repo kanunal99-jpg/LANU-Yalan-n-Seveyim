@@ -2,10 +2,11 @@ name: Native AI diagnostics
 on:
   workflow_dispatch:
   push:
-    branches: [codex/premium-ota-20261023]
+    branches: [codex/premium-ota-20261023, codex/claim-review-20261023]
     paths:
       - 'app/src/main/cpp/**'
       - 'app/src/main/java/com/lanu/yalan/ai/**'
+      - 'app/src/main/java/com/lanu/yalan/domain/**'
       - 'app/src/main/assets/system_prompt.txt'
       - 'app/src/test/java/com/lanu/yalan/ai/**'
       - 'scripts/dialogue_smoke.py'
@@ -46,7 +47,7 @@ jobs:
           uname -a > app/build/reports/ai-quality/runtime.txt
           lscpu >> app/build/reports/ai-quality/runtime.txt
           free -m >> app/build/reports/ai-quality/runtime.txt
-      - name: Measure eleven real model outputs
+      - name: Measure fifteen real model outputs including absurdity and repair
         id: dialogue
         continue-on-error: true
         run: python3 scripts/dialogue_smoke.py --probe "$RUNNER_TEMP/lanu-ai/build/lanu-ai-probe" --model "$RUNNER_TEMP/lanu-ai/model.gguf" --fixtures app/build/reports/ai-quality/fixtures.json --output app/build/reports/ai-quality/dialogue-native-results.json --threads 4 --timeout 120

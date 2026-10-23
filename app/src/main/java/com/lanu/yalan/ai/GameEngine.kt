@@ -49,10 +49,7 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
                     AiOutputContract.validate(VerdictParser.parse(raw, final),final,analysis,FastGame.isScoreInstruction(answer)).copy(
                         challengeKey=beat.key,
                         // LOCAL clues, not model-generated reasoning or score explanations.
-                        evidence=analysis.conflict?.let { c -> EvidenceCard(
-                            if(c.confirmed) EvidenceStatus.CONTRADICTION else EvidenceStatus.NEEDS_EXPLANATION,
-                            c.earlier.take(280),c.later.take(280),c.finding.take(400)
-                        ) },
+                        evidence=ReasonedScoring.evidence(session,analysis),
                         jokeKey=beat.jokeKey
                     )
                 }

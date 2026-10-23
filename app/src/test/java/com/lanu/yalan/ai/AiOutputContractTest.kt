@@ -56,4 +56,12 @@ class AiOutputContractTest {
         val zero=valid().copy(consistency=0,plausibility=0,detail=0,defense=0)
         assertSame(zero,AiOutputContract.validate(zero,false,analysis(),true))
     }
+    @Test fun anAbsurdClaimCannotReceiveHighModelBelievabilityOrDefense() {
+        val a=StoryEvidence.inspect(story(),"100 km yolu 2 dakikada yürüdüm.")
+        assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(valid(),false,a) }
+        val low=valid().copy(plausibility=4,defense=4,question=a.claim.active!!.question)
+        assertSame(low,AiOutputContract.validate(low,false,a))
+        assertEquals(18,valid().plausibility)
+        assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(low.copy(question="Sonra kime haber verdin?"),false,a) }
+    }
 }

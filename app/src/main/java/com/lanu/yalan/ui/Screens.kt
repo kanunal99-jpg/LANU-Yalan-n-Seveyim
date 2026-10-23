@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -214,15 +215,26 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 LinearProgressIndicator(progress={session.turns.size/5f},Modifier.fillMaxWidth().padding(vertical=10.dp))
                 ResponseTime(s)
             }
-            items(session.turns) { turn ->
+            itemsIndexed(session.turns) { index,turn ->
                 Bubble("LANU",turn.question,false)
                 Spacer(Modifier.height(12.dp))
                 Bubble("SEN",turn.answer,true)
-                Spacer(Modifier.height(12.dp))
-                Bubble("LANU · ${turn.verdict.score}/100",turn.verdict.reply,false)
-                VerdictDetails(turn.verdict,compact=true)
+                if(index<session.turns.lastIndex) {
+                    Spacer(Modifier.height(12.dp))
+                    Bubble("LANU · ${turn.verdict.score}/100",turn.verdict.reply,false)
+                    VerdictDetails(turn.verdict,compact=true)
+                }
             }
-            item { Bubble("LANU",session.question,false,Modifier.testTag("current-question")) }
+            item {
+                // Auto-scroll lands at this item. Keep the response BEFORE its follow-up visible.
+                Column(Modifier.testTag("current-exchange"),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                    session.turns.lastOrNull()?.let { turn ->
+                        Bubble("LANU · ${turn.verdict.score}/100",turn.verdict.reply,false,Modifier.testTag("current-reply"))
+                    }
+                    Bubble("LANU",session.question,false,Modifier.testTag("current-question"))
+                    session.turns.lastOrNull()?.let { VerdictDetails(it.verdict,compact=true) }
+                }
+            }
             if(s.busy) item { Busy(s,vm) }
         }
         if(!s.canAnswer) {

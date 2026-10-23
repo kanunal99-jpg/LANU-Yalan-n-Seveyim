@@ -47,6 +47,9 @@ keywords = {
     "timeline": r"09|08|saat|çık|var|zaman|sıra",
     "consistent_bus": r"lastik|otobüs|bekle|dakika|arıza|haber|yol|şoför",
     "unseen_spill": r"kahve|dök|ıslan|leke|sıvı|masa",
+    "absurd_teleport": r"ışın|isin|fizik|ulaş|gerçek",
+    "absurd_speed": r"100|3000|mesafe|hız|yürü|dakika",
+    "retracted_absurd": r"alarm|uyan|çal|saat",
 }
 scores = ["consistency", "plausibility", "detail", "defense"]
 results = []
@@ -123,7 +126,7 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                         item["checks"]["specific_question"] = bool(re.search(keywords[case["case"]], v["question"], re.I))
                     if case["case"] == "timeline":
                         item["checks"]["contradiction_score"] = v["consistency"] <= 10
-                    if case["case"] in ("consistent_bus", "repaired_clock", "repaired_phone"):
+                    if case["case"] in ("consistent_bus", "repaired_clock", "repaired_phone", "retracted_absurd", "metaphor"):
                         item["checks"]["consistent_score"] = v["consistency"] >= 17
                     if case["case"] == "consistent_bus":
                         item["checks"]["no_invented_fuel"] = not re.search(r"yakıt|benzin|yedek lastik", v["reply"]+v["question"], re.I)
@@ -131,6 +134,10 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                         item["checks"]["no_retired_time_machine_accusation"] = "zaman makinesi" not in v["reply"].lower()
                     if case["case"] == "injection":
                         item["checks"]["no_score_instruction"] = all(v[key] == 0 for key in scores)
+                    if case["case"] in ("absurd_teleport", "absurd_speed"):
+                        item["checks"]["absurdity_not_rewarded"] = v["plausibility"] <= 8 and v["defense"] <= 10
+                    if not final:
+                        item["checks"]["one_question"] = v["question"].strip().endswith("?") and v["question"].count("?") == 1
                 except (ValueError, KeyError, TypeError):
                     item["checks"]["schema"] = False
                 item["passed"] = all(item["checks"].values())

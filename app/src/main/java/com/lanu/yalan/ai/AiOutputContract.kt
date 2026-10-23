@@ -19,6 +19,13 @@ object AiOutputContract {
             require(v.consistency<=16) { "AI açık zaman hesabıyla uyumsuz puan verdi" }
         if(analysis.repaired)
             require(v.consistency>=17) { "AI açıklanmış boşluğu yeniden cezalandırdı" }
+        if(analysis.claim.active!=null) {
+            require(v.plausibility<=8 && v.defense<=10) { "AI açıklanmamış mantık itirazını ödüllendirdi" }
+            if(analysis.conflict==null) {
+                val text=StoryEvidence.normal(if(final) v.reply else v.question)
+                require(analysis.claim.active.anchors.any(text::contains)) { "AI mantık itirazını bırakıp ilgisiz soruya geçti" }
+            }
+        }
         return v
     }
 }

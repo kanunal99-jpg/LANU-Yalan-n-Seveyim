@@ -44,6 +44,10 @@ object PromptComposer {
                 put("earlier_quote",safe(c.earlier.take(160)));put("later_quote",safe(c.later.take(160)))
                 put("rule_observation",safe(c.finding));put("explicit_conflict",c.confirmed)
             }) }
+            a.claim.active?.let { c -> put("pending_objection",buildJsonObject {
+                put("player_quote",safe(c.quote));put("rule_observation",safe(c.finding))
+                put("must_resolve_before_new_angle",true)
+            }) }
             if(a.repaired) put("gap_explained",true)
         }.toString()
     }

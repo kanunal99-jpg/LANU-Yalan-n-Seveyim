@@ -34,7 +34,11 @@ class AiFixtureExportTest {
             Triple("repaired_clock",reversed,"Düzeltiyorum, sabah 07:30'da evden çıktım; 08:30'da ofisteydim."),
             Triple("repaired_phone",phone,"Mesajı telefonun şarjı bitmeden önce göndermiştim."),
             Triple("unseen_spill",story("Dosyayı teslim edemedim",65),"Kahveyi masanın ucuna koydum, dosyanın üstüne döküldü."),
-            Triple("final_bus",last,"08:25'te gelen yedek otobüse bindik, 08:45'te ofise vardım.")
+            Triple("final_bus",last,"08:25'te gelen yedek otobüse bindik, 08:45'te ofise vardım."),
+            Triple("absurd_teleport",story(),"Işınlandım ama yine geç kaldım."),
+            Triple("absurd_speed",story(),"100 km yolu 2 dakikada yürüdüm."),
+            Triple("retracted_absurd",add(story(),"Işınlandım ama yine geç kaldım."),"Şakaydı, aslında alarmım çalmadı ve uyuyakaldım."),
+            Triple("metaphor",story(),"Sanki ışınlandım, otobüsle 20 dakikada ofise vardım.")
         )
         val report=buildJsonObject {
             put("fixture_type","Synthetic quoted case records; production prompt/grammar exports, not AI conversation rollouts")
@@ -48,6 +52,6 @@ class AiFixtureExportTest {
         val output=File("build/reports/ai-quality/fixtures.json")
         output.parentFile?.mkdirs()
         output.writeText(Json { prettyPrint=true }.encodeToString(report))
-        assertEquals(11,report.getValue("results").jsonArray.size)
+        assertEquals(15,report.getValue("results").jsonArray.size)
     }
 }
