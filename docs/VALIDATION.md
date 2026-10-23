@@ -1,5 +1,17 @@
 # Doğrulama kaydı
 
+## Yayımlanan 0.4 test ikilisi — 23 Ekim 2026
+
+Kaynak `1db42845827fe12e0458b147e1306e0b09b09ec6`, [yayın koşusu 40016842962](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40016842962): derleme, AOSP ve yayın işleri başarılı. **85 JVM testi; 0 başarısızlık, hata veya atlama.** Lint, ARM64 debug ve R8 release derlemesi geçti. İmza kapısının dört gerçek Gradle senaryosu da geçti: anahtar zorunluyken eksik anahtar, kısmi yapılandırma ve yanlış sertifika reddedildi; doğru geçici anahtar/parola/sertifika kabul edildi. Bu test geçici anahtar kullandı; kalıcı anahtar kurulumu sayılmaz.
+
+AOSP API 30'da 13 ayrı Android yöntemi doğrulandı: olağan koşuda 11 başarılı; normal koşuda atlanan hazırlık ve yükseltme sonrası iki yöntem, gerçek kod 5 → 6 yükseltmesinin iki aşamasında ayrı ayrı `OK (1 test)` verdi. Şifreli ilerleme ve hikâye korundu. Yeni kontrol, model bulunmadığında kullanıcının açık Hızlı oyun seçimiyle aynı hikâyeyi ve eski yanıtı koruyarak devam ettiğini doğruladı. Beş yanıtın ekranda görünme süreleri **451 / 515 / 684 / 443 / 594 ms**; p50 515 ms, p95 684 ms. Bu küçük emülatör örneklemi fiziksel telefon veya gerçek AI hızı değildir. [Android kanıtı](ota-aosp-results.json).
+
+v0.4.0-alpha ve v0.4.1-alpha test APK'ları yayımlandı. CI'nin yayın sonrası anonim indirme kontrolüne ek olarak iki APK da açık adreslerinden tekrar HTTP 200 ile indirildi; manifestteki boyut ve SHA-256 eşleşti, Android `apksigner` doğrulaması geçti. Her biri 25.596.702 bayt. İkisinin sertifikası aynı: `0304c270404b9518f8c135720fbf31d79761af36c7547e8a8a53a82011a9b963`. `permanentSigning=false`; bu ikili dışındaki sonraki CI yayınlarında anahtar sürekliliği sağlanmış değildir. [APK doğrulaması](ota-release-verification.json), [tüm son testlerin özeti](release-validation-0.4.json).
+
+Gerçek modelin 11 ham üretiminin yalnız **5'i otomatik kontrolden geçti**; Türkçe, muhakeme ve mizah onaylanmadı. Host p50 44,74 saniye; fiziksel A55 ölçümü değildir ve uygulamanın 30 saniyelik bütçesini doğrulamaz. Bu ham koşudan sonra hatalı biçim, yinelenen soru, bilinen zaman çelişkisi ve çözülmüş boşluğun yanlış puanlanması için AI kabul denetimi eklendi; sekiz yeni regresyon testi geçti. Denetim modelin metnini veya puanını düzeltmez, uygun olmayan çıktıyı reddeder. Yeni denetimle modelin 11 örneği yeniden başarıyla geçtiği iddia edilmez. [Ayrıntılı inceleme](AI_NATIVE_REVIEW.md).
+
+Fiziksel Samsung A55/Huawei/Xiaomi kabulü, gerçek AI'nın istenen kalite/hıza ulaşması ve kullanıcı hesabında kalıcı imza kurulumu açık kalır. Eski farklı imzalı uygulamayı kaldırmak ilerlemeyi siler; v0.3'te taşınabilir yedek yoktur. Kurulum/güncelleme yolu ve güvenli anahtar adımı: [STABLE_SIGNING.md](STABLE_SIGNING.md).
+
 ## 0.4 OTA, yedek ve gerekçeli puanlama
 
 [40014129839 numaralı koşunun](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40014129839) AOSP işi başarılı. Kaynak: `26fb0c5d82455b5136c0cf71345b5d75d9cbf9c6`. XML'deki 12 yöntemin 10'u normal koşuda başarılı; hazırlık ve yükseltme sonrası kontrol yöntemleri normal koşuda atlanıp ayrı gerçek yükseltme aşamalarında birer kez başarılı çalıştırıldı. Toplam 12 Android yöntemi doğrulandı.

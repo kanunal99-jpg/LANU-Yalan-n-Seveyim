@@ -11,6 +11,8 @@ Android test APK'ları: [v0.4.0-alpha · OTA başlangıç paketi](https://github
 
 Kalıcı anahtar yoksa bu ikili test imzalıdır; sonraki CI çalıştırmalarına imza sürekliliği garanti edilmez. v0.3 gibi farklı test imzalı eski APK'ların üzerine yerinde kurulum yapılamaz. Eski uygulamayı kaldırmak eski ilerlemeyi siler. [Kalıcı imza ve geçiş açıklaması](docs/STABLE_SIGNING.md). Cihazda AI deneysel kalır; model kalitesi ve gerçek telefon hızı ayrıca değerlendirilir.
 
+Yayımlanan kaynakta **85 JVM testi, 13 Android yöntemi ve 4 imza kapısı senaryosu geçti**. Her iki APK açık bağlantıdan indirilip hash ve Android imzasıyla doğrulandı. [Son teslim kanıtları](docs/release-validation-0.4.json). Gerçek modelin 11 ham örneğinin yalnız 5'i otomatik kontrolden geçti; Türkçe/muhakeme/mizah onayı yok. Sonradan eklenen kabul denetimi hatalı çıktıyı reddeder; model cevabını düzeltmez. [AI kalite incelemesi](docs/AI_NATIVE_REVIEW.md).
+
 Hızlı oyun; telefon/şarj, alarm, trafik, arıza, ödev, bağlantı ve diğer somut ayrıntılara göre farklı sorgulama yolları seçer. Saat sırası, bekleme aralığı, araç değişimi ve iletişimdeki boşlukları önceki cevaplarla karşılaştırır. Açıklanan bağlantıyı yeniden suçlamaz; sorulan açı şifreli kayıtta tutulur. Beş zorluk bandında soru mekanizması ve espri değişir. Kurallar dilin anlamını bütünüyle anlayamaz; gerçek AI olarak sunulmaz. İki seçenekte de ilk soru konuya göre hemen hazırlanır. AI modunda sonraki soruları/puanları model üretir; yalnız oyuncunun ifadelerini içeren vaka notları ve daha önce sorulan sorular modele yardımcı veri olarak iletilir.
 
 ## Oynanış

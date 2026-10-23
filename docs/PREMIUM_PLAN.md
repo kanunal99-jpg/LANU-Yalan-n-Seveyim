@@ -14,7 +14,17 @@ Kritik zincirler: ana yol → gerçek alternatif → açık fallback → hata y�
 
 Kalıcı imza için özel anahtarın ve parolaların güvenli depo secret'larında bulunması gerekir. Kaynak koduna veya yayın paketine özel anahtar konulmaz. Yapılandırma yoksa test APK'sı üretim imzalı diye sunulmaz. Fiziksel A55/Huawei/Xiaomi testi uzaktan ölçülmüş gibi gösterilmez.
 
-İşler henüz geliştirme aşamasındadır. Sonuçlar derleme, gerçek model ve Android kontrollerinden sonra bu kayda eklenir. Her yayınlanabilir sürümün APK'sı Releases'te yayımlanır, indirilerek bütünlüğü ve imzası doğrulanır.
+0.4 test ikilisi yayımlandı; son kabul durumu aşağıdadır. Gerçek AI kalitesi, fiziksel telefon ölçümü ve kalıcı imza tamamlanmış değildir.
+
+## Teslim edilen 0.4 test ikilisi
+
+Kaynak `1db4284`, [CI 40016842962](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40016842962): **85 JVM testi, 13 Android yöntemi ve 4 imza kapısı senaryosu geçti**; lint, ARM64 debug ve R8 release başarılı. Android yöntemlerinin 11'i olağan koşuda, ikisi ayrı gerçek yükseltme aşamalarında çalıştı. Hızlı oyunun beş yanıtı emülatörde 443–684 ms içinde göründü; p50 515 ms, p95 684 ms. Model bulunmadığında açık Hızlı oyun geçişiyle aynı hikâyenin korunması da doğrulandı.
+
+[v0.4.0-alpha](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/tag/v0.4.0-alpha) OTA başlangıç paketi ve [v0.4.1-alpha](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/tag/v0.4.1-alpha) güncelleme paketi aynı test sertifikasıyla yayımlandı. İki açık APK bağlantısı tekrar indirildi, boyut/SHA-256 ve Android imzaları doğrulandı. [Teslim kanıtları](release-validation-0.4.json). Ayarlar'daki güncelleme yolu, parolalı yedek, gerekçeli yerel puanlama ve espri hafızası kullanılabilir.
+
+Gerçek modelin ham değerlendirmesi **5/11 otomatik başarı** ve onaylanmamış Türkçe/muhakeme/mizah gösterdi. Host p50 44,74 saniye; telefon ölçümü değildir. Ardından eklenen sekiz testli kabul denetimi hatalı çıktıyı reddeder, model kalitesini iyileştirmiş sayılmaz. AI deneysel kalır. [Model incelemesi](AI_NATIVE_REVIEW.md).
+
+Sonraki gereklilikler: kullanıcı hesabında [kalıcı imza kurulumu](STABLE_SIGNING.md), [fiziksel cihaz kontrolü](A55_CHECK.md) ve istenen AI kalite/hız hedefini sağlayan yeni ölçülmüş çözüm. Bu test ikilisinin aynı imzası, gelecekteki yayınların kalıcı imza sürekliliği değildir.
 
 ## 0.4 doğrulanan durum
 
@@ -26,4 +36,4 @@ Kaynak `26fb0c5`, CI `40014129839`: 77 JVM testi, lint, normal ARM64 native debu
 4. Performans: telefonda ayrı Hızlı/AI/açılış özeti, hatalar ve kaynak durumu hazır. Emülatör hız kapısı geçti; fiziksel A55/Huawei/Xiaomi süresi henüz ölçülmedi.
 5. Kayıt/OTA: parolalı yedek, yanlış parolada mevcut kayıt korunması, cihaz anahtarı kaybolduktan sonra geri yükleme, APK imza/hash/paket/sürüm kontrolleri ve gerçek yükseltme başarılı. Kalıcı özel anahtar kullanıcı hesabındaki GitHub secrets kurulumunu bekler. Test ikilisinin kendi içindeki imza eşitliği gelecekteki CI anahtar sürekliliği sayılmaz.
 
-Sonraki teslim zinciri: aynı kaynak ağacı → yayın CI'si → indirilebilir iki Release APK'sı → halka açık bağlantılardan yeniden indirme/hash doğrulama. Eksik gerçek AI, fiziksel cihaz veya kalıcı imza kanıtı tamamlanmış gibi gösterilmez.
+Yukarıdaki 77 testli kayıt yayın öncesi tarihsel kontroldür. Son teslimin 85 testli ve iki yayımlanmış APK'lı kanıtı bu belgenin teslim bölümündedir. Eksik gerçek AI, fiziksel cihaz veya kalıcı imza kanıtı tamamlanmış gibi gösterilmez.

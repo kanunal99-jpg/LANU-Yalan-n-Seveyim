@@ -1,0 +1,149 @@
+{
+  "verified_at_utc": "2026-10-23",
+  "source_commit": "1db42845827fe12e0458b147e1306e0b09b09ec6",
+  "run": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40016842962",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 120630975029,
+      "name": "build",
+      "conclusion": "success"
+    },
+    {
+      "id": 120630973616,
+      "name": "ui-smoke",
+      "conclusion": "success"
+    },
+    {
+      "id": 120634310476,
+      "name": "prerelease",
+      "conclusion": "success"
+    }
+  ],
+  "unit_tests": {
+    "tests": 85,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "unit_report_summaries": [
+    {
+      "suite": "com.lanu.yalan.ai.AiFixtureExportTest",
+      "tests": 1,
+      "sha256": "6c0fbaccbe7f75b167339187ac155ee13b4e084901098db9166c327d293064f9"
+    },
+    {
+      "suite": "com.lanu.yalan.ai.AiOutputContractTest",
+      "tests": 8,
+      "sha256": "290e47cdb491b2e2f878c5b18c07891e72e8160aa40810f9b4f2ce56e2fd0758"
+    },
+    {
+      "suite": "com.lanu.yalan.ai.EngineGrammarTest",
+      "tests": 3,
+      "sha256": "8f09dc2743b8d3033472caa0f82362d55359edbe079cfdb3a999d4d3fc158742"
+    },
+    {
+      "suite": "com.lanu.yalan.ai.PromptComposerTest",
+      "tests": 4,
+      "sha256": "fbd9a4096df2244a28a50c3ab7cb5037959db8195529b5dbe916d0cf9efcd790"
+    },
+    {
+      "suite": "com.lanu.yalan.data.PortableBackupTest",
+      "tests": 9,
+      "sha256": "0c29a3012a2bfc8ce18e28a043f058f91f492a37b6b4f0a592a0bcd9eb8c04f5"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.DevicePolicyTest",
+      "tests": 4,
+      "sha256": "a1158a308b298bde02de3d52f5bac9a458919b668e8efaf97a88536ddb104e09"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.FastGameTest",
+      "tests": 8,
+      "sha256": "9b5db9819001e9426ca83b295d342c1d373e5d9ac27a03e936039447d8aa71cd"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.PerformanceStatsTest",
+      "tests": 5,
+      "sha256": "83b6d37a8079b554ede83d7d3546b521a761044ab62b7d5f9e457a291822a76f"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.ReasonedScoringTest",
+      "tests": 7,
+      "sha256": "e84b592cb878db1beb70e99458ef932d99ba6f31d349ce1d3f2508f3d2d42a14"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.RulesTest",
+      "tests": 9,
+      "sha256": "da0980b764564c2112b1b614d70c7199ac478b443224863d430c9b83f3638fbf"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.StoryHumorTest",
+      "tests": 4,
+      "sha256": "9e3c026832a769625f939a1e0f0d80fd4e3d6b0c26b77d63febfec0d141caf37"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.StoryQualityTest",
+      "tests": 12,
+      "sha256": "3723993e139d891cdc605147e57ae050d8d551dfc240f5882065431540bfd8fb"
+    },
+    {
+      "suite": "com.lanu.yalan.domain.UpdatePolicyTest",
+      "tests": 11,
+      "sha256": "c9b9b8c6957f814396e4e6fd8f2f3c797e74de0a2290abe71729f4b5a2c95a2a"
+    }
+  ],
+  "lint": "passed",
+  "arm64_debug_build": "passed",
+  "r8_release_build": "passed",
+  "signing_guards": {
+    "disposable_key_only": true,
+    "results": [
+      {
+        "case": "required_without_key",
+        "passed": true
+      },
+      {
+        "case": "partial_configuration",
+        "passed": true
+      },
+      {
+        "case": "mismatched_certificate",
+        "passed": true
+      },
+      {
+        "case": "correct_key_password_and_certificate",
+        "passed": true
+      }
+    ],
+    "passed": true
+  },
+  "android": {
+    "distinct_methods_validated": 13,
+    "normal_phase_passed": 11,
+    "upgrade_phases_passed": 2,
+    "artifact_id": 12529256115,
+    "details": "ota-aosp-results.json"
+  },
+  "quality_artifact_id": 12529141922,
+  "public_downloads": {
+    "same_certificate": true,
+    "apksigner_verified": true,
+    "permanent_signing": false,
+    "details": "ota-release-verification.json"
+  },
+  "ai": {
+    "quality_approved": false,
+    "experimental": true,
+    "native_raw_automatic_cases_passed": 5,
+    "native_raw_cases_completed": 11,
+    "raw_before_kotlin_output_guard": true,
+    "review": "AI_NATIVE_REVIEW.md",
+    "physical_phone_latency_verified": false
+  },
+  "remaining": [
+    "Permanent private signing key must be configured by the account owner; the published pair uses a CI test key.",
+    "Physical Samsung A55, Huawei and Xiaomi tests have not run.",
+    "Current on-device model has not met the requested Turkish reasoning, comedy or 2-3 second response target."
+  ]
+}

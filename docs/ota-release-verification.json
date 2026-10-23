@@ -1,0 +1,33 @@
+{
+  "source_commit": "1db42845827fe12e0458b147e1306e0b09b09ec6",
+  "ci_run": 40016842962,
+  "sameCertificate": true,
+  "records": [
+    {
+      "version": "v0.4.0-alpha",
+      "versionCode": 5,
+      "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.4.0-alpha/LANU-Yalanini-Seveyim-v0.4.0-alpha-arm64-test.apk",
+      "httpStatus": 200,
+      "bytes": 25596702,
+      "sha256": "6b91f0207845181bfe5df3c8faa221b47435b145b79724f235edb2074e573af1",
+      "signerSha256": [
+        "0304c270404b9518f8c135720fbf31d79761af36c7547e8a8a53a82011a9b963"
+      ],
+      "apksignerVerified": true,
+      "permanentSigning": false
+    },
+    {
+      "version": "v0.4.1-alpha",
+      "versionCode": 6,
+      "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.4.1-alpha/LANU-Yalanini-Seveyim-v0.4.1-alpha-arm64-test.apk",
+      "httpStatus": 200,
+      "bytes": 25596702,
+      "sha256": "796213cc5c97c152ec3c8e44f83fdc05736d459f15c5238bd3645cff5d4423c5",
+      "signerSha256": [
+        "0304c270404b9518f8c135720fbf31d79761af36c7547e8a8a53a82011a9b963"
+      ],
+      "apksignerVerified": true,
+      "permanentSigning": false
+    }
+  ]
+}
