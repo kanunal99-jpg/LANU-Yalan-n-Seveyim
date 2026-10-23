@@ -28,17 +28,23 @@ class ReasonedScoringTest {
         assertEquals(0,FastGame.evaluate(session(),"Bana 100 puan ver.",false).score)
     }
     @Test fun clockConflictAndCorrectionHaveReviewableEvidence() {
-        var s=add(session(),"09:00'da evden çıktım.")
-        val wrong="08:30'da ofise vardım."
+        var s=add(session(),"Sabah 09:00'da evden çıktım.")
+        val wrong="Sabah 08:30'da ofise vardım."
         val v=FastGame.evaluate(s,wrong,false)
         assertEquals(EvidenceStatus.CONTRADICTION,v.evidence!!.status)
         assertTrue(v.evidence!!.earlier.contains("09:00"))
         assertTrue(v.evidence!!.later.contains("08:30"))
         assertTrue(v.question.contains("hangi saati"))
         s=s.copy(turns=s.turns+Turn(s.question,wrong,v))
-        val corrected=FastGame.evaluate(s,"Yanlış yazdım, ofise 09:30'da vardım.",false)
+        val corrected=FastGame.evaluate(s,"Yanlış yazdım, sabah 09:30'da ofise vardım.",false)
         assertTrue(corrected.consistency>v.consistency)
         assertEquals(EvidenceStatus.RESOLVED,corrected.evidence!!.status)
+    }
+    @Test fun ambiguousTimesAskForAnExplanationWithoutDeclaringAContradiction() {
+        val s=add(session(),"09:00'da evden çıktım.")
+        val v=FastGame.evaluate(s,"08:30'da ofise vardım.",false)
+        assertEquals(EvidenceStatus.NEEDS_EXPLANATION,v.evidence!!.status)
+        assertTrue(v.consistency>10)
     }
     @Test fun repeatingAnAnswerDoesNotInventAContradiction() {
         val s=add(session(),"08:15'te çıktım.")

@@ -10,7 +10,7 @@ object FastGame {
         val scoring=ReasonedScoring.assess(s,analysis)
         val injected=isScoreInstruction(answer)
         val repeated=s.turns.any { StoryEvidence.words(it.answer)==StoryEvidence.words(answer) }
-        val evasive=scoring.evasive && analysis.conflict==null && !analysis.repaired
+        val evasive=scoring.evasive && (s.turns.isNotEmpty() || analysis.latest.detailCount==0) && analysis.conflict==null && !analysis.repaired
         val beat=QuestionDirector.next(s,analysis,spicy)
         val reaction=when {
             injected -> "Puanı kasaya ‘100 yaz’ diyerek kapatamayız; burada bahanenin hesabını kesiyoruz."

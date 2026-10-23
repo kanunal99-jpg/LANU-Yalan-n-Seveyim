@@ -89,7 +89,9 @@ class GameViewModel @Inject constructor(
         // Debug diagnostics contain only types and source locations, never exception messages or story data.
         if(BuildConfig.DEBUG) Log.w("LANU", e.javaClass.simpleName + " at " + e.stackTrace.filter { it.className.startsWith("com.lanu.") }.take(4).joinToString())
     }
-    private suspend fun persist(save: GameSave) { store.write(save); mutable.update { it.copy(save=save) } }
+    private suspend fun persist(save: GameSave) = withContext(NonCancellable) {
+        store.write(save); mutable.update { it.copy(save=save) }
+    }
     private suspend fun <T> measured(mode: PlayMode, phase: TimingPhase, work: suspend () -> T): Pair<T,Long> {
         val start=System.nanoTime()
         var outcome=TimingOutcome.ERROR
@@ -111,9 +113,12 @@ class GameViewModel @Inject constructor(
             val (next,elapsed)=measured(before.save.mode,TimingPhase.OPENING) {
                 val s=Session(UUID.randomUUID().toString(),before.selectedLevel,value,"",mode=before.save.mode,recentJokeKeys=before.save.recentJokeKeys)
                 val response=engine.ask(s,null,before.save.spicy)
-                before.save.copy(session=s.copy(opening=response.question),onboarding=true).also { store.write(it) }
+                before.save.copy(session=s.copy(opening=response.question),onboarding=true).also { next ->
+                    currentCoroutineContext().ensureActive()
+                    withContext(NonCancellable) { store.write(next);mutable.update { it.copy(save=next,screen=Screen.GAME,answer="") } }
+                }
             }
-            mutable.update { it.copy(save=next,screen=Screen.GAME,answer="",responseMs=elapsed) }
+            mutable.update { it.copy(responseMs=elapsed) }
         }
     }
     fun submit() {
@@ -126,9 +131,12 @@ class GameViewModel @Inject constructor(
                 val verdict=engine.ask(s,answer,before.save.spicy)
                 val session=s.copy(turns=s.turns+Turn(s.question,answer,verdict))
                 val jokes=(before.save.recentJokeKeys+listOfNotNull(verdict.jokeKey)).asReversed().distinct().take(40).asReversed()
-                Rules.credit(before.save.copy(session=session,recentJokeKeys=jokes)).also { store.write(it) }
+                Rules.credit(before.save.copy(session=session,recentJokeKeys=jokes)).also { next ->
+                    currentCoroutineContext().ensureActive()
+                    withContext(NonCancellable) { store.write(next);mutable.update { it.copy(save=next,answer="") } }
+                }
             }
-            mutable.update { it.copy(save=next,answer="",responseMs=elapsed) }
+            mutable.update { it.copy(responseMs=elapsed) }
         }
     }
     fun playMode(mode: PlayMode) = task("Oyun tercihi kaydediliyor…") {
@@ -164,8 +172,8 @@ class GameViewModel @Inject constructor(
         }
     }
     fun useRestored(save: GameSave) = task("Geri yüklenen hikâye açılıyor…",allowRecovery=true) {
-        engine.release()
         mutable.update { it.copy(save=save,selectedLevel=save.unlocked,answer="",recovery=false,screen=Screen.HOME,responseMs=null) }
+        try { engine.release() } catch(e: Exception) { diagnostic(e) }
     }
     override fun onCleared() { engine.cancel(); super.onCleared() }
 }

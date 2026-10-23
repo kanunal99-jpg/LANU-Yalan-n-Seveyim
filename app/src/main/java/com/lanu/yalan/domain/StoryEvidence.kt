@@ -73,7 +73,7 @@ object StoryEvidence {
         val waiting=if(has(text,"bekled","beklem","trafik","durduk")) amount?.times(if(d?.groupValues?.get(2)=="saat") 60 else 1) else null
         return Observation(text,turn,focuses,clocks(text,turn),vehicle,person,place,d?.value,waiting,
             contact.containsMatchIn(n) || has(text,"gonderdim"),has(text,"bilet","fis","kayit","fotograf","ekran","mesaj"),
-            has(text,"yalnizdim") || n.contains("kimse yoktu"),has(text,"duzeltiyorum","pardon") || n.contains("yanlis dedim") || n.contains("yanlis soyledim"),
+            has(text,"yalnizdim") || n.contains("kimse yoktu"),has(text,"duzeltiyorum","pardon") || n.contains("yanlis dedim") || n.contains("yanlis soyledim") || n.contains("yanlis yazdim"),
             has(text,"sonra","aktarma","yerine","inip","birak","degistir","bitmeden","onceden"))
     }
     private fun clocks(text: String, turn: Int): List<Clock> = clause.split(text).flatMap { raw ->

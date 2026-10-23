@@ -5,6 +5,9 @@ set -euo pipefail
 cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/lanu-ota-next.apk"
 adb push "$RUNNER_TEMP/lanu-ota-next.apk" /data/local/tmp/lanu-ota-next.apk
 ./gradlew -Planu.uiSmoke=true connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.lanu.allowProgressReset=true -Pandroid.testInstrumentationRunnerArguments.lanu.otaCandidate=/data/local/tmp/lanu-ota-next.apk --stacktrace --max-workers=2
+# The connected-test runner removes installed test packages after it finishes.
+adb install -r app/build/outputs/apk/debug/app-debug.apk
+adb install -r app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
 mkdir -p app/build/reports/ota-upgrade
 run_phase() {
   local method="$1" phase="$2" output="$3"

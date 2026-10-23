@@ -13,10 +13,10 @@ class FastGameTest {
             var s=story(level)
             val questions=mutableSetOf(s.question)
             listOf("Saat 8'de otobüse bindim, lastik patladı.",
-                "Saat 8:15'te durakta şoförle 15 dakika yedek otobüs bekledim.",
-                "Şoför arızayı 8:15'te durakta açıkladı, müdüre mesaj attım.",
-                "Durakta saat 8:20'de müdüre arızayı telefonla haber verdim.",
-                "Otobüs bileti, müdüre arızayı bildirdiğim mesaj ve şoförün durakta söylediği saatler birbirini tutuyor.").forEachIndexed { index, answer ->
+                "Saat 8:15'te durakta lastiğin indiğini gördüm; önce şoför durdu, sonra 15 dakika yedek otobüs bekledik.",
+                "15 dakikayı duraktaki saatten biliyorum; önce 8:15'te bekleme başladı, sonra 8:30'da yedek otobüse bindim.",
+                "Durakta saat 8:20'de müdüre “Lastik patladı, bekliyorum” diye mesaj yazdım; şoför arızayı söylemişti.",
+                "Durakta önce lastiğin indiğini gördüm, sonra 8:15–8:30 arasında 15 dakika bekledik; saatime baktım. 8:20'de müdüre lastik arızasını haber verdim; başka otobüs yoktu. Biletim de var.").forEachIndexed { index, answer ->
                 s=add(s,answer)
                 val v=s.turns.last().verdict.validated(index==4)
                 assertTrue(v.score in 0..100)
@@ -24,7 +24,7 @@ class FastGameTest {
             }
             assertTrue(s.finished)
             assertEquals("",s.question)
-            assertTrue(s.finalScore >= Rules.threshold(level))
+            assertTrue("Level $level: ${s.finalScore}; ${s.turns.last().verdict}",s.finalScore >= Rules.threshold(level))
         }
     }
     @Test fun explicitVehicleSwitchLowersConsistencyAndQuotesOnlyPlayerFacts() {
