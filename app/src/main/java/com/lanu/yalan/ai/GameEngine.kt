@@ -46,7 +46,7 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
                 try {
                     val analysis=StoryEvidence.inspect(session,answer)
                     val beat=QuestionDirector.next(session,analysis,spicy)
-                    VerdictParser.parse(raw, final).copy(
+                    AiOutputContract.validate(VerdictParser.parse(raw, final),final,analysis,FastGame.isScoreInstruction(answer)).copy(
                         challengeKey=beat.key,
                         // LOCAL clues, not model-generated reasoning or score explanations.
                         evidence=analysis.conflict?.let { c -> EvidenceCard(

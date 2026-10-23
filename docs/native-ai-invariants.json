@@ -1,0 +1,43 @@
+{
+  "purpose": "Native grammar rejection, context bounds and recovery only; not dialogue quality or humor approval",
+  "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+  "probe_sha256": "5ec0f97b7b87e2553b0c171c84de47c88696e993d3157a5e78e85c4987607284",
+  "generation_source_sha256": "313ac5122fbbb587323b2ef3ececc55e6e998d919817e5d16fec92e61e77cd7d",
+  "model_load_seconds": 1.76243,
+  "passed": true,
+  "results": [
+    {
+      "case": "grammar_rejection",
+      "host_seconds": 2.2175,
+      "prompt_tokens": 21,
+      "generated_tokens": 11,
+      "grammar_fallbacks": 10,
+      "raw": "{\"sentinel\":9173}",
+      "checks": {
+        "exact_grammar_literal": true,
+        "fallback_exercised": true
+      },
+      "passed": true
+    },
+    {
+      "case": "context_overflow",
+      "error": "LANU_AI_CONTEXT",
+      "checks": {
+        "bounded_context_error": true
+      },
+      "passed": true
+    },
+    {
+      "case": "recovery",
+      "host_seconds": 1.96463,
+      "prompt_tokens": 21,
+      "generated_tokens": 9,
+      "grammar_fallbacks": 7,
+      "raw": "{\"again\":42}",
+      "checks": {
+        "exact_grammar_literal": true
+      },
+      "passed": true
+    }
+  ]
+}

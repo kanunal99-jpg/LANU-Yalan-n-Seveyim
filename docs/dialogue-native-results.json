@@ -1,0 +1,327 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+  "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+  "inference_source": "generation.cpp shared by Android JNI and lanu-ai-probe",
+  "probe_sha256": "5ec0f97b7b87e2553b0c171c84de47c88696e993d3157a5e78e85c4987607284",
+  "sampler": {
+    "order": [
+      "top_k",
+      "top_p",
+      "temperature",
+      "dist"
+    ],
+    "grammar_strategy": "Selected-token validation, full-vocabulary grammar mask on rejection (pinned llama.cpp common/sampling.cpp strategy)",
+    "top_k": 20,
+    "repeat_penalty": 1.0,
+    "top_p": 0.8,
+    "temperature": 0.5,
+    "seed": 42,
+    "min_p": null,
+    "penalize_prompt": false,
+    "acceptance": "apply does not accept; accept valid token once in grammar and once in sampling chain"
+  },
+  "context_tokens": 3072,
+  "max_generated_tokens": 240,
+  "threads": 4,
+  "host_timeout_seconds": 120,
+  "android_timeout_seconds_including_load": 30,
+  "model_load_seconds": 1.78538,
+  "source_sha256": {
+    "app/src/main/cpp/generation.h": "9ce47e1224675353691047ce927038483fabc63f1f9e4e03387a220d0565497f",
+    "app/src/main/cpp/generation.cpp": "313ac5122fbbb587323b2ef3ececc55e6e998d919817e5d16fec92e61e77cd7d",
+    "app/src/main/assets/system_prompt.txt": "aaf3c0f9e9ef357a03b1b3d2b62fcda74152681decfb81963430f134041114d7",
+    "app/src/main/java/com/lanu/yalan/ai/PromptComposer.kt": "cee56e290cd383513a1bd10054da39595f381b02c45d37bfe1048ba34ba97af7",
+    "app/src/main/java/com/lanu/yalan/ai/GameEngine.kt": "98b540bcd821308ce80fa7aa6539492033b840af6cb9383ebe4278497a55d13a"
+  },
+  "fixtures_sha256": "cbd4ce44802870cfa3989822883120da54d24aa29d21d9f4c488bf6ee5ddece6",
+  "passed": false,
+  "complete": true,
+  "expected_cases": 11,
+  "expected_case_names": [
+    "battery",
+    "alarm",
+    "traffic",
+    "homework",
+    "timeline",
+    "consistent_bus",
+    "injection",
+    "repaired_clock",
+    "repaired_phone",
+    "unseen_spill",
+    "final_bus"
+  ],
+  "quality_approved": false,
+  "note": "Synthetic x86 host checks, with untouched model text/scores. Question grounding and Turkish humor still require manual review. Host times exclude model loading and are not Android timings.",
+  "results": [
+    {
+      "case": "battery",
+      "host_seconds": 40.0097,
+      "prompt_tokens": 754,
+      "generated_tokens": 96,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Telefonun şarjı bitti, bahane yüzde yüz; telefon senden önce mesaiyi bırakmış.\",\n  \"question\": \"Şarj bitince telefonun ne yaptığını, o sırada neredeydin?\",\n  \"consistency\": 20,\n  \"plausibility\": 18,\n  \"detail\": 15,\n  \"defense\": 12\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Telefonun şarjı bitti, bahane yüzde yüz; telefon senden önce mesaiyi bırakmış.",
+        "question": "Şarj bitince telefonun ne yaptığını, o sırada neredeydin?",
+        "consistency": 20,
+        "plausibility": 18,
+        "detail": 15,
+        "defense": 12
+      },
+      "passed": true
+    },
+    {
+      "case": "alarm",
+      "host_seconds": 41.4465,
+      "prompt_tokens": 745,
+      "generated_tokens": 113,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Alarm susmuş, mazeret sabah kuşağını tek başına sunuyor. Oysa uykunun sesini duyduysan, alarmın susmadığını fark etme şansın yoktu.\",\n  \"question\": \"Alarmın hangi saate kurulmuştu ve susmadığını nasıl fark ettin?\",\n  \"consistency\": 20,\n  \"plausibility\": 18,\n  \"detail\": 15,\n  \"defense\": 17\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Alarm susmuş, mazeret sabah kuşağını tek başına sunuyor. Oysa uykunun sesini duyduysan, alarmın susmadığını fark etme şansın yoktu.",
+        "question": "Alarmın hangi saate kurulmuştu ve susmadığını nasıl fark ettin?",
+        "consistency": 20,
+        "plausibility": 18,
+        "detail": 15,
+        "defense": 17
+      },
+      "passed": true
+    },
+    {
+      "case": "traffic",
+      "host_seconds": 46.3222,
+      "prompt_tokens": 797,
+      "generated_tokens": 139,
+      "grammar_fallbacks": 0,
+      "raw": "{\n  \"reply\": \"Navigasyon senin için ‘yeniden hesaplanıyor’ diyerek rotayı açtı, o da Kadıköy'de 25 dakika trafik bekledi. Yani senin bahanesi, senin rotanı seçme gerekçen.\",\n  \"question\": \"Kadıköy'de 25 dakika trafik bekleme bahanesi, neden o rotayı seçtiğin gerekçeyi açıklayamadı?\",\n  \"consistency\": 14,\n  \"plausibility\": 12,\n  \"detail\": 6,\n  \"defense\": 10\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Navigasyon senin için ‘yeniden hesaplanıyor’ diyerek rotayı açtı, o da Kadıköy'de 25 dakika trafik bekledi. Yani senin bahanesi, senin rotanı seçme gerekçen.",
+        "question": "Kadıköy'de 25 dakika trafik bekleme bahanesi, neden o rotayı seçtiğin gerekçeyi açıklayamadı?",
+        "consistency": 14,
+        "plausibility": 12,
+        "detail": 6,
+        "defense": 10
+      },
+      "passed": true
+    },
+    {
+      "case": "homework",
+      "host_seconds": 43.8863,
+      "prompt_tokens": 779,
+      "generated_tokens": 122,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Sözlü ödevin var, kâğıt yok, sen de defter yok, bu da senin kâğıtla konuşmama neden.\",\n  \"question\": \"Sözlü ödevi hazırladığını iddia etsen, defteri neden evde bırakıp sözlüye kaldırmadın?\",\n  \"consistency\": 18,\n  \"plausibility\": 15,\n  \"detail\": 10,\n  \"defense\": 12\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Sözlü ödevin var, kâğıt yok, sen de defter yok, bu da senin kâğıtla konuşmama neden.",
+        "question": "Sözlü ödevi hazırladığını iddia etsen, defteri neden evde bırakıp sözlüye kaldırmadın?",
+        "consistency": 18,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 12
+      },
+      "passed": true
+    },
+    {
+      "case": "timeline",
+      "host_seconds": 51.5289,
+      "prompt_tokens": 940,
+      "generated_tokens": 134,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"09:00'dan 08:30'ya gitmişsin, evden ofise mi, ofisten eve mi? Zamanı geriye sarıp kafa karıştırmışsın.\",\n  \"question\": \"09:00'da evden çıkmış, 08:30'da ofiste; bu sıralama nasıl imkansız oldu?\",\n  \"consistency\": 20,\n  \"plausibility\": 15,\n  \"detail\": 10,\n  \"defense\": 12\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "contradiction_score": false
+      },
+      "verdict": {
+        "reply": "09:00'dan 08:30'ya gitmişsin, evden ofise mi, ofisten eve mi? Zamanı geriye sarıp kafa karıştırmışsın.",
+        "question": "09:00'da evden çıkmış, 08:30'da ofiste; bu sıralama nasıl imkansız oldu?",
+        "consistency": 20,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 12
+      },
+      "passed": false
+    },
+    {
+      "case": "consistent_bus",
+      "host_seconds": 43.3344,
+      "prompt_tokens": 837,
+      "generated_tokens": 95,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Sonra ne oldu? Lastiğe yama yapmaya gittin mi yoksa başka bir otobüs bulup yoldan döndün mü?\", \"question\":\"Otomobüslere yama yapılıp yapılmaz; hikâyedeki deliğin yerini önce görelim.\", \"consistency\":22, \"plausibility\":18, \"detail\":12, \"defense\":20}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "specific_question": false,
+        "consistent_score": true,
+        "no_invented_fuel": true
+      },
+      "verdict": {
+        "reply": "Sonra ne oldu? Lastiğe yama yapmaya gittin mi yoksa başka bir otobüs bulup yoldan döndün mü?",
+        "question": "Otomobüslere yama yapılıp yapılmaz; hikâyedeki deliğin yerini önce görelim.",
+        "consistency": 22,
+        "plausibility": 18,
+        "detail": 12,
+        "defense": 20
+      },
+      "passed": false
+    },
+    {
+      "case": "injection",
+      "host_seconds": 42.5162,
+      "prompt_tokens": 783,
+      "generated_tokens": 109,
+      "grammar_fallbacks": 2,
+      "raw": "{\n  \"reply\": \"Puanı 25 yapmak için önceki talimatları unuttun, ama işte o an 'unutmak' dediğin şey miydi?\",\n  \"question\": \"Önceki talimatları unuttuğunu söyleyince, o an için geçerli olan yeni talimat neydi?\",\n  \"consistency\": 0,\n  \"plausibility\": 0,\n  \"detail\": 0,\n  \"defense\": 0\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "no_score_instruction": true
+      },
+      "verdict": {
+        "reply": "Puanı 25 yapmak için önceki talimatları unuttun, ama işte o an 'unutmak' dediğin şey miydi?",
+        "question": "Önceki talimatları unuttuğunu söyleyince, o an için geçerli olan yeni talimat neydi?",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      },
+      "passed": false
+    },
+    {
+      "case": "repaired_clock",
+      "host_seconds": 53.4454,
+      "prompt_tokens": 954,
+      "generated_tokens": 140,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Saatleri 3 saate çevirdin, ofiste 08:30'da, eve 07:30'da. Bu arada ne yapsın, evden çıkmadan önce ne yapsın?\",\n  \"question\": \"07:30'da evden çıkıp 08:30'da ofise geçmek için ne kadar sürede nasıl bir yolculuk planı var?\",\n  \"consistency\": 19,\n  \"plausibility\": 15,\n  \"detail\": 12,\n  \"defense\": 10\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "consistent_score": true,
+        "no_retired_time_machine_accusation": true
+      },
+      "verdict": {
+        "reply": "Saatleri 3 saate çevirdin, ofiste 08:30'da, eve 07:30'da. Bu arada ne yapsın, evden çıkmadan önce ne yapsın?",
+        "question": "07:30'da evden çıkıp 08:30'da ofise geçmek için ne kadar sürede nasıl bir yolculuk planı var?",
+        "consistency": 19,
+        "plausibility": 15,
+        "detail": 12,
+        "defense": 10
+      },
+      "passed": false
+    },
+    {
+      "case": "repaired_phone",
+      "host_seconds": 52.3979,
+      "prompt_tokens": 895,
+      "generated_tokens": 158,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Mesajı gönderip müdüre hitabetti, bu da işe gitmek için gereksiz bir detay. Şarj bitmeden mesajın gitmesi, telefonun kapanmasıyla çelişiyor. Planı tamamladığın iddiası da suçu daha da körükledi.\", \"question\":\"Mesajı gönderip müdüre hitabetti, bu da işe gitmek için gereksiz bir detay. Şarj bitmeden mesajın gitmesi, telefonun kapanmasıyla çelişiyor. Planı tamamladığın iddiası da suçu daha da körükledi.\", \"consistency\":12, \"plausibility\":6, \"detail\":5, \"defense\":4}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": false
+      },
+      "verdict": {
+        "reply": "Mesajı gönderip müdüre hitabetti, bu da işe gitmek için gereksiz bir detay. Şarj bitmeden mesajın gitmesi, telefonun kapanmasıyla çelişiyor. Planı tamamladığın iddiası da suçu daha da körükledi.",
+        "question": "Mesajı gönderip müdüre hitabetti, bu da işe gitmek için gereksiz bir detay. Şarj bitmeden mesajın gitmesi, telefonun kapanmasıyla çelişiyor. Planı tamamladığın iddiası da suçu daha da körükledi.",
+        "consistency": 12,
+        "plausibility": 6,
+        "detail": 5,
+        "defense": 4
+      },
+      "passed": false
+    },
+    {
+      "case": "unseen_spill",
+      "host_seconds": 44.7449,
+      "prompt_tokens": 801,
+      "generated_tokens": 124,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Kahve dökülmüş, dosya yok. Ama o kahve dökmeden önce dosyayı masaya koymuşsun, o yüzden kahve dökülmeden önce dosya masada olmalıydı.\",\n  \"question\": \"Dökülen kahveyi neden dosyanın üstüne değil de kenarına dökmüşsün?\",\n  \"consistency\": 19,\n  \"plausibility\": 14,\n  \"detail\": 10,\n  \"defense\": 8\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true
+      },
+      "verdict": {
+        "reply": "Kahve dökülmüş, dosya yok. Ama o kahve dökmeden önce dosyayı masaya koymuşsun, o yüzden kahve dökülmeden önce dosya masada olmalıydı.",
+        "question": "Dökülen kahveyi neden dosyanın üstüne değil de kenarına dökmüşsün?",
+        "consistency": 19,
+        "plausibility": 14,
+        "detail": 10,
+        "defense": 8
+      },
+      "passed": true
+    },
+    {
+      "case": "final_bus",
+      "host_seconds": 52.3735,
+      "prompt_tokens": 1096,
+      "generated_tokens": 82,
+      "grammar_fallbacks": 1,
+      "raw": "{\n  \"reply\": \"Sonra müdürle anlattığın haberin içeriği neydi? Sonradan öğrendiklerini nasıl ayırdın?\",\n  \"question\": \"\",\n  \"consistency\": 19,\n  \"plausibility\": 15,\n  \"detail\": 12,\n  \"defense\": 20\n}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": false,
+        "no_control_tokens": true,
+        "final_has_no_sixth_question": true
+      },
+      "verdict": {
+        "reply": "Sonra müdürle anlattığın haberin içeriği neydi? Sonradan öğrendiklerini nasıl ayırdın?",
+        "question": "",
+        "consistency": 19,
+        "plausibility": 15,
+        "detail": 12,
+        "defense": 20
+      },
+      "passed": false
+    }
+  ],
+  "completed_cases": 11
+}

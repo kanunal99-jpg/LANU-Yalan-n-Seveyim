@@ -148,7 +148,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Text("Nasıl oynayalım?",fontWeight=FontWeight.Bold)
             Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
                 FilterChip(selected=s.save.mode==PlayMode.FAST,onClick={vm.playMode(PlayMode.FAST)},enabled=!s.busy,label={Text("Hızlı oyun")})
-                FilterChip(selected=s.save.mode==PlayMode.LOCAL_AI,onClick={vm.playMode(PlayMode.LOCAL_AI)},enabled=!s.busy,label={Text("Cihazda AI")})
+                FilterChip(selected=s.save.mode==PlayMode.LOCAL_AI,onClick={vm.playMode(PlayMode.LOCAL_AI)},enabled=!s.busy,label={Text("Deneysel AI")})
             }
             Text(if(s.save.mode==PlayMode.FAST)
                 "Cevabındaki telefon, trafik, alarm, saat ve diğer ayrıntılara göre sorgu değişir. Önceki cevaplarını karşılaştıran kurallar kullanır; dil modeli değildir. Yanıt hedefi 2–3 saniye."
@@ -176,7 +176,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
 @Composable private fun ModelCard(s:UiState,vm:GameViewModel) {
     Card(colors=CardDefaults.cardColors(containerColor=Panel),shape=RoundedCornerShape(22.dp)) {
         Column(Modifier.padding(20.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
-            Text(if(s.ready) "İsteğe bağlı AI modeli hazır ✓" else "İsteğe bağlı AI modeli",fontSize=18.sp,fontWeight=FontWeight.Bold)
+            Text(if(s.ready) "Deneysel AI modeli hazır ✓" else "Deneysel AI modeli",fontSize=18.sp,fontWeight=FontWeight.Bold)
             Text("Qwen3.5 4B · 2,74 GB\nBir kez indir, sonra internetsiz oyna. API ücreti, üyelik ve reklam yok. İndirme için Wi-Fi önerilir.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
             if(s.downloading) {
                 LinearProgressIndicator(progress={s.progress},Modifier.fillMaxWidth())

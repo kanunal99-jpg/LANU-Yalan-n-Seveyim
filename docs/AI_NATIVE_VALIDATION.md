@@ -32,7 +32,7 @@ Rapor ham model metnini/puanlarını, token sayılarını, dilbilgisi geri dön�
 
 Kaynaklar korunmadan önce yapılan kontrollü native başlangıç ölçümünün ilk beş turu 49,7 / 52,7 / 67,6 / 59,2 / 84,2 saniyeydi. Bu başlangıç yolunda eski İngilizce yönerge, dilbilgisini baştan tüm sözlüğe uygulama, 1,08 tekrar cezası ve 0,65 sıcaklık vardı. Trafik, ödev ve ters saat örneklerinde model yorumun içinde tekrar soru sordu; alarm sorusu neden-sonuç ilişkisini bozdu. Bu kısmi ölçüm güncel Türkçe yönergenin veya iyileştirilen örneklemenin başarısı sayılmaz.
 
-Çalışma alanı sıfırlanmadan önce paylaşılan native çekirdek/probe derlendi; bağımsız Kotlin/JVM çalıştırmasında prompt, dilbilgisi ve dışa aktarma için sekiz test geçti. Tam 11 örneklik yeni native koşusu ve fiziksel Android AI ölçümü tamamlanmadı. Kaynaklar geri yüklendi; yeni model kalite/hız onayı hâlâ bekliyor. Önceki `dialogue-ai-results.json` tarihsel sunucu çıktısıdır. Cihaz içi AI deneysel olarak sunulmalıdır.
+23 Ekim 2026'da [kalıcı native CI koşusu](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40014129908) on bir örneği tamamladı. Otomatik kontrol **5/11**; ham cevapların ayrı okunması Türkçe ve muhakeme hataları gösterdi. Host p50 **44,74 saniye**, p95 **52,92 saniye**; bunlar telefon süreleri değildir. Motorun dilbilgisi reddetme, bağlam sınırı ve hata sonrası toparlanma kontrolleri geçti. [Ham native rapor](dialogue-native-results.json), [vaka değerlendirmesi](AI_NATIVE_REVIEW.md), [motor kontrolleri](native-ai-invariants.json). Önceki `dialogue-ai-results.json` tarihsel sunucu çıktısı olarak ayrı tutuldu. Bu rapor sonradan eklenen Kotlin AI kabul denetiminden önceki ham üretimdir; denetim metin/puan düzeltmez, hatalı çıktıyı reddeder. **Model kalite onayı verilmedi; cihaz içi AI deneysel kalır.**
 
 ## Kalıcı CI çalıştırması ve kısmi rapor
 
@@ -62,4 +62,4 @@ python3 scripts/native_invariant_smoke.py \
   --output reports/native-ai-invariants.json
 ```
 
-CI, kalite kontrolü başarısız olsa da `reports/` ve `app/build/reports/ai-quality/` klasörlerini `if: always()` ile artifact olarak yüklemelidir. Yeni kaynaklarla tamamlanmış 11 örneklik rapor henüz elde edilmedi; komutların hazırlanması ölçüm sonucu yerine geçmez.
+CI, kalite kontrolü başarısız olsa da rapor klasörünü `if: always()` ile artifact olarak yükler. On bir örneklik tamamlanmış native rapor elde edildi; işin yeşil sonucu kalite onayı olarak kullanılmamalıdır. Ayrıntılı [inceleme](AI_NATIVE_REVIEW.md), hangi otomatik geçen örneklerin yine de yanlış olduğunu açıklar.
