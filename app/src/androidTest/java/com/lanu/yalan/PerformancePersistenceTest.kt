@@ -1,6 +1,7 @@
 package com.lanu.yalan
 
 import android.content.ContextWrapper
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.lanu.yalan.data.DeviceInfo
@@ -9,12 +10,19 @@ import com.lanu.yalan.domain.*
 import java.io.File
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Uses an isolated files directory; it never writes to the player's progress or metrics. */
 @RunWith(AndroidJUnit4::class)
 class PerformancePersistenceTest {
+    @Before fun requireControlledEmulator() {
+        assumeTrue("Performance smoke requires UI_SMOKE", BuildConfig.UI_SMOKE)
+        assumeTrue("Never mutate a physical phone", Build.HARDWARE in setOf("ranchu", "goldfish"))
+        assumeTrue("CI file mutations require opt-in", InstrumentationRegistry.getArguments().getString("lanu.allowProgressReset") == "true")
+    }
     @Test fun metricsSurviveRestartAndCorruptionCannotBlockNewMeasurements() = runBlocking {
         val context=InstrumentationRegistry.getInstrumentation().targetContext
         val directory=File(context.cacheDir,"performance-test").apply { deleteRecursively();mkdirs() }

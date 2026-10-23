@@ -1,5 +1,6 @@
 package com.lanu.yalan
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.lanu.yalan.data.BackupException
@@ -9,6 +10,8 @@ import com.lanu.yalan.domain.GameSave
 import com.lanu.yalan.domain.PlayMode
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
@@ -17,6 +20,11 @@ import java.security.KeyStore
 @RunWith(AndroidJUnit4::class)
 class BackupCompatibilityTest {
     private val context get() = InstrumentationRegistry.getInstrumentation().targetContext
+    @Before fun requireControlledEmulator() {
+        assumeTrue("Backup smoke requires UI_SMOKE", BuildConfig.UI_SMOKE)
+        assumeTrue("Never reset a physical phone", Build.HARDWARE in setOf("ranchu", "goldfish"))
+        assumeTrue("Keystore/progress reset requires explicit opt-in", InstrumentationRegistry.getArguments().getString("lanu.allowProgressReset") == "true")
+    }
     @Test fun portableBackupRestoresAfterTheDeviceKeyIsGone() = runBlocking {
         val store=SaveStore(context)
         val password="Ayrı cihazda geçerli parola 42".toCharArray()

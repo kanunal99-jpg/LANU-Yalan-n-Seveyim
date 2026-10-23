@@ -8,6 +8,7 @@ import com.lanu.yalan.ai.ModelStore
 import com.lanu.yalan.ai.AiException
 import com.lanu.yalan.data.SaveStore
 import com.lanu.yalan.data.DeviceInfo
+import com.lanu.yalan.data.PerformanceMonitor
 import com.lanu.yalan.data.DeviceProfile
 import com.lanu.yalan.data.DeviceNotReadyException
 import com.lanu.yalan.domain.*
@@ -46,6 +47,7 @@ class GameViewModel @Inject constructor(
     private val store: SaveStore,
     private val model: ModelStore,
     private val engine: GameEngine,
+    private val performance: PerformanceMonitor,
     private val deviceInfo: DeviceInfo
 ) : ViewModel() {
     private val mutable = MutableStateFlow(UiState())
@@ -65,8 +67,8 @@ class GameViewModel @Inject constructor(
     fun select(level: Int) { if(Rules.canPlay(level,mutable.value.save)) mutable.update { it.copy(selectedLevel=level,screen=Screen.HOME) } }
     fun answer(value: String) { if(!mutable.value.busy) mutable.update { it.copy(answer=value.take(280)) } }
     fun clearError() { mutable.update { it.copy(error=null,aiError=false) } }
-    private fun task(status: String, work: suspend () -> Unit) {
-        if(mutable.value.busy || mutable.value.loading || mutable.value.recovery) return
+    private fun task(status: String, allowRecovery: Boolean = false, work: suspend () -> Unit) {
+        if(mutable.value.busy || mutable.value.loading || (mutable.value.recovery && !allowRecovery)) return
         mutable.update { it.copy(busy=true,status=status,error=null,aiError=false) }
         job = viewModelScope.launch {
             try { work() }
@@ -88,16 +90,30 @@ class GameViewModel @Inject constructor(
         if(BuildConfig.DEBUG) Log.w("LANU", e.javaClass.simpleName + " at " + e.stackTrace.filter { it.className.startsWith("com.lanu.") }.take(4).joinToString())
     }
     private suspend fun persist(save: GameSave) { store.write(save); mutable.update { it.copy(save=save) } }
+    private suspend fun <T> measured(mode: PlayMode, phase: TimingPhase, work: suspend () -> T): Pair<T,Long> {
+        val start=System.nanoTime()
+        var outcome=TimingOutcome.ERROR
+        var elapsed=0L
+        val result=try { work().also { outcome=TimingOutcome.SUCCESS } }
+        catch(e: CancellationException) { outcome=TimingOutcome.CANCELLED;throw e }
+        catch(e: AiException) { if(e.reason==com.lanu.yalan.ai.AiFailure.TIMEOUT) outcome=TimingOutcome.TIMEOUT;throw e }
+        finally {
+            elapsed=(System.nanoTime()-start)/1_000_000
+            withContext(NonCancellable) { try { performance.record(mode,elapsed,outcome,phase) } catch(e: Exception) { diagnostic(e) } }
+        }
+        return result to elapsed
+    }
     fun start(topic: String) {
         val value=topic.trim()
         if(value.length !in 3..100 || !mutable.value.canStart) return
         task("LANU ilk soruyu hazırlıyor…") {
-            val started=System.nanoTime()
-            val s=Session(UUID.randomUUID().toString(),mutable.value.selectedLevel,value,"",mode=mutable.value.save.mode)
-            val response=engine.ask(s,null,mutable.value.save.spicy)
-            val session=s.copy(opening=response.question)
-            persist(mutable.value.save.copy(session=session,onboarding=true))
-            mutable.update { it.copy(screen=Screen.GAME,answer="",responseMs=(System.nanoTime()-started)/1_000_000) }
+            val before=mutable.value
+            val (next,elapsed)=measured(before.save.mode,TimingPhase.OPENING) {
+                val s=Session(UUID.randomUUID().toString(),before.selectedLevel,value,"",mode=before.save.mode,recentJokeKeys=before.save.recentJokeKeys)
+                val response=engine.ask(s,null,before.save.spicy)
+                before.save.copy(session=s.copy(opening=response.question),onboarding=true).also { store.write(it) }
+            }
+            mutable.update { it.copy(save=next,screen=Screen.GAME,answer="",responseMs=elapsed) }
         }
     }
     fun submit() {
@@ -106,12 +122,13 @@ class GameViewModel @Inject constructor(
         val answer=before.answer.trim()
         if(answer.length !in 3..280 || s.finished || !before.canAnswer) return
         task("LANU hikâyenin açıklarını arıyor…") {
-            val started=System.nanoTime()
-            val verdict=engine.ask(s,answer,before.save.spicy)
-            val session=s.copy(turns=s.turns+Turn(s.question,answer,verdict))
-            val next=Rules.credit(before.save.copy(session=session))
-            persist(next)
-            mutable.update { it.copy(answer="",responseMs=(System.nanoTime()-started)/1_000_000) }
+            val (next,elapsed)=measured(s.mode,TimingPhase.REPLY) {
+                val verdict=engine.ask(s,answer,before.save.spicy)
+                val session=s.copy(turns=s.turns+Turn(s.question,answer,verdict))
+                val jokes=(before.save.recentJokeKeys+listOfNotNull(verdict.jokeKey)).asReversed().distinct().take(40).asReversed()
+                Rules.credit(before.save.copy(session=session,recentJokeKeys=jokes)).also { store.write(it) }
+            }
+            mutable.update { it.copy(save=next,answer="",responseMs=elapsed) }
         }
     }
     fun playMode(mode: PlayMode) = task("Oyun tercihi kaydediliyor…") {
@@ -145,6 +162,10 @@ class GameViewModel @Inject constructor(
             store.reset(); persist(GameSave())
             mutable.update { it.copy(selectedLevel=1,answer="",screen=Screen.HOME) }
         }
+    }
+    fun useRestored(save: GameSave) = task("Geri yüklenen hikâye açılıyor…",allowRecovery=true) {
+        engine.release()
+        mutable.update { it.copy(save=save,selectedLevel=save.unlocked,answer="",recovery=false,screen=Screen.HOME,responseMs=null) }
     }
     override fun onCleared() { engine.cancel(); super.onCleared() }
 }

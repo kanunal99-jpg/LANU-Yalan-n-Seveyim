@@ -1,3 +1,6 @@
+import java.security.KeyStore
+import java.security.MessageDigest
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +8,33 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android")
+}
+val signingNames = listOf("LANU_KEYSTORE", "LANU_STORE_PASSWORD", "LANU_KEY_ALIAS", "LANU_KEY_PASSWORD", "LANU_CERT_SHA256")
+val signingValues = signingNames.associateWith { System.getenv(it)?.takeIf(String::isNotBlank) }
+val hasProductionSigning = signingValues.values.all { it != null }
+check(signingValues.values.none { it != null } || hasProductionSigning) {
+    "Üretim imzası eksik yapılandırılmış. Beş LANU imza değişkeninin tamamı gerekli."
+}
+if (providers.gradleProperty("lanu.requireProductionSigning").orNull == "true") {
+    check(hasProductionSigning) { "Kalıcı üretim imzası gerekli; debug imzasıyla yayın yapılmayacak." }
+}
+val verifyProductionSigning = tasks.register("verifyProductionSigning") {
+    doLast {
+        check(hasProductionSigning) { "Kalıcı üretim imzası yapılandırılmadı." }
+        val expected = signingValues.getValue("LANU_CERT_SHA256")!!.replace(":", "").lowercase()
+        check(expected.matches(Regex("[a-f0-9]{64}"))) { "Üretim sertifika SHA-256 biçimi geçersiz." }
+        val storePassword = signingValues.getValue("LANU_STORE_PASSWORD")!!.toCharArray()
+        val keyPassword = signingValues.getValue("LANU_KEY_PASSWORD")!!.toCharArray()
+        try {
+            val store = KeyStore.getInstance("JKS")
+            file(signingValues.getValue("LANU_KEYSTORE")!!).inputStream().use { store.load(it, storePassword) }
+            val alias = signingValues.getValue("LANU_KEY_ALIAS")!!
+            check(store.isKeyEntry(alias) && store.getKey(alias, keyPassword) is java.security.PrivateKey) { "Üretim imza anahtarı okunamadı." }
+            val cert = store.getCertificate(alias) ?: error("Üretim sertifikası bulunamadı.")
+            val actual = MessageDigest.getInstance("SHA-256").digest(cert.encoded).joinToString("") { "%02x".format(it) }
+            check(actual == expected) { "Üretim sertifikası beklenen SHA-256 ile eşleşmiyor; yayın durduruldu." }
+        } finally { storePassword.fill('\u0000'); keyPassword.fill('\u0000') }
+    }
 }
 val uiSmoke = providers.gradleProperty("lanu.uiSmoke").orNull == "true"
 val firebaseEnabled = !uiSmoke && file("google-services.json").exists()
@@ -20,8 +50,8 @@ android {
         applicationId = "com.lanu.yalan"
         minSdk = 26
         targetSdk = 35
-        versionCode = 4
-        versionName = "0.3.0-alpha"
+        versionCode = providers.gradleProperty("lanu.versionCode").orNull?.toInt() ?: 5
+        versionName = providers.gradleProperty("lanu.versionName").orNull ?: "0.4.0-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         if (!uiSmoke) {
             ndk { abiFilters += "arm64-v8a" }
@@ -31,7 +61,7 @@ android {
         buildConfigField("boolean", "FIREBASE_ENABLED", firebaseEnabled.toString())
     }
     signingConfigs {
-        if (System.getenv("LANU_KEYSTORE") != null) create("production") {
+        if (hasProductionSigning) create("production") {
             storeFile = file(System.getenv("LANU_KEYSTORE"))
             storePassword = System.getenv("LANU_STORE_PASSWORD")
             keyAlias = System.getenv("LANU_KEY_ALIAS")
@@ -39,6 +69,7 @@ android {
         }
     }
     buildTypes {
+        debug { if (hasProductionSigning) signingConfig = signingConfigs.getByName("production") }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -53,9 +84,13 @@ android {
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
     testOptions { unitTests.isReturnDefaultValues = true }
 }
+if (hasProductionSigning) tasks.matching { it.name == "preDebugBuild" || it.name == "preReleaseBuild" }.configureEach {
+    dependsOn(verifyProductionSigning)
+}
 kapt { correctErrorTypes = true }
 dependencies {
     implementation(platform("androidx.compose:compose-bom:2025.04.01"))
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.activity:activity-compose:1.10.1")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.ui:ui-tooling-preview")

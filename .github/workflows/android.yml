@@ -14,6 +14,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      LANU_STORE_PASSWORD: ${{ secrets.LANU_STORE_PASSWORD }}
+      LANU_KEY_ALIAS: ${{ secrets.LANU_KEY_ALIAS }}
+      LANU_KEY_PASSWORD: ${{ secrets.LANU_KEY_PASSWORD }}
+      LANU_CERT_SHA256: ${{ secrets.LANU_CERT_SHA256 }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -26,12 +31,24 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Install native toolchain
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0' 'ndk;27.2.12479018' 'cmake;3.22.1'
+      - name: Prepare existing permanent key when configured
+        env:
+          LANU_KEYSTORE_BASE64: ${{ secrets.LANU_KEYSTORE_BASE64 }}
+        run: python3 scripts/prepare_ci_signing.py
       - name: Test, lint and build
-        run: ./gradlew testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
+        run: ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
+      - name: Build same-signature OTA pair
+        run: |
+          mkdir -p release-packages/v0.4.0-alpha release-packages/v0.4.1-alpha
+          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.4.0-alpha/LANU-Yalanini-Seveyim-v0.4.0-alpha-arm64-test.apk
+          ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} -Planu.versionCode=6 -Planu.versionName=0.4.1-alpha assembleDebug --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.4.1-alpha/LANU-Yalanini-Seveyim-v0.4.1-alpha-arm64-test.apk
+          python3 scripts/release_packages.py
+          for apk in release-packages/*/*.apk; do "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk"; done
       - uses: actions/upload-artifact@v4
         with:
           name: LANU-Yalanini-Seveyim-test-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: release-packages/
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -40,6 +57,8 @@ jobs:
             app/build/reports/tests
             app/build/reports/lint-results-debug.html
             app/build/reports/story-quality
+            app/build/reports/ai-quality
+            app/build/test-results
   ui-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -70,7 +89,7 @@ jobs:
           script: |
             test -z "$(adb shell pm path com.google.android.gms | tr -d '\r')"
             adb shell settings put system font_scale 1.3
-            ./gradlew -Planu.uiSmoke=true connectedDebugAndroidTest --stacktrace --max-workers=2
+            bash scripts/ota_emulator_smoke.sh
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -78,6 +97,7 @@ jobs:
           path: |
             app/build/reports/androidTests
             app/build/outputs/androidTest-results
+            app/build/reports/ota-upgrade
   prerelease:
     if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-alpha]'))
     needs: [build, ui-smoke]
@@ -89,24 +109,21 @@ jobs:
         with:
           name: LANU-Yalanini-Seveyim-test-apk
           path: apk
-      - name: Publish downloadable test APK
+      - name: Publish verified base and OTA update
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || 'v0.3.0-alpha' }}
           COMMIT: ${{ github.sha }}
         run: |
-          mv apk/app-debug.apk apk/LANU-Yalanini-Seveyim-${TAG}-arm64-test.apk
-          sha256sum apk/*.apk > apk/SHA256SUMS.txt
           cat > notes.md <<'NOTES'
-          Cevaba özel sorgulama: telefon/şarj, alarm, trafik, araç arızası, ödev, bağlantı, buluşma ve diğer hikâye ayrıntıları farklı soru ve esprilere gider. 5 zorluk bandı; önceki ifadelerle saat, süre, araç ve iletişim sırası karşılaştırılır. Açıklanan bir boşluk tekrar suçlama yapılmaz; sorulan açı yeniden başlatmadan sonra da hatırlanır.
+          LANU alpha: uygulama içinden güncelleme kontrolü, indirme ve Android kurulum düğmeleri; boyut/SHA-256/paket/sürüm/imza doğrulaması. v0.4.0 ve v0.4.1 aynı çalıştırmada aynı anahtarla üretilir. OTA'yi denemek için önce v0.4.0'ı kurup Ayarlar > Güncellemeleri kontrol et yoluyla v0.4.1'e geçebilirsin. AOSP'de gerçek paket yükseltmesi ve şifreli ilerleme korunması test edilir.
 
-          Hızlı oyun, bu ayrıntıları Kotlin kurallarıyla ele alır; dil modeli değildir. Gerçek Qwen3.5 4B seçeneğinde modele oyuncunun kendi ifadelerinden çıkarılan vaka notları ve önceki sorular verilir; genel geçer yorumlardan kaçınması istenir. Model çıktısı yine yanılabilir. İlk soru hemen açılır, AI yükleme + üretim bütçesi 30 saniyedir; gerçek AI için 2–3 saniye garantisi verilmez.
+          Dört alt puanın açıklaması, önce/sonra ipucu kartları ve hikâyeler arası espri hafızası eklendi. Hızlı oyun yerel kurallardır; gerçek AI ayrı bir seçenektir. Cihazda AI için 2–3 saniye veya kusursuz Türkçe/mizah garantisi yoktur; yayın kanıtları depodaki doğrulama raporundadır.
 
-          Beş soruluk gerçek şifreli kayıt akışı, büyük yazı/klavyede düğme erişimi ve her tur için 3 saniyelik Hızlı oyun kapısı yayından önce test edilir. Soru özgüllüğü ve çelişki düzeltmeleri ayrıca sentetik davranış testleriyle sınanır. Fiziksel telefon süreleri ayrı ölçülmelidir. API, sunucu, üyelik veya abonelik ücreti yok.
+          Parolalı şifreli yedek oluşturma/geri yükleme ve cihazdaki süre özeti eklendi. Yanlış parola, değiştirilmiş paket, bozuk kayıt ve farklı imza mevcut ilerlemeyi sessizce silmez. Ücretsizdir; Google Play Hizmetleri gerektirmez. ARM64 Android 8+; fiziksel A55/Huawei/Xiaomi doğrulaması ayrıca yapılmalıdır.
 
-          Samsung, Huawei, Xiaomi ve diğer ARM64 Android 8+ cihazları için aynı standart Android yolu kullanılır. Google Play Hizmetleri gerekmez. AI modu için 8 GB RAM önerilir. Fiziksel cihazlar üzerinde AI hız/kalite doğrulaması yapılmadı.
-
-          Bu APK debug/test imzalıdır. Kalıcı üretim imzası yapılandırılmadığı için sonraki test APK'larına yerinde güncelleme garantisi yoktur. Üretim sürümü ve OTA henüz hazır değildir.
+          Kalıcı imza secret'ları henüz ayarlı değilse bu ikili test anahtarıyla imzalanır. İkili içinde yerinde güncelleme mümkündür; ilerideki CI çalıştırmaları için kalıcı anahtar kurulmalıdır. v0.3 gibi önceki farklı test imzalı kurulumlarla uyumluluk garantisi yoktur. İmza hatasında uygulamayı kaldırmadan önce ilerlemeni yedekle.
           NOTES
-          gh release create "$TAG" apk/* --repo "$REPO" --title "LANU $TAG · Android test sürümü" --notes-file notes.md --prerelease --target "$COMMIT"
+          for tag in v0.4.0-alpha v0.4.1-alpha; do
+            gh release create "$tag" apk/"$tag"/* --repo "$REPO" --title "LANU $tag · OTA test sürümü" --notes-file notes.md --prerelease --target "$COMMIT"
+          done

@@ -1,5 +1,6 @@
 package com.lanu.yalan
 
+import android.os.Build
 import android.os.SystemClock
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -10,6 +11,7 @@ import com.lanu.yalan.domain.PerformanceStats
 import com.lanu.yalan.domain.PlayMode
 import com.lanu.yalan.domain.TimingSample
 import org.junit.Assert.*
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,6 +26,9 @@ class AndroidCompatibilityTest {
     private val compose = createAndroidComposeRule<MainActivity>()
     @get:Rule val rules: TestRule = RuleChain.outerRule(object : ExternalResource() {
         override fun before() {
+            assumeTrue("UI smoke requires UI_SMOKE", BuildConfig.UI_SMOKE)
+            assumeTrue("Never reset a physical phone", Build.HARDWARE in setOf("ranchu", "goldfish"))
+            assumeTrue("CI progress reset requires opt-in", InstrumentationRegistry.getArguments().getString("lanu.allowProgressReset") == "true")
             val context=InstrumentationRegistry.getInstrumentation().targetContext
             listOf("progress.enc","progress.enc.bak","progress.enc.new").forEach { File(context.filesDir,it).delete() }
         }
@@ -49,6 +54,34 @@ class AndroidCompatibilityTest {
         compose.onNodeWithTag("screen-content").performScrollToNode(hasText("Cihaz ve performans"))
         compose.onNodeWithText("Cihaz ve performans").assertIsDisplayed()
         assertFalse(BuildConfig.FIREBASE_ENABLED)
+    }
+    @Test fun settingsExposeUpdatesAndRequireMatchingLongBackupPasswords() {
+        awaitHome()
+        compose.onNodeWithText("Ayarlar").performClick()
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("check-update"))
+        compose.onNodeWithTag("check-update").assertIsDisplayed().assertIsEnabled()
+        compose.onNodeWithTag("download-update").assertDoesNotExist()
+        compose.onNodeWithTag("install-update").assertDoesNotExist()
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("export-backup"))
+        compose.onNodeWithTag("export-backup").assertIsDisplayed().assertIsEnabled().performClick()
+        compose.onNodeWithText("Yedeğine parola belirle").assertIsDisplayed()
+        compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
+        compose.onNodeWithTag("backup-passphrase").performTextInput("kisa")
+        compose.onNodeWithTag("backup-passphrase-confirm").performTextInput("kisa")
+        compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
+        val password="CI parola eşleşmesi 42"
+        compose.onNodeWithTag("backup-passphrase").performTextReplacement(password)
+        compose.onNodeWithTag("backup-passphrase-confirm").performTextReplacement("Farklı bir parola 42")
+        compose.onNodeWithText("Parolalar aynı olmalı.").assertExists()
+        compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
+        compose.onNodeWithTag("backup-passphrase-confirm").performTextReplacement(password)
+        compose.onNodeWithTag("confirm-backup").assertIsEnabled()
+        compose.onNodeWithText("Parolalar aynı olmalı.").assertDoesNotExist()
+        compose.onNodeWithText("Vazgeç").performClick()
+        compose.onNodeWithTag("confirm-backup").assertDoesNotExist()
+        compose.onNodeWithTag("export-backup").performClick()
+        compose.onNodeWithTag("confirm-backup").assertIsNotEnabled()
+        compose.onNodeWithText("Vazgeç").performClick()
     }
     @Test fun completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds() {
         awaitHome()
@@ -88,6 +121,11 @@ class AndroidCompatibilityTest {
         val summary=PerformanceStats.summarize(renderedTimings)
         println("LANU_UI_RENDERED_SUMMARY count=${summary.successCount} p50_ms=${summary.p50Ms} p95_ms=${summary.p95Ms}")
         compose.onNodeWithText("Bu sefer yedik!").assertIsDisplayed()
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasText("PUANIN HESABI · YEREL KURALLAR"))
+        compose.onNodeWithText("PUANIN HESABI · YEREL KURALLAR").assertIsDisplayed()
+        compose.onNodeWithTag("score-explanations").assertExists()
+        listOf("Tutarlılık", "Makullük", "Somut ayrıntı", "Sorulara karşı savunma").forEach { compose.onNodeWithText(it).assertExists() }
+        compose.onNode(hasText("Hikâyede", substring=true)).assertExists()
         compose.onNodeWithText("Çık").performClick()
         compose.onNodeWithText("Seviyeler").performClick()
         compose.onNodeWithText("02").assertIsEnabled()

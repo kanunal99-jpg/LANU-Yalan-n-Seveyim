@@ -37,13 +37,25 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
                     if(!bridge.load(models.model.absolutePath, profile.inferenceThreads)) throw AiException(AiFailure.LOAD)
                     loaded = true
                 }
+                // Re-check the worker cap even while the model stays resident.
+                bridge.setThreads(profile.inferenceThreads)
                 currentCoroutineContext().ensureActive()
                 val final = session.turns.size == 4
                 val raw = bridge.generate(prompt(session, answer, spicy).encodeToByteArray(), grammarFor(false, final,FastGame.isScoreInstruction(answer)), 240).decodeToString()
                 currentCoroutineContext().ensureActive()
-                try { VerdictParser.parse(raw, final).copy(
-                    challengeKey=QuestionDirector.next(session,StoryEvidence.inspect(session,answer),spicy).key
-                ) }
+                try {
+                    val analysis=StoryEvidence.inspect(session,answer)
+                    val beat=QuestionDirector.next(session,analysis,spicy)
+                    VerdictParser.parse(raw, final).copy(
+                        challengeKey=beat.key,
+                        // LOCAL clues, not model-generated reasoning or score explanations.
+                        evidence=analysis.conflict?.let { c -> EvidenceCard(
+                            if(c.confirmed) EvidenceStatus.CONTRADICTION else EvidenceStatus.NEEDS_EXPLANATION,
+                            c.earlier.take(280),c.later.take(280),c.finding.take(400)
+                        ) },
+                        jokeKey=beat.jokeKey
+                    )
+                }
                 catch(e: IllegalArgumentException) { throw AiException(AiFailure.OUTPUT, e) }
             } catch(e: IllegalStateException) {
                 currentCoroutineContext().ensureActive()

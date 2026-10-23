@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+# Controlled CI emulator only. Explicit opt-in avoids resetting a physical phone.
+./gradlew -Planu.uiSmoke=true -Planu.versionCode=6 -Planu.versionName=0.4.1-alpha assembleDebug --stacktrace --max-workers=2
+cp app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/lanu-ota-next.apk"
+adb push "$RUNNER_TEMP/lanu-ota-next.apk" /data/local/tmp/lanu-ota-next.apk
+./gradlew -Planu.uiSmoke=true connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.lanu.allowProgressReset=true -Pandroid.testInstrumentationRunnerArguments.lanu.otaCandidate=/data/local/tmp/lanu-ota-next.apk --stacktrace --max-workers=2
+mkdir -p app/build/reports/ota-upgrade
+run_phase() {
+  local method="$1" phase="$2" output="$3"
+  adb shell am instrument -w -r -e class "com.lanu.yalan.OtaCompatibilityTest#$method" -e lanu.upgradePhase "$phase" -e lanu.allowProgressReset true -e lanu.expectedVersionCode 6 com.lanu.yalan.test/androidx.test.runner.AndroidJUnitRunner | tee "$output"
+  python3 - "$output" <<'PY'
+import sys
+text=open(sys.argv[1]).read()
+assert 'OK (1 test)' in text and 'FAILURES' not in text and 'INSTRUMENTATION_FAILED' not in text, text
+PY
+}
+run_phase prepareUpgrade prepare app/build/reports/ota-upgrade/before.txt
+adb install -r "$RUNNER_TEMP/lanu-ota-next.apk"
+run_phase afterUpgradeReadsProgress verify app/build/reports/ota-upgrade/after.txt

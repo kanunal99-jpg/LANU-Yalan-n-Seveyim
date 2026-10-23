@@ -47,16 +47,20 @@ private val Mint=Color(0xFFA6E4CE)
 private val Palette=darkColorScheme(primary=Gold,onPrimary=Ink,secondary=Lavender,background=Ink,surface=Panel,onSurface=Color(0xFFF8F3FF),onBackground=Color(0xFFF8F3FF),surfaceVariant=Color(0xFF362848),onSurfaceVariant=Muted,error=Color(0xFFFFB4AB))
 
 @Composable
-fun LanuAppScreen(vm: GameViewModel) {
+fun LanuAppScreen(vm: GameViewModel,maintenance: MaintenanceViewModel) {
     val s by vm.state.collectAsStateWithLifecycle()
+    val m by maintenance.state.collectAsStateWithLifecycle()
+    val snackbar=remember { SnackbarHostState() }
+    LaunchedEffect(m.notice) { m.notice?.let { snackbar.showSnackbar(it);maintenance.clearNotice(it) } }
+    LaunchedEffect(m.restored) { m.restored?.let { vm.useRestored(it);maintenance.restoredConsumed() } }
     val view=LocalView.current
     DisposableEffect(s.busy) { view.keepScreenOn=s.busy; onDispose { view.keepScreenOn=false } }
-    BackHandler(s.screen!=Screen.HOME && !s.busy) { vm.navigate(Screen.HOME) }
+    BackHandler(s.screen!=Screen.HOME || s.busy || m.busy) { if(!s.busy && !m.busy) vm.navigate(Screen.HOME) }
     MaterialTheme(colorScheme=Palette,typography=Typography()) {
-        Scaffold(containerColor=Ink, bottomBar={
+        Scaffold(containerColor=Ink, snackbarHost={SnackbarHost(snackbar)}, bottomBar={
             if(s.screen!=Screen.GAME) NavigationBar(containerColor=Ink) {
                 listOf(Screen.HOME to "Oyna",Screen.LEVELS to "Seviyeler",Screen.SETTINGS to "Ayarlar").forEachIndexed { i,pair ->
-                    NavigationBarItem(selected=s.screen==pair.first,onClick={vm.navigate(pair.first)},enabled=!s.busy,
+                    NavigationBarItem(selected=s.screen==pair.first,onClick={maintenance.dismissError();vm.navigate(pair.first)},enabled=!s.busy && !m.busy,
                         icon={Text(listOf("◉","▦","☷")[i],fontSize=24.sp)},label={Text(pair.second)})
                 }
             }
@@ -75,11 +79,15 @@ fun LanuAppScreen(vm: GameViewModel) {
                     if(s.aiError && s.save.session?.finished==false) TextButton(onClick=vm::continueFast,enabled=!s.busy) { Text("Bu hikâyeye hızlı devam et") }
                     TextButton(onClick=vm::clearError,Modifier.align(Alignment.End)) { Text("Anladım") }
                 }
+                if(m.error!=null) Card(Modifier.fillMaxWidth().padding(horizontal=20.dp),colors=CardDefaults.cardColors(containerColor=Color(0xFF482734))) {
+                    Text(m.error!!,Modifier.padding(16.dp),fontSize=13.sp)
+                    TextButton(onClick=maintenance::dismissError,Modifier.align(Alignment.End)) { Text("Anladım") }
+                }
                 when {
                     s.loading -> Box(Modifier.fillMaxSize(),contentAlignment=Alignment.Center) { CircularProgressIndicator() }
                     s.screen==Screen.HOME -> Home(s,vm)
                     s.screen==Screen.LEVELS -> Levels(s,vm)
-                    s.screen==Screen.SETTINGS -> Settings(s,vm)
+                    s.screen==Screen.SETTINGS -> Settings(s.copy(busy=s.busy || m.busy),vm,m,maintenance)
                     else -> Game(s,vm)
                 }
             }
@@ -258,12 +266,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             }
         }
         item { Bubble("LANU’NUN KARARI",v.reply,false) }
-        item { Column(verticalArrangement=Arrangement.spacedBy(14.dp)) {
-            listOf("Tutarlılık" to v.consistency,"Makullük" to v.plausibility,"Somut ayrıntı" to v.detail,"Sorulara karşı savunma" to v.defense).forEach { (name,score) ->
-                Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween) { Text(name,color=Muted,fontSize=13.sp); Text("$score / 25",color=Gold,fontSize=13.sp) }
-                LinearProgressIndicator(progress={score/25f},Modifier.fillMaxWidth())
-            }
-        } }
+        item { VerdictDetails(v) }
         item {
             Text(if(passed && session.level==100) "100. seviyeyi de geçtin. LANU şapka çıkarıyor!" else if(passed) "Seviye tamamlandı. Sıradaki sorguya hazır mısın?" else "Bir ayrıntıyı değiştirip diğerlerini unutma. Aynı seviyeyi yeni konuyla tekrar deneyebilirsin.",color=Muted,lineHeight=22.sp)
             Button(onClick={vm.select(if(passed) (session.level+1).coerceAtMost(100) else session.level)},Modifier.fillMaxWidth().padding(top=16.dp).heightIn(min=54.dp)) { Text(if(passed && session.level<100) "Sıradaki seviye →" else "Yeni hikâye anlat") }
@@ -287,7 +290,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
     }
 }
-@Composable private fun Settings(s:UiState,vm:GameViewModel) {
+@Composable private fun Settings(s:UiState,vm:GameViewModel,m:MaintenanceState,maintenance:MaintenanceViewModel) {
     var reset by remember { mutableStateOf(false) }
     var remove by remember { mutableStateOf(false) }
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
@@ -295,13 +298,14 @@ private fun Home(s: UiState,vm: GameViewModel) {
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
         item { ModeCard(s,vm) }
+        item { MaintenanceTools(s,m,maintenance) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Biraz sivri dil",fontWeight=FontWeight.Bold);Text("Hafif argo ve daha iğneleyici espriler. Ağır hakaret yok.",color=Muted,fontSize=13.sp,modifier=Modifier.padding(top=5.dp)) }
             Switch(checked=s.save.spicy,onCheckedChange=vm::spicy,enabled=!s.busy)
         } } }
         item { ModelCard(s,vm) }
         if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
-        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Yedeklemeye dahil edilmez. Hızlı oyun hemen, AI modu ise model indirildikten sonra internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Otomatik Android yedeklemesine dahil edilmez; istersen buradan kendi parolalı yedeğini oluşturabilirsin. Hızlı oyun hemen, AI modu ise model indirildikten sonra internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun; saat sırası, bekleme süresi, araç değişimi ve iletişim sırası gibi sınırlı kurallarla önceki cevapları karşılaştırır. Şüpheli boşlukla açık çelişkiyi ayrı değerlendirir; açıkladığın bağlantıyı yeniden suçlama yapmaz. Anlamı bütünüyle anlayamaz. AI modunda puanları Qwen üretir. Final tüm cevapları dikkate alır. Geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { s.device?.let { Text(it.summary,Modifier.testTag("device-summary"),color=Muted,fontSize=13.sp) } }
         item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. Hızlı oyun büyük model yüklemez. AI modu için 8 GB RAM önerilir ve 2–3 saniyelik yanıt garanti edilemez. AI yükleme ve üretim toplamında 30 saniyelik iptal bütçesi kullanılır. Fiziksel cihaz süreleri henüz doğrulanmadı.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
