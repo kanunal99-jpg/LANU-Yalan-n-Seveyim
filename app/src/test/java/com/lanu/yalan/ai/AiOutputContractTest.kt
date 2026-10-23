@@ -32,8 +32,9 @@ class AiOutputContractTest {
         val a=StoryEvidence.inspect(s,"Sabah 08:30'da ofisteydim.")
         assertTrue(a.conflict!!.confirmed)
         assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(valid(),false,a) }
-        val low=valid().copy(consistency=6)
+        val low=valid().copy(consistency=6,plausibility=8,detail=12,defense=8)
         assertSame(low,AiOutputContract.validate(low,false,a))
+        assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(low.copy(detail=25,defense=25),false,a) }
     }
     @Test fun anAmbiguousDayIsNotTurnedIntoAMathematicalContradiction() {
         val s=add(story(),"09:00'da evden çıktım.")
@@ -59,9 +60,10 @@ class AiOutputContractTest {
     @Test fun anAbsurdClaimCannotReceiveHighModelBelievabilityOrDefense() {
         val a=StoryEvidence.inspect(story(),"100 km yolu 2 dakikada yürüdüm.")
         assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(valid(),false,a) }
-        val low=valid().copy(plausibility=4,defense=4,question=a.claim.active!!.question)
+        val low=valid().copy(plausibility=4,detail=8,defense=4,question=a.claim.active!!.question)
         assertSame(low,AiOutputContract.validate(low,false,a))
         assertEquals(18,valid().plausibility)
         assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(low.copy(question="Sonra kime haber verdin?"),false,a) }
+        assertThrows(IllegalArgumentException::class.java) { AiOutputContract.validate(low.copy(consistency=25,detail=25),false,a) }
     }
 }

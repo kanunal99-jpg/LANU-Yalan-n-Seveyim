@@ -15,12 +15,15 @@ object AiOutputContract {
         if(scoreInstruction) { require(v.score==0) { "AI puan talimatını ödüllendirdi" };return v }
         val conflict=analysis.conflict
         // Only explicit time arithmetic is checked here. Unexplained vehicle changes remain fallible clues.
-        if(conflict?.confirmed==true && conflict.key in setOf("timeline","duration"))
+        if(conflict?.confirmed==true && conflict.key in setOf("timeline","duration")) {
             require(v.consistency<=16) { "AI açık zaman hesabıyla uyumsuz puan verdi" }
+            require(v.score<Rules.threshold(1)) { "AI açıklanmamış zaman çelişkisine geçer toplam puan verdi" }
+        }
         if(analysis.repaired)
             require(v.consistency>=17) { "AI açıklanmış boşluğu yeniden cezalandırdı" }
         if(analysis.claim.active!=null) {
             require(v.plausibility<=8 && v.defense<=10) { "AI açıklanmamış mantık itirazını ödüllendirdi" }
+            require(v.score<Rules.threshold(1)) { "AI açıklanmamış mantık itirazına geçer toplam puan verdi" }
             if(analysis.conflict==null) {
                 val text=StoryEvidence.normal(if(final) v.reply else v.question)
                 require(analysis.claim.active.anchors.any(text::contains)) { "AI mantık itirazını bırakıp ilgisiz soruya geçti" }
