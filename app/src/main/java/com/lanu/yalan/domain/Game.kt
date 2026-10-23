@@ -2,7 +2,35 @@ package com.lanu.yalan.domain
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlin.math.roundToInt
+
+@Serializable
+enum class ReasonSource { LOCAL_RULES, MODEL }
+
+@Serializable
+data class ScoreReasons(
+    val consistency: String,
+    val plausibility: String,
+    val detail: String,
+    val defense: String,
+    val source: ReasonSource = ReasonSource.LOCAL_RULES
+) {
+    fun validated(): ScoreReasons {
+        require(listOf(consistency,plausibility,detail,defense).all { it.isNotBlank() && it.length<=400 }) { "Puan gerekçesi geçersiz" }
+        return this
+    }
+}
+
+@Serializable
+enum class EvidenceStatus { CONTRADICTION, NEEDS_EXPLANATION, RESOLVED }
+
+@Serializable
+data class EvidenceCard(val status: EvidenceStatus,val earlier: String,val later: String,val finding: String) {
+    fun validated(): EvidenceCard {
+        require(listOf(earlier,later).all { it.isNotBlank() && it.length<=280 }) { "İfade kartı geçersiz" }
+        require(finding.isNotBlank() && finding.length<=400) { "İpucu açıklaması geçersiz" }
+        return this
+    }
+}
 
 @Serializable
 data class Verdict(
@@ -13,7 +41,10 @@ data class Verdict(
     val detail: Int,
     val defense: Int,
     // Suggested question angle, persisted in both modes. Not part of model-generated JSON.
-    val challengeKey: String? = null
+    val challengeKey: String? = null,
+    val explanations: ScoreReasons? = null,
+    val evidence: EvidenceCard? = null,
+    val jokeKey: String? = null
 ) {
     val score: Int get() = consistency + plausibility + detail + defense
     fun validated(final: Boolean = false): Verdict {
@@ -22,6 +53,9 @@ data class Verdict(
         require(final || question.isNotBlank()) { "Soru oluşturulamadı" }
         require(question.length <= 500) { "Soru çok uzun" }
         require(challengeKey==null || challengeKey.length<=80) { "Sorgu kimliği geçersiz" }
+        require(jokeKey==null || (jokeKey.isNotBlank() && jokeKey.length<=120)) { "Espri kimliği geçersiz" }
+        explanations?.validated()
+        evidence?.validated()
         return this
     }
 }
@@ -38,7 +72,8 @@ data class Session(
     val turns: List<Turn> = emptyList(),
     val credited: Boolean = false,
     // Old saved stories were evaluated by Qwen. Never silently change their scorer.
-    val mode: PlayMode = PlayMode.LOCAL_AI
+    val mode: PlayMode = PlayMode.LOCAL_AI,
+    val recentJokeKeys: List<String> = emptyList()
 ) {
     val finished: Boolean get() = turns.size >= 5
     val question: String get() = turns.lastOrNull()?.verdict?.question ?: opening
@@ -52,7 +87,8 @@ data class GameSave(
     val session: Session? = null,
     val spicy: Boolean = true,
     val onboarding: Boolean = false,
-    val mode: PlayMode = PlayMode.FAST
+    val mode: PlayMode = PlayMode.FAST,
+    val recentJokeKeys: List<String> = emptyList()
 )
 object Rules {
     fun threshold(level: Int) = 40 + (level.coerceIn(1, 100) - 1) / 3

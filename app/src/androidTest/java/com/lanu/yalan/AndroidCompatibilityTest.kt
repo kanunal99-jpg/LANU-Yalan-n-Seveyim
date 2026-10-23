@@ -6,6 +6,9 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.lanu.yalan.domain.DevicePolicy
+import com.lanu.yalan.domain.PerformanceStats
+import com.lanu.yalan.domain.PlayMode
+import com.lanu.yalan.domain.TimingSample
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -59,6 +62,7 @@ class AndroidCompatibilityTest {
         compose.onNodeWithText("Hızlı oyun · Kural tabanlı puanlama").assertIsDisplayed()
         val answers=listOf("Saat 8'de otobüse bindim, lastik patladı.","Durakta 15 dakika yedek otobüs bekledim.",
             "Şoför arızadan dolayı durakta beklememizi istedi.","Telefonla müdüre mesaj attım.","Otobüs biletim ve mesaj saatim beklediğimi gösterir.")
+        val renderedTimings=mutableListOf<TimingSample>()
         answers.forEachIndexed { index, answer ->
             compose.onNodeWithTag("answer-input").performTextInput(answer)
             compose.onNodeWithTag("send-answer").assertIsEnabled().assertIsDisplayed()
@@ -77,9 +81,12 @@ class AndroidCompatibilityTest {
             if(index<4) compose.onNodeWithTag("current-question").assertIsDisplayed()
             else compose.onNodeWithText("İNANDIRICILIK").assertIsDisplayed()
             val elapsed=SystemClock.elapsedRealtime()-sent
+            renderedTimings+=TimingSample(PlayMode.FAST,elapsed)
             println("LANU_FAST_TURN_${index+1}_MS=$elapsed")
             assertTrue("Turn ${index+1} exceeded 3s: $elapsed ms",elapsed<3_000)
         }
+        val summary=PerformanceStats.summarize(renderedTimings)
+        println("LANU_UI_RENDERED_SUMMARY count=${summary.successCount} p50_ms=${summary.p50Ms} p95_ms=${summary.p95Ms}")
         compose.onNodeWithText("Bu sefer yedik!").assertIsDisplayed()
         compose.onNodeWithText("Çık").performClick()
         compose.onNodeWithText("Seviyeler").performClick()

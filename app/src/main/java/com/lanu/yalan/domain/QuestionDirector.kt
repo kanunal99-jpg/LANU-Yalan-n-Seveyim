@@ -4,7 +4,7 @@ import com.lanu.yalan.domain.StoryEvidence.Focus
 
 /** Selects an unasked angle from actual story evidence, with five difficulty bands. */
 object QuestionDirector {
-    data class Beat(val key: String, val question: String, val reaction: String)
+    data class Beat(val key: String, val question: String, val reaction: String, val jokeKey: String? = null)
     private fun q(text: String) = StoryEvidence.quote(text)
     fun opening(topic: String, level: Int): String {
         val hard=level>60
@@ -36,13 +36,23 @@ object QuestionDirector {
             add("conflict.${c.key}.sequence","${q(c.earlier)} ile ${q(c.later)} arasına eksik olayı koy; hangi sırayla yaşandı?",
                 "${c.finding} Kurgu masasındaki makas izleri hâlâ görünüyor.")
         }
-        if(a.repaired) add("repair.next","Açıkladığın geçişi kabul ettim. Son anlattığın ${q(o.text)} için sıradaki kontrol edilebilir ayrıntı ne?",
+        val repairedQuestion=when {
+            o.clocks.isNotEmpty() -> "Açıkladığın geçişi kabul ettim. ${o.clocks.last().label} anını hangi olayla sabitliyorsun; tahmin mi, o anda bildiğin saat mi?"
+            o.messaged -> "Açıkladığın geçişi kabul ettim. Haber verdiğin anda karşı taraf ne biliyordu; sonradan öğrendiğin kısmı ayırır mısın?"
+            o.person!=null -> "Açıkladığın geçişi kabul ettim. ${o.person} olayın hangi kısmını doğrudan biliyor; sadece senden duyduğu kısım hangisi?"
+            else -> "Açıkladığın geçişi kabul ettim. Son olaydan sonra planın hangi kısmını hâlâ yetiştirebiliyordun?"
+        }
+        if(a.repaired) add("repair.next",repairedQuestion,
             "Bağlantıyı şimdi kurdun; eski açığı tekrar satmayacağım. Bakalım yeni ayrıntı da muayeneden geçecek mi.")
 
         when(o.focus) {
             Focus.BATTERY -> {
                 val powerSpecified=StoryEvidence.has(o.text,"sarj","batarya","pil")
-                val whenPhone=if(o.clocks.isEmpty()) "Telefon tam hangi anda kapandı; o sırada neredeydin?" else "${o.clocks.last().label} ile telefonun kapanması arasındaki sırayı nasıl kuruyorsun?"
+                val whenPhone=when {
+                    o.clocks.isNotEmpty() -> "${o.clocks.last().label} ile telefonun kapanması arasındaki sırayı nasıl kuruyorsun?"
+                    o.place!=null -> "${o.place} konumunu söyledin. Telefon kapanmadan önceki son işlemin neydi; kapandığını tam hangi anda fark ettin?"
+                    else -> "Telefon tam hangi anda kapandı; o sırada neredeydin?"
+                }
                 add("battery.order",level(whenPhone,whenPhone,
                     "Telefon kapanmadan önceki son yaptığın işlem neydi; hikâyendeki hangi ayrıntı bunu destekliyor?",
                     "Telefonun kapanacağını fark ettiğinde haber vermek için kalan fırsatın neydi; neden kullanamadın?",
@@ -86,7 +96,7 @@ object QuestionDirector {
                     "$objectName sorunu gerçekten beklemeyi gerektiriyorsa, başka türlü devam etmeni ne engelledi?",
                     "$objectName sorunu, bekleme ve devam etme sırasını savun: anlattığının hangi kısmını kendin gözledin?"),
                     if(tire) level("Lastik patlamış; bahane şu an yedekle gidiyor.","Lastik hava kaçırmış, hikâye de kaçırmasın; sırayı sabitleyelim.","Lastiğe yama bulunur; hikâyedeki deliğin yerini önce görelim.","Patlak lastik tamam; bütün gecikmeyi onun üstüne yükleyince jant eğiliyor.","Lastik dosyası ekspertize gitti; bahanenin şasisine de bakıyoruz.")
-                    else "Araç servise girmiş; bahaneyi de lifte kaldırmadan bırakmayacağım.")
+                    else "Araç arıza yapmış; bahaneyi de lifte kaldırmadan bırakmayacağım.")
                 add("breakdown.duration",o.duration?.let { "$it beklediğini söyledin. Bu süreyi nereden biliyorsun; bekleme hangi olayla başladı ve bitti?" }
                     ?: "Arıza yüzünden beklediğin süre neydi; başlangıcı ve bitişi hangi olaylara bağlıyorsun?",
                     "Arıza kaydı var diyorsun; gecikmeye eklenen dakikalar kafadan yazılmasın.")
@@ -151,6 +161,7 @@ object QuestionDirector {
         val selected=beats.firstOrNull { it.key !in used } ?: Beat("last.${s.turns.size}",
             "${q(o.text)} için tek bir kontrol seç: anlattığını hangi gözlemin destekliyor?",
             "Son kontrolü tek ayrıntıya indiriyorum; bahane kalabalığa karışıp kaçmasın.")
-        return selected.copy(reaction=StoryHumor.vary(s,o,selected.key,selected.reaction))
+        val joke=StoryHumor.select(s,a,selected.key,selected.reaction,spicy)
+        return selected.copy(reaction=joke.text,jokeKey=joke.key)
     }
 }

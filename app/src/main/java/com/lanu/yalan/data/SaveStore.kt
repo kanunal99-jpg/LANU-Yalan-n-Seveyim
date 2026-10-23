@@ -7,6 +7,10 @@ import android.util.AtomicFile
 import com.lanu.yalan.domain.GameSave
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -23,6 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class SaveStore @Inject constructor(@ApplicationContext context: Context) {
     private val file = AtomicFile(File(context.filesDir, "progress.enc"))
+    private val mutex=Mutex()
     private val json = Json { ignoreUnknownKeys = true }
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
@@ -32,11 +37,12 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).build())
         }.generateKey()
     }
-    suspend fun read(): GameSave = withContext(Dispatchers.IO) {
+    suspend fun read(): GameSave = withContext(Dispatchers.IO) { mutex.withLock { readStored() } }
+    private fun readStored(): GameSave {
         // Let AtomicFile recover its backup before deciding this is a new install.
-        val bytes = try { file.readFully() } catch (e: FileNotFoundException) {
+        val bytes = try { file.openRead().use { PortableBackup.readBounded(it) } } catch (e: FileNotFoundException) {
             if (!file.baseFile.exists() && !File(file.baseFile.path + ".bak").exists()) {
-                return@withContext GameSave()
+                return GameSave()
             }
             throw e
         }
@@ -44,10 +50,11 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, bytes.copyOfRange(0, 12)))
         val save = json.decodeFromString<GameSave>(cipher.doFinal(bytes.copyOfRange(12, bytes.size)).decodeToString())
-        require(save.schema == 1 && save.unlocked in 1..100)
-        save
+        return SaveValidation.validate(save)
     }
-    suspend fun write(save: GameSave) = withContext(Dispatchers.IO) {
+    suspend fun write(save: GameSave) = withContext(Dispatchers.IO) { mutex.withLock { writeStored(save) } }
+    private fun writeStored(save: GameSave) {
+        SaveValidation.validate(save)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key())
         val bytes = cipher.iv + cipher.doFinal(json.encodeToString(save).encodeToByteArray())
@@ -55,5 +62,15 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
         try { stream.write(bytes); file.finishWrite(stream) }
         catch (e: Exception) { file.failWrite(stream); throw e }
     }
-    suspend fun reset() = withContext(Dispatchers.IO) { file.delete() }
+    suspend fun exportBackup(passphrase: CharArray): ByteArray = withContext(Dispatchers.IO) {
+        mutex.withLock { PortableBackup.encode(readStored(),passphrase) }
+    }
+    suspend fun restoreBackup(bytes: ByteArray, passphrase: CharArray): GameSave = withContext(Dispatchers.IO) {
+        // This does not read the old file: a valid backup can recover an unreadable device save.
+        val restored=PortableBackup.decode(bytes,passphrase)
+        currentCoroutineContext().ensureActive()
+        mutex.withLock { writeStored(restored) }
+        restored
+    }
+    suspend fun reset() = withContext(Dispatchers.IO) { mutex.withLock { file.delete() } }
 }

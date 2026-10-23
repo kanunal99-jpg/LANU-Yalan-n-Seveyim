@@ -19,4 +19,14 @@ class DevicePolicyTest {
         assertEquals(4, DevicePolicy.memoryClassGb(7 * gib / 2))
         assertEquals(0, DevicePolicy.memoryClassGb(0))
     }
+    @Test fun thermalAndPowerSavingCapsApplyWithoutBrandFilters() {
+        assertEquals(4,DevicePolicy.inferenceThreads(8,8*gib,thermalStatus=0))
+        assertEquals(2,DevicePolicy.inferenceThreads(8,8*gib,thermalStatus=2))
+        assertEquals(1,DevicePolicy.inferenceThreads(8,8*gib,thermalStatus=3))
+        assertEquals(2,DevicePolicy.inferenceThreads(8,8*gib,powerSave=true))
+        assertEquals(1,DevicePolicy.inferenceThreads(1,8*gib,thermalStatus=2))
+        assertFalse(DevicePolicy.shouldDeferInference(null))
+        assertFalse(DevicePolicy.shouldDeferInference(3))
+        assertTrue(DevicePolicy.shouldDeferInference(4))
+    }
 }
