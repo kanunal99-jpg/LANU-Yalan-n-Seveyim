@@ -1,5 +1,17 @@
 # Doğrulama kaydı
 
+## 0.4 OTA, yedek ve gerekçeli puanlama
+
+[40014129839 numaralı koşunun](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40014129839) AOSP işi başarılı. Kaynak: `26fb0c5d82455b5136c0cf71345b5d75d9cbf9c6`. XML'deki 12 yöntemin 10'u normal koşuda başarılı; hazırlık ve yükseltme sonrası kontrol yöntemleri normal koşuda atlanıp ayrı gerçek yükseltme aşamalarında birer kez başarılı çalıştırıldı. Toplam 12 Android yöntemi doğrulandı.
+
+AOSP API 30, Google Play Hizmetleri yok, yazı ölçeği 1,3. Klavye/gönderim, sonucun görünmesi, dört puan gerekçesi, güncelleme düğmesi, yedek parolası eşleştirme, yanlış parolada kayıt korunması, cihaz anahtarı silindikten sonra taşınabilir yedek geri yüklemesi ve süre geçmişi kontrol edildi. Aynı anahtarlı kod 6 APK'sı kod 5 üzerinde üretimde kullanılan hash/paket/sürüm/imza denetimlerinden geçti. Değiştirilmiş APK, yeniden hesaplanmış public hashle bile Android imza denetiminde reddedildi; farklı paket/imza/eski sürüm reddi de denetlendi.
+
+Sonraki aşama gerçek `adb install -r`: kod 5'te seviye 3, iki en iyi puan, açık hikâye ve espri geçmişi Android Keystore ile kaydedildi; kod 6 kurulduktan sonra tüm kayıt ve aynı sertifika doğrulandı. Her iki aşama `OK (1 test)` sonucu verdi. [Ham özet](ota-aosp-results.json).
+
+Beş Hızlı oyun yanıtı ekrana **549, 559, 752, 482, 674 ms** içinde geldi; ortanca 559 ms, %95 752 ms. Bu, gönderimden sonraki soru/sonuç görünene kadar test çerçevesi dahil emülatör ölçümüdür; fiziksel A55 veya gerçek model hızı değildir. Uygulama içindeki süre kartı farklı olarak motor+kayıt süresini ölçer.
+
+Gerçek modelin yeni tanılaması JNI ile aynı `generation.cpp` üzerinden 11 örnek çalıştırır. Tarihsel server çıktısı güncel native kanıtı sayılmaz. Kaynak ve sınırlar: [AI_NATIVE_VALIDATION.md](AI_NATIVE_VALIDATION.md). Kalıcı imza kurulumu [STABLE_SIGNING.md](STABLE_SIGNING.md), fiziksel cihaz kontrolü [A55_CHECK.md](A55_CHECK.md).
+
 ## 0.3.0 cevaba özel sorgulama
 
 Hızlı oyun artık cevabın neden, saat, süre, araç, kişi ve yer ayrıntılarına göre sorgu seçer; önceki ifadeleri karşılaştırır, sorulan açıyı kaydeder ve açıklanan boşluğu yeniden suçlamaz. Beş zorluk bandı ve hikâye başına espri çeşitleri var. Örnekler ve sınırlar: [DIALOGUE_QUALITY.md](DIALOGUE_QUALITY.md).
@@ -59,7 +71,7 @@ Samsung, Huawei, Xiaomi ve diğer markaların ARM64 Android cihazlarında:
 
 ## Üretim öncesi kalanlar
 
-Kalıcı özel imza ve CI secrets, gerçek telefon smoke testi ve Türkçe oyun kalitesinin daha geniş değerlendirmesi. Crashlytics yapılandırma altyapısı var ancak Firebase projesi/konfigürasyonu sağlanmadığı için aktif değil. OTA uygulanmadı. İlk APK debug/test imzalı bir alfa olarak dağıtılacaktır.
+Kalıcı özel imza ve CI secrets, gerçek telefon smoke testi ve Türkçe oyun kalitesinin daha geniş değerlendirmesi. Crashlytics yapılandırma altyapısı var ancak Firebase projesi/konfigürasyonu sağlanmadığı için aktif değil. Bu bölüm tarihsel 0.1–0.3 kaydıdır. 0.4 uygulama içi OTA yolunu ve parolalı yedeği ekler; kalıcı anahtar durumu yayınlanan signing-info.json içinde ayrı belirtilir.
 
 ### Güncel model smoke sonucu
 
