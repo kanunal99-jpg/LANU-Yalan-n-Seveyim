@@ -57,8 +57,8 @@ Ayrı `scripts/native_invariant_smoke.py`, modelin istediği alandan farklı sab
 
 ```sh
 python3 scripts/native_invariant_smoke.py \
-  --probe "$RUNNER_TEMP/lanu-ai-build/lanu-ai-probe" \
-  --model "$RUNNER_TEMP/qwen35.gguf" \
+  --probe "$RUNNER_TEMP/lanu-ai/build/lanu-ai-probe" \
+  --model "$RUNNER_TEMP/lanu-ai/model.gguf" \
   --output reports/native-ai-invariants.json
 ```
 

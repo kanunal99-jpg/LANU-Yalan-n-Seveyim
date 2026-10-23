@@ -105,6 +105,7 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: LANU-Yalanini-Seveyim-test-apk
@@ -127,3 +128,5 @@ jobs:
           for tag in v0.4.0-alpha v0.4.1-alpha; do
             gh release create "$tag" apk/"$tag"/* --repo "$REPO" --title "LANU $tag · OTA test sürümü" --notes-file notes.md --prerelease --target "$COMMIT"
           done
+      - name: Verify public APK downloads after publication
+        run: python3 scripts/verify_published_downloads.py
