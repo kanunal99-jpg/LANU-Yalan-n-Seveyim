@@ -4,6 +4,8 @@
 
 [40014129839 numaralı koşunun](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40014129839) AOSP işi başarılı. Kaynak: `26fb0c5d82455b5136c0cf71345b5d75d9cbf9c6`. XML'deki 12 yöntemin 10'u normal koşuda başarılı; hazırlık ve yükseltme sonrası kontrol yöntemleri normal koşuda atlanıp ayrı gerçek yükseltme aşamalarında birer kez başarılı çalıştırıldı. Toplam 12 Android yöntemi doğrulandı.
 
+Aynı koşunun derleme işi de başarılı: **77 JVM testi, 0 hata/başarısızlık/atlama**, lint, ARM64 native debug ve R8 release derlendi. Kod 5/6 normal ARM64 APK'larının gerçek paket/sürümü, aynı sertifikası, boyutları ve hashleri doğrulandı. Bu PR artifact'ları henüz herkese açık Release yayını değildir; yayın APK'ları ayrıca indirme kontrolünden geçer.
+
 AOSP API 30, Google Play Hizmetleri yok, yazı ölçeği 1,3. Klavye/gönderim, sonucun görünmesi, dört puan gerekçesi, güncelleme düğmesi, yedek parolası eşleştirme, yanlış parolada kayıt korunması, cihaz anahtarı silindikten sonra taşınabilir yedek geri yüklemesi ve süre geçmişi kontrol edildi. Aynı anahtarlı kod 6 APK'sı kod 5 üzerinde üretimde kullanılan hash/paket/sürüm/imza denetimlerinden geçti. Değiştirilmiş APK, yeniden hesaplanmış public hashle bile Android imza denetiminde reddedildi; farklı paket/imza/eski sürüm reddi de denetlendi.
 
 Sonraki aşama gerçek `adb install -r`: kod 5'te seviye 3, iki en iyi puan, açık hikâye ve espri geçmişi Android Keystore ile kaydedildi; kod 6 kurulduktan sonra tüm kayıt ve aynı sertifika doğrulandı. Her iki aşama `OK (1 test)` sonucu verdi. [Ham özet](ota-aosp-results.json).
