@@ -220,6 +220,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 Bubble("SEN",turn.answer,true)
                 Spacer(Modifier.height(12.dp))
                 Bubble("LANU · ${turn.verdict.score}/100",turn.verdict.reply,false)
+                VerdictDetails(turn.verdict,compact=true)
             }
             item { Bubble("LANU",session.question,false,Modifier.testTag("current-question")) }
             if(s.busy) item { Busy(s,vm) }

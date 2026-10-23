@@ -72,7 +72,7 @@ object StoryHumor {
         if(previous.any { it.focus==StoryEvidence.Focus.BATTERY } && o.focus==StoryEvidence.Focus.TRAFFIC)
             lines+=Line("callback.phone.traffic","Önce telefon kapandı, şimdi yol tıkandı; bahanenin bütün hatları meşgul.")
         if(previous.any { StoryEvidence.has(it.text,"lastik") && it.focus==StoryEvidence.Focus.BREAKDOWN } && o.messaged && o.person!=null)
-            lines+=Line("callback.tire.message","Lastik dosyada, ${o.person} da haberi almış; bahanenin hem servis hem halkla ilişkiler bölümü var.")
+            lines+=Line("callback.tire.message","Lastik dosyada, ${o.person} için mesaj iddiası da var; bahanenin hem servis hem halkla ilişkiler bölümü açılmış.")
         if(previous.any { it.focus==StoryEvidence.Focus.HOMEWORK } && o.focus==StoryEvidence.Focus.INTERNET)
             lines+=Line("callback.work.internet","İş teslim zincirinden bağlantı testine geçti; bahane, müfredatı kendi genişletiyor.")
         if(previous.none { it.correction } && !o.correction) {
@@ -89,7 +89,7 @@ object StoryHumor {
         return when(key) {
             "battery.order" -> listOf(
                 listOf("Telefon mesaiyi bırakmış; bahane fazla mesaiye yazılmış.","Şarj bitmiş ama mazeretin bataryası maşallah, yüzde yüz."),
-                listOf("Telefon güç tasarrufuna geçmiş; bahane gereksiz uygulama gibi arka planda çalışıyor.","Pilin son nefesini dinledik; şimdi kapanma sırasının ifadesini alalım."),
+                listOf("Telefon işi bırakmış; bahane gereksiz uygulama gibi arka planda çalışıyor.","Pilin son nefesini dinledik; şimdi kapanma sırasının ifadesini alalım."),
                 listOf("Şarj dosyası dolu görünüyor; kapanma anının yüzde kaçı gerçekten belli?","Telefon kapanmış; hikâyenin boş kalan yerlerini powerbank diye kullanmayalım."),
                 listOf("Telefonun pili bitmiş, bahanenin garantisi henüz incelemede.","Pili suçlu bulduk diye bütün gecikmeyi şarja takıp bırakamıyoruz."),
                 listOf("Telefonun pilini sorgulamıyorum; savunmanın o pile yüklediği mesaiyi sorguluyorum.","Telefon kapalı, bahane canlı yayında; yayınla olay sırasının senkronu tutacak mı?")
