@@ -46,6 +46,7 @@ keywords = {
     "homework": r"ödev|defter|teslim|hazır|dosya|adım",
     "timeline": r"09|08|saat|çık|var|zaman|sıra",
     "consistent_bus": r"lastik|otobüs|bekle|dakika|arıza|haber|yol|şoför",
+    "unseen_spill": r"kahve|dök|ıslan|leke|sıvı|masa",
 }
 scores = ["consistency", "plausibility", "detail", "defense"]
 results = []
@@ -53,6 +54,34 @@ output_path = Path(args.output)
 output_path.parent.mkdir(parents=True, exist_ok=True)
 log_path = output_path.with_suffix(".probe.log")
 load_seconds = None
+document = {
+    "model": "Qwen3.5-4B-Q4_K_M", "model_sha256": model_hash,
+    "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+    "inference_source": "generation.cpp shared by Android JNI and lanu-ai-probe",
+    "probe_sha256": probe_hash,
+    "sampler": {"order": ["top_k", "top_p", "temperature", "dist"],
+                "grammar_strategy": "Selected-token validation, full-vocabulary grammar mask on rejection (pinned llama.cpp common/sampling.cpp strategy)",
+                "top_k": 20, "repeat_penalty": 1.0, "top_p": 0.8,
+                "temperature": 0.5, "seed": 42, "min_p": None, "penalize_prompt": False,
+                "acceptance": "apply does not accept; accept valid token once in grammar and once in sampling chain"},
+    "context_tokens": 3072, "max_generated_tokens": 240, "threads": args.threads,
+    "host_timeout_seconds": args.timeout, "android_timeout_seconds_including_load": 30,
+    "model_load_seconds": None, "source_sha256": source_hashes,
+    "fixtures_sha256": sha256(args.fixtures),
+    "passed": False, "complete": False, "expected_cases": len(fixtures),
+    "expected_case_names": [case["case"] for case in fixtures], "quality_approved": False,
+    "note": "Synthetic x86 host checks, with untouched model text/scores. Question grounding and Turkish humor still require manual review. Host times exclude model loading and are not Android timings.",
+    "results": results,
+}
+def checkpoint(complete=False):
+    document["model_load_seconds"] = load_seconds
+    document["complete"] = complete
+    document["completed_cases"] = len(results)
+    document["passed"] = complete and len(results) == len(fixtures) and all(item["passed"] for item in results)
+    partial = output_path.with_suffix(output_path.suffix+".tmp")
+    partial.write_text(json.dumps(document, ensure_ascii=False, indent=2)+"\n")
+    partial.replace(output_path)
+
 with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve().parent) as temporary:
     directory = Path(temporary)
     manifest = []
@@ -106,6 +135,7 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                     item["checks"]["schema"] = False
                 item["passed"] = all(item["checks"].values())
                 results.append(item)
+                checkpoint()
                 print(json.dumps(item, ensure_ascii=False), flush=True)
             if process.wait(timeout=30) != 0:
                 raise RuntimeError(f"Native quality probe failed; inspect {log_path}")
@@ -115,23 +145,5 @@ with tempfile.TemporaryDirectory(prefix="lanu-probe-", dir=output_path.resolve()
                 process.wait(timeout=30)
 if len(results) != len(fixtures):
     raise RuntimeError("Native quality probe did not return every fixture")
-document = {
-    "model": "Qwen3.5-4B-Q4_K_M", "model_sha256": model_hash,
-    "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
-    "inference_source": "generation.cpp shared by Android JNI and lanu-ai-probe",
-    "probe_sha256": probe_hash,
-    "sampler": {"order": ["top_k", "top_p", "temperature", "dist"],
-                "grammar_strategy": "Selected-token validation, full-vocabulary grammar mask on rejection (pinned llama.cpp common/sampling.cpp strategy)",
-                "top_k": 20, "repeat_penalty": 1.0, "top_p": 0.8,
-                "temperature": 0.5, "seed": 42, "min_p": None, "penalize_prompt": False,
-                "acceptance": "apply does not accept; accept valid token once in grammar and once in sampling chain"},
-    "context_tokens": 3072, "max_generated_tokens": 240, "threads": args.threads,
-    "host_timeout_seconds": args.timeout, "android_timeout_seconds_including_load": 30,
-    "model_load_seconds": load_seconds, "source_sha256": source_hashes,
-    "fixtures_sha256": sha256(args.fixtures),
-    "passed": all(item["passed"] for item in results), "quality_approved": False,
-    "note": "Synthetic x86 host checks, with untouched model text/scores. Question grounding and Turkish humor still require manual review. Host times exclude model loading and are not Android timings.",
-    "results": results,
-}
-output_path.write_text(json.dumps(document, ensure_ascii=False, indent=2)+"\n")
+checkpoint(complete=True)
 raise SystemExit(0 if document["passed"] else 1)

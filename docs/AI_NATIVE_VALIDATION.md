@@ -33,3 +33,33 @@ Rapor ham model metnini/puanlarını, token sayılarını, dilbilgisi geri dön�
 Kaynaklar korunmadan önce yapılan kontrollü native başlangıç ölçümünün ilk beş turu 49,7 / 52,7 / 67,6 / 59,2 / 84,2 saniyeydi. Bu başlangıç yolunda eski İngilizce yönerge, dilbilgisini baştan tüm sözlüğe uygulama, 1,08 tekrar cezası ve 0,65 sıcaklık vardı. Trafik, ödev ve ters saat örneklerinde model yorumun içinde tekrar soru sordu; alarm sorusu neden-sonuç ilişkisini bozdu. Bu kısmi ölçüm güncel Türkçe yönergenin veya iyileştirilen örneklemenin başarısı sayılmaz.
 
 Çalışma alanı sıfırlanmadan önce paylaşılan native çekirdek/probe derlendi; bağımsız Kotlin/JVM çalıştırmasında prompt, dilbilgisi ve dışa aktarma için sekiz test geçti. Tam 11 örneklik yeni native koşusu ve fiziksel Android AI ölçümü tamamlanmadı. Kaynaklar geri yüklendi; yeni model kalite/hız onayı hâlâ bekliyor. Önceki `dialogue-ai-results.json` tarihsel sunucu çıktısıdır. Cihaz içi AI deneysel olarak sunulmalıdır.
+
+## Kalıcı CI çalıştırması ve kısmi rapor
+
+Yerel çalışma alanının sıfırlanması model koşusunu kesebildiğinden tam ölçüm GitHub Actions işi olarak çalıştırılır. Gradle, host derlemesi ve model üretimi sırayla tamamlanır; model bellekteyken Gradle başlatılmaz. İndirilen GGUF hem 2740937888 bayt boyutuyla hem ModelStore SHA-256 değeriyle doğrulanır. Üretimdeki URL:
+
+```text
+https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf?download=true
+```
+
+Yalnız AI fixture ve prompt/dilbilgisi testlerini dışa aktarmak için:
+
+```sh
+./gradlew --no-daemon -Planu.uiSmoke=true :app:testDebugUnitTest \
+  --tests com.lanu.yalan.ai.AiFixtureExportTest \
+  --tests com.lanu.yalan.ai.PromptComposerTest \
+  --tests com.lanu.yalan.ai.EngineGrammarTest --stacktrace
+```
+
+`dialogue_smoke.py` her tamamlanan gerçek model cevabından sonra raporu atomik olarak kaydeder. Bütün seçili vakalar bitene kadar `complete=false` ve `passed=false` kalır. `expected_cases`, `expected_case_names` ve `completed_cases` kısmi ölçümün sınırını belirtir. Kesilen bir koşunun kısmi başarısı tam kalite onayı gibi gösterilmez. Yeni kahve dökülmesi örneğinde takip sorusunun kahve/dökülme/ıslanma/leke/sıvı/masa ayrıntılarından birini izlemesi ayrıca kontrol edilir.
+
+Ayrı `scripts/native_invariant_smoke.py`, modelin istediği alandan farklı sabit bir JSON dilbilgisi zorlayarak reddetme yolunu gerçekten çalıştırır; 5000 token üzerindeki bağlamın sınır hatası vermesini ve ardından aynı motorun yeni üretime dönebilmesini denetler. Sabit JSON burada motor testi içindir; diyalog puanı veya model mizahı testi değildir.
+
+```sh
+python3 scripts/native_invariant_smoke.py \
+  --probe "$RUNNER_TEMP/lanu-ai-build/lanu-ai-probe" \
+  --model "$RUNNER_TEMP/qwen35.gguf" \
+  --output reports/native-ai-invariants.json
+```
+
+CI, kalite kontrolü başarısız olsa da `reports/` ve `app/build/reports/ai-quality/` klasörlerini `if: always()` ile artifact olarak yüklemelidir. Yeni kaynaklarla tamamlanmış 11 örneklik rapor henüz elde edilmedi; komutların hazırlanması ölçüm sonucu yerine geçmez.
