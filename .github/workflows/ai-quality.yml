@@ -1,9 +1,9 @@
 name: Native AI diagnostics
 on:
   workflow_dispatch:
-  pull_request:
+  push:
+    branches: [codex/premium-ota-20261023]
     paths:
-      - '.github/workflows/ai-quality.yml'
       - 'app/src/main/cpp/**'
       - 'app/src/main/java/com/lanu/yalan/ai/**'
       - 'app/src/main/assets/system_prompt.txt'
