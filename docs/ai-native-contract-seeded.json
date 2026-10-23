@@ -1,0 +1,98 @@
+{
+  "validation_source_commit": "f8335def7dae119acc65e31f2c5ffec94a4b7c80",
+  "native_source_commit": "7dad1ff2bba1ffdc7ac13eb999db4bbc3b6ea529",
+  "native_run": 40022338457,
+  "fixtures_sha256": "c15763ba8b6c417c8b331c2f09e8a850231212c490895a90fedd5cf26405437d",
+  "raw_report_sha256": "79a71b1a57e5a039b73cd57b1be119388fe1bf3da244ad17b83c25258194c31a",
+  "accepted": 4,
+  "completed": 15,
+  "note": "Actual AiOutputContract and VerdictParser applied to untouched native model outputs and original quoted case records. Acceptance is not Turkish, reasoning or humor approval. Replay-only zero-score Turn containers are not model-generated prior turns.",
+  "results": [
+    {
+      "case": "battery",
+      "raw_automatic_checks_passed": true,
+      "accepted_by_app_contract": true
+    },
+    {
+      "case": "alarm",
+      "raw_automatic_checks_passed": true,
+      "accepted_by_app_contract": true
+    },
+    {
+      "case": "traffic",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "homework",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "timeline",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "consistent_bus",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "injection",
+      "raw_automatic_checks_passed": true,
+      "accepted_by_app_contract": true
+    },
+    {
+      "case": "repaired_clock",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "repaired_phone",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI tek takip sorusu oluşturamadı",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "unseen_spill",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "final_bus",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "absurd_teleport",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "absurd_speed",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI açıklanmamış mantık itirazını ödüllendirdi",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "retracted_absurd",
+      "raw_automatic_checks_passed": false,
+      "rejection": "AI yorumun içinde ek soru sordu",
+      "accepted_by_app_contract": false
+    },
+    {
+      "case": "metaphor",
+      "raw_automatic_checks_passed": false,
+      "accepted_by_app_contract": true
+    }
+  ]
+}

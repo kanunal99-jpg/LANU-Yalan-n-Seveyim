@@ -131,8 +131,9 @@ object ClaimReview {
         val previous=s.turns.count { it.verdict.challengeKey?.startsWith(key)==true }
         val recent=(s.recentJokeKeys+s.turns.mapNotNull { it.verdict.jokeKey }).toSet()
         val index=objection.jokes.indices.firstOrNull { "$key.joke.$it" !in recent } ?: previous%objection.jokes.size
-        val lead=if(previous==0) "${StoryEvidence.quote(objection.quote,95)} — ${objection.finding}"
-            else "${StoryEvidence.quote(objection.quote,80)} itirazı hâlâ açık; son cevabın bunu açıklamadı."
+        // The full finding belongs in the evidence card, not repeated before the same punchline.
+        val lead=if(previous==0) StoryEvidence.quote(objection.quote,95)
+            else "${StoryEvidence.quote(objection.quote,80)} itirazı hâlâ açık."
         val question=if(previous==0) objection.question else
             "${StoryEvidence.quote(objection.quote,100)} iddianı geri mi alıyorsun, yoksa işaret ettiğim açığı hangi olayla açıklıyorsun?"
         return QuestionDirector.Beat("$key.$previous",question,"$lead ${objection.jokes[index]}","$key.joke.$index")

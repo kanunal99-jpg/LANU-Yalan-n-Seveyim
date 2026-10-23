@@ -171,13 +171,25 @@ class AndroidCompatibilityTest {
         compose.onNode(hasText("ayakkabı değil hızlı tren",substring=true)).assertIsDisplayed()
         compose.onNodeWithTag("current-question").assertIsDisplayed()
         compose.onNode(hasText("mesafe, süre veya yürüyüş",substring=true)).assertIsDisplayed()
+        assertCurrentExchangeFullyVisible()
         captureObjection("lanu-comic-objection.png")
         sendSpecific("Müdüre mesaj attım.",3)
         compose.onNode(hasText("itirazı hâlâ açık",substring=true)).assertIsDisplayed()
         compose.onNodeWithTag("current-question").assertIsDisplayed()
         compose.onNode(hasText("iddianı geri mi alıyorsun",substring=true)).assertIsDisplayed()
+        assertCurrentExchangeFullyVisible()
         captureObjection("lanu-persistent-objection.png")
         println("LANU_COMIC_OBJECTION_VISIBLE_AND_PERSISTENT")
+    }
+    private fun assertCurrentExchangeFullyVisible() {
+        compose.waitForIdle()
+        val reply=compose.onNodeWithTag("current-reply").getUnclippedBoundsInRoot()
+        val question=compose.onNodeWithTag("current-question").getUnclippedBoundsInRoot()
+        val toolbar=compose.onNodeWithTag("game-toolbar").getUnclippedBoundsInRoot()
+        val composer=compose.onNodeWithTag("answer-composer").getUnclippedBoundsInRoot()
+        assertTrue("The response was hidden behind the toolbar: $reply / $toolbar",reply.top>=toolbar.bottom)
+        assertTrue("The question was hidden behind the input: $question / $composer",question.bottom<=composer.top)
+        println("LANU_EXCHANGE_UNCLIPPED reply_bottom=${reply.bottom} question_bottom=${question.bottom} composer_top=${composer.top}")
     }
     private fun captureObjection(name: String) {
         require(Regex("lanu-[a-z-]+\\.png").matches(name))

@@ -201,7 +201,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     }
     Column(Modifier.fillMaxSize()) {
         // Keep the composer reachable with the keyboard open, even at large font scales.
-        Row(Modifier.fillMaxWidth().padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.fillMaxWidth().testTag("game-toolbar").padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
             Column(Modifier.weight(1f)) {
                 Text("LANU · SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
                 Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=10.sp)
@@ -241,7 +241,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Text("AI için modeli indir veya bu hikâyeye Hızlı oyun ile devam et.",Modifier.padding(horizontal=16.dp),color=Gold)
             TextButton(onClick=vm::continueFast,enabled=!s.busy) { Text("Bu hikâyeye hızlı devam et") }
         }
-        Surface(color=Panel) {
+        Surface(modifier=Modifier.testTag("answer-composer"),color=Panel) {
             Column(Modifier.fillMaxWidth().padding(horizontal=18.dp,vertical=10.dp)) {
                 OutlinedTextField(value=s.answer,onValueChange=vm::answer,Modifier.fillMaxWidth().testTag("answer-input"),enabled=!s.busy && s.canAnswer,
                     placeholder={Text("Hadi, hikâyeyi kurtar…")},maxLines=4,shape=RoundedCornerShape(18.dp),

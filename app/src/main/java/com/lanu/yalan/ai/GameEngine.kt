@@ -50,7 +50,8 @@ class GameEngine @Inject constructor(private val models: ModelStore, @Applicatio
                         challengeKey=beat.key,
                         // LOCAL clues, not model-generated reasoning or score explanations.
                         evidence=ReasonedScoring.evidence(session,analysis),
-                        jokeKey=beat.jokeKey
+                        // The model no longer receives a local punchline. Do not record an unused local joke as spoken.
+                        jokeKey=null
                     )
                 }
                 catch(e: IllegalArgumentException) { throw AiException(AiFailure.OUTPUT, e) }

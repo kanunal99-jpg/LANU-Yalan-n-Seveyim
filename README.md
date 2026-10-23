@@ -24,7 +24,7 @@ Tanınan olağan dışı ulaşım/iş iddiası, açık süre-mesafe hesabı veya
 - Kullanıcının belirlediği konu, her turda 5 soru, 100 ilerlemeli seviye.
 - Tutarlılık, makullük, ayrıntı ve soruya karşı savunma: her biri 0–25. Hızlı oyunda her alt puanın gerekçesi açılır; ipucu kartı önceki/sonraki ifadeyi ve açıklanmış bağlantıyı gösterir. AI üretmediği gerekçeyle etiketlenmez.
 - Kelime sayısı yerine ayrıntı türleri ve gerçekten sorulan sorunun karşılanması değerlendirilir. İlk somut ifadenin açtığı dal takip edilir; kaçamak/tekrar cevaplarda açık kalan soru korunur. Final son turda tüm hikâyeyi değerlendirir.
-- Son 40 espri kimliği hikâyeler arasında korunur; havuzda seçenek varken aynı espri tekrar seçilmez. Önceki alarm/telefon ayrıntısıyla sonraki trafik gibi ilişkiler espride geri çağrılabilir.
+- Hızlı oyunda son 40 espri kimliği hikâyeler arasında korunur; havuzda seçenek varken aynı espri tekrar seçilmez. Önceki alarm/telefon ayrıntısıyla sonraki trafik gibi ilişkiler espride geri çağrılabilir. AI'nın kendi yazdığı espriler, kullanılmamış yerel espri kimliğiyle kaydedilmez.
 - Başarı eşiği seviyeye göre 40–73; başarısız seviyeler tekrar oynanabilir. Önceki seviyeleri tekrar oynamak seviye atlatmaz.
 - Türk mizahına yönelik sistem yönergesi, isteğe bağlı hafif argo. Kimliğe, bedene, aileye veya dine yönelik aşağılama istenmez.
 - Eğlencelik değerlendirmedir; gerçek yalan tespiti veya doğruluk ölçümü değildir.
