@@ -35,6 +35,8 @@ jobs:
         env:
           LANU_KEYSTORE_BASE64: ${{ secrets.LANU_KEYSTORE_BASE64 }}
         run: python3 scripts/prepare_ci_signing.py
+      - name: Exercise missing, partial and mismatched signing safeguards
+        run: python3 scripts/signing_guard_smoke.py
       - name: Test, lint and build
         run: ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Build same-signature OTA pair
@@ -58,6 +60,7 @@ jobs:
             app/build/reports/lint-results-debug.html
             app/build/reports/story-quality
             app/build/reports/ai-quality
+            app/build/reports/signing-guard
             app/build/test-results
   ui-smoke:
     runs-on: ubuntu-latest
