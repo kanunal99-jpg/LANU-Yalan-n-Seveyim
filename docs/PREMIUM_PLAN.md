@@ -41,3 +41,9 @@ Yukarıdaki 77 testli kayıt yayın öncesi tarihsel kontroldür. Son teslimin 8
 ## 0.5 son teslim
 
 `5f2cff8` kaynağı ve `40026975283` yayın koşusunda 102 JVM testi, 14 Android yöntemi, 4 imza kontrolü, lint, ARM64 debug/R8 release başarılı. v0.5.0/v0.5.1 aynı test anahtarıyla yayımlandı, açık adreslerden yeniden indirilip hashleri doğrulandı. Mantık itirazı, geçer puanın engellenmesi ve yorum/sorunun tamamının görünmesi düzeltildi. Hızlı oyun emülatör p50 427 ms, p95 466 ms. [Kanıt](release-validation-0.5.json). Gerçek AI 11/15 otomatik geçişe rağmen anlam ve Türkçe hataları üretiyor; kalite onayı yok. Kalıcı imza ile fiziksel cihaz kabulü de açık kalır. [AI incelemesi](AI_NATIVE_REVIEW_0.5.md).
+
+## 0.6: kullanıcı ekranlarıyla doğrulanan tekrar hatası
+
+Kullanıcının gerçek konuşması önceki 0.5 testlerinde kapsanmıyordu; eski test başarısı yeterli kalite kanıtı değildi. `03166b3` ve CI `40083476949`: 115 JVM, 15 Android yöntemi, 4 imza kontrolü geçti. İç içe sorular kaldırıldı; Mars/menü, gerekçe/Elon, Hatay/plan iptali ve New York/geçiş ayrı izlenir. Dört gerçek cevapta dört farklı reaksiyon ve soru Android ekranında doğrulandı. Standart Hızlı emülatör p50/p95 452/516 ms. [Kanıt](release-validation-0.6.json).
+
+v0.6.0/v0.6.1 aynı test sertifikasıyla yayımlandı; iki açık APK tekrar indirildi ve hash/boyutu doğrulandı. 0.5 ile imza farklı olduğundan eski sürümü kaldırmadan parolalı yedek gerekir. Kalıcı imza kurulumu ve fiziksel cihaz kabulü açık kalır. Bu çalışma dar yerel kuralları iyileştirir; gerçek modelin serbest mizah/muhakeme ve 2–3 saniye hedefi tamamlanmadı. [Serbest AI kabul ölçütü](AI_DIALOGUE_ACCEPTANCE.md).

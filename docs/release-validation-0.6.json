@@ -1,0 +1,142 @@
+{
+  "source_commit": "03166b3ff3ea48adab4387243a4f714cbe6c65d5",
+  "workflow_run_id": 40083476949,
+  "workflow_url": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40083476949",
+  "jvm": {
+    "tests": 115,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android": {
+    "distinct_methods": 15,
+    "normal_passed": 13,
+    "separately_passed_upgrade_methods": 2,
+    "failures": 0,
+    "methods": [
+      {
+        "name": "missingModelCanContinueTheSameStoryWithExplicitFastChoice",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "displaysDeviceDetailsAndSettingsInLargeFont",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "userScreenshotStoryTracksTheMealMotivePlanChangeAndNextCityWithoutAQuestionLoop",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "contradictoryClocksAreRenderedAsACrossCheckOfBothPlayerTimes",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "settingsExposeUpdatesAndRequireMatchingLongBackupPasswords",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "phoneAnswersRenderDifferentSpecificQuestionsInsteadOfGenericPrompts",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "absurdAnswerShowsItsComicObjectionAndSpecificQuestionTogetherWithoutManualScrolling",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "opensAndNavigatesToLockedLevelMapWithoutGoogleServices",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "failedImportKeepsCurrentProgressAndValidBackupRecoversCorruptStorage",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "portableBackupRestoresAfterTheDeviceKeyIsGone",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "candidateUsesProductionVerificationAndInstallerProvider",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "afterUpgradeReadsProgress",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "name": "prepareUpgrade",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "name": "metricsSurviveRestartAndCorruptionCannotBlockNewMeasurements",
+        "normal_phase": "passed"
+      }
+    ],
+    "real_emulator_package_upgrade": [
+      9,
+      10
+    ],
+    "platform": "AOSP API 30 x86_64, no Google Play Services, font_scale 1.3; UI_SMOKE build without native AI",
+    "physical_A55_Huawei_Xiaomi_tested": false
+  },
+  "signing_guards": {
+    "passed": 4,
+    "cases": [
+      "required_without_key",
+      "partial_configuration",
+      "mismatched_certificate",
+      "correct_key_password_and_certificate"
+    ]
+  },
+  "lint_debug": "passed",
+  "normal_arm64_debug": "passed",
+  "r8_release_build": "passed; unsigned without permanent key",
+  "public_release_readback": "both public APKs HTTP 200 with matching SHA-256 and bytes; see ota-release-verification-0.6.json",
+  "fast_ui_rendered_ms": [
+    452,
+    516,
+    377,
+    400,
+    475
+  ],
+  "fast_ui_p50_ms": 452,
+  "fast_ui_p95_ms": 516,
+  "user_screenshot_replay": {
+    "answers_replayed_verbatim": 4,
+    "hidden_old_history_reconstructed": false,
+    "local_and_CI_json_bytes_identical": true,
+    "report": "user-screenshot-replay-0.6.json",
+    "android_passed": true,
+    "all_four_exchanges_unclipped": true,
+    "screenshot_artifact_id": 12556400766,
+    "screenshot_names": [
+      "story-meal.png",
+      "story-motive.png",
+      "story-plan.png",
+      "story-jump.png"
+    ]
+  },
+  "real_AI": {
+    "quality_approved": false,
+    "new_native_model_run_for_this_change": false,
+    "notes": "This patch is a bounded FAST local-rules improvement. Existing real model remains experimental; no claim of free-form premium humor or 2–3 second phone AI latency.",
+    "baseline": "AI_NATIVE_REVIEW_0.5.md"
+  },
+  "artifacts": {
+    "quality": {
+      "id": 12556506470,
+      "sha256": "6d158cd64f50bb6c040492c953a5f626ba775e24bf52c945a8daa3703effd4bc"
+    },
+    "ui": {
+      "id": 12556400766,
+      "sha256": "960473fdfb73bac5124162d61a1b6d9774dcddcb5eda10b123a06ade742eca00"
+    },
+    "apks": {
+      "id": 12556521392,
+      "sha256": "554dab20c2f76300ab7b9678a454c679912e353b9d57a4eaf7e612d5776a1041"
+    }
+  }
+}

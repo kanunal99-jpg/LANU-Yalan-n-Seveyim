@@ -25,3 +25,7 @@ Kurulumdan sonraki ilk kalıcı imzalı APK eski test sertifikasından farklı o
 ## Yayımlanan 0.5 ikilisinin durumu
 
 v0.5.0-alpha (kod 7) ve v0.5.1-alpha (kod 8), `5f2cff8` kaynağından aynı test sertifikasıyla yayımlandı: `3383f8091c836cc4ce3168979ceca9f68534291f5cc030f6543cbb032acac375`. `permanentSigning=false`. 0.5 ikilisi içinde OTA mümkündür; bu sertifika önceki 0.4 ikilisinin test sertifikasından farklıdır. 0.4 üzerine doğrudan yerinde kurulum yapılamaz. Önce 0.4 içinden parolalı yedek oluştur; eski uygulamayı yedeksiz kaldırma. Kalıcı anahtar kurulumu bundan sonraki yayınların sürekliliği için hâlâ gereklidir. [İndirme ve doğrulama kaydı](ota-release-verification-0.5.json).
+
+## Yayımlanan 0.6 ikilisinin durumu
+
+v0.6.0-alpha (kod 9) ve v0.6.1-alpha (kod 10), `03166b3` kaynağından aynı test sertifikasıyla yayımlandı: `b9cc707e16796c5d7152a703b28a55e9b2f7ee9cfd93f164fae0641b2b45ac56`. `permanentSigning=false`. İki açık APK indirildi ve hash/boyutu doğrulandı. 0.6 ikilisi içinde OTA mümkündür; 0.5 sertifikası farklı olduğu için 0.5 → 0.6 yerinde güncellenemez. Önce eski uygulamanın Ayarlar ekranından parolalı yedek oluştur; yedeksiz kaldırma. Gelecek CI yayınlarının aynı imzayı koruması için yukarıdaki kalıcı anahtar kurulumu hâlâ gereklidir. [Doğrulama kaydı](ota-release-verification-0.6.json).

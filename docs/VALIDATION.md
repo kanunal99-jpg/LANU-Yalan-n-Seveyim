@@ -1,5 +1,12 @@
 # Doğrulama kaydı
 
+## 0.6 yayın ve gerçek kullanıcı konuşması
+
+Kaynak `03166b3ff3ea48adab4387243a4f714cbe6c65d5`, [CI 40083476949](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40083476949). **115 JVM / 15 Android yöntemi / 4 imza senaryosu başarılı**; lint, ARM64 debug ve R8 release geçti. Android'de 13 olağan yöntem; 9 → 10 gerçek yerinde yükseltmenin hazırlık/sonrası iki yöntemi ayrı çalıştı. Gönderilen dört cevap gerçek UI ile yeniden oynatıldı; her reaksiyon ve soru büyük yazıda bütünüyle görünür. Hızlı ekran süreleri 452/516/377/400/475 ms; p50 452, p95 516. AOSP emülatör kanıtıdır; fiziksel A55 veya gerçek AI süresi değildir.
+
+[0.6 kanıtı](release-validation-0.6.json), [açık APK kontrolü](ota-release-verification-0.6.json), [cevap dökümü](user-screenshot-replay-0.6.json). İki ARM64 APK açık adreslerden yeniden indirildi, boyut/hash eşleşti; paket/sürüm/imza CI'de gerçek APK üzerinde doğrulandı. Kalıcı imza kapalı, 0.5 ile sertifika farklı; önce yedek gerekir. Kurallarla yapılan bu düzeltme serbest AI hedefini tamamlamaz. [Kapsam](STORY_THREAD_REVIEW.md), [AI kabul ölçütü](AI_DIALOGUE_ACCEPTANCE.md).
+
+
 ## Yayımlanan 0.5 test ikilisi — 24 Ekim 2026
 
 Kaynak `5f2cff8684fb9beac080bed77fd7a2415812d95c`, [yayın koşusu 40026975283](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40026975283): **102 JVM testi, 0 hata/başarısızlık/atlama; 14 Android yöntemi ve 4 imza kapısı senaryosu geçti**. Android yöntemlerinin 12'si normal koşuda, iki yükseltme yöntemi ayrı gerçek 7 → 8 paket değiştirme aşamalarında başarılı çalıştı. Şifreli ilerleme korundu; lint, ARM64 debug ve R8 release başarılı.

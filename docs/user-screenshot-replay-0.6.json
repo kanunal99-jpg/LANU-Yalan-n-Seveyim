@@ -1,0 +1,59 @@
+{
+    "engine": "Local story rules, not generative AI",
+    "input": "Four verbatim answers transcribed from the user's screenshots; no fifth answer invented",
+    "topic": "alon musk ile marsa gittim",
+    "turns": [
+        {
+            "question_asked": "Mars yolculuğuna nereden, hangi araçla çıktınız?",
+            "answer": "Bir gün aradı dedi hadi marsa gidelim akşam yemeği yeriz barbunya yedik geldik",
+            "reply": "Mars yolunda barbunya… Roketi anlatmadan esnaf lokantasını açtın.",
+            "follow_up": "Barbunya yolculukta yanınızda mıydı, Mars'ta mı hazırlandı?",
+            "score": 33,
+            "evidence": {
+                "status": "NEEDS_EXPLANATION",
+                "earlier": "alon musk ile marsa gittim",
+                "later": "Bir gün aradı dedi hadi marsa gidelim akşam yemeği yeriz barbunya yedik geldik",
+                "finding": "Mars yolculuğu için ulaşım bağlantısı henüz kurulmadı. Bu bir eksik açıklama; doğrulanmış çelişki değil."
+            }
+        },
+        {
+            "question_asked": "Barbunya yolculukta yanınızda mıydı, Mars'ta mı hazırlandı?",
+            "answer": "canım sıkılmıştı Elon bu biliyorsun",
+            "reply": "Can sıkıntısı tamam; Elon'u tanıdık yazınca Mars minibüs durağına dönmüyor.",
+            "follow_up": "Elon'la hangi noktada buluşup Mars yolculuğuna başladınız?",
+            "score": 34,
+            "evidence": {
+                "status": "NEEDS_EXPLANATION",
+                "earlier": "alon musk ile marsa gittim",
+                "later": "canım sıkılmıştı Elon bu biliyorsun",
+                "finding": "Mars yolculuğu için ulaşım bağlantısı henüz kurulmadı. Bu bir eksik açıklama; doğrulanmış çelişki değil."
+            }
+        },
+        {
+            "question_asked": "Elon'la hangi noktada buluşup Mars yolculuğuna başladınız?",
+            "answer": "sonra zaten kadar değiştirdik Hatay da künefe yedik",
+            "reply": "Mars planı, Hatay'da künefe… Uzay programı şerbete döndü; kararın açıklaması eksik.",
+            "follow_up": "Mars planını iptal edip Hatay rotasını mı seçtiniz, yoksa oradan mı geçtiniz?",
+            "score": 34,
+            "evidence": {
+                "status": "NEEDS_EXPLANATION",
+                "earlier": "alon musk ile marsa gittim",
+                "later": "sonra zaten kadar değiştirdik Hatay da künefe yedik",
+                "finding": "Mars yolculuğu için ulaşım bağlantısı henüz kurulmadı. Bu bir eksik açıklama; doğrulanmış çelişki değil."
+            }
+        },
+        {
+            "question_asked": "Mars planını iptal edip Hatay rotasını mı seçtiniz, yoksa oradan mı geçtiniz?",
+            "answer": "Akabinde Newyork Türk Kahvesi içtik",
+            "reply": "Mars, Hatay, New York ve Türk kahvesi; rota gurme turuna döndü, geçiş sahnesi kayıp.",
+            "follow_up": "New York yeni duraksa, Hatay'dan oraya hangi araçla ve ne kadar sürede geçtiniz?",
+            "score": 34,
+            "evidence": {
+                "status": "NEEDS_EXPLANATION",
+                "earlier": "alon musk ile marsa gittim",
+                "later": "Akabinde Newyork Türk Kahvesi içtik",
+                "finding": "Mars yolculuğu için ulaşım bağlantısı henüz kurulmadı. Bu bir eksik açıklama; doğrulanmış çelişki değil."
+            }
+        }
+    ]
+}

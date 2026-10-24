@@ -4,7 +4,7 @@
 
 ## Referans ve amaç
 
-Kullanıcının verdiği [En Yalancı Benim mağaza sayfası](https://play.google.com/store/apps/details?id=com.yalanmakinesi.app) incelendi. Geliştiricinin açıklaması hikâyeye özel dinamik AI soruları ve cevaplar arası tutarlılık vaat ediyor. Uygulama oturum açılarak veya oynanarak incelenmedi; gerçek iç cevapları görülmüş gibi sunulmuyor. LANU'nun hedefi, kullanıcının tarif ettiği günlük Türkçe, cevaptan çıkan mizah, önceki ayrıntıya geri gönderme ve hikâyenin açıklarını araştırma davranışı.
+Kullanıcının verdiği [En Yalancı Benim mağaza sayfası](https://play.google.com/store/apps/details?id=com.yalanmakinesi.app) incelendi. Geliştiricinin açıklaması hikâyeye özel dinamik AI soruları ve cevaplar arası tutarlılık vaat ediyor. Mağazadaki dört görüntü de incelendi: ana sayfa, konu girişi, profil ve lider tablosu. Uygulama oturum açılarak veya oynanarak incelenmedi; gerçek iç cevapları görülmüş gibi sunulmuyor. LANU'nun hedefi, kullanıcının tarif ettiği günlük Türkçe, cevaptan çıkan mizah, önceki ayrıntıya geri gönderme ve hikâyenin açıklarını araştırma davranışı.
 
 ## Düzeltme
 
@@ -18,7 +18,7 @@ Kullanıcının verdiği [En Yalancı Benim mağaza sayfası](https://play.googl
 
 `StoryThreadTest` kullanıcının dört cevabını yazım hatalarıyla aynen yeniden oynatır; beşinci cevap bu rapora uydurulmaz. Çıktı `build/reports/story-quality/user-screenshot-replay.json` dosyasında oluşur. Farklı hikâyeler, açıklanmış rota, kesin iptal/belirsiz karar değişikliği, eski açık korunması, kayıt sonrası devam, sıradan/mecaz kullanım ve eski iç içe sorudan çıkma da sınanır.
 
-Yerel bağımsız Kotlin/JUnit koşusunda 76 domain testi geçti. Bu koşu Android veya tüm Gradle testleri yerine sunulmaz. Yeni Android yöntemi dört cevabı gerçek ekran üzerinden girer; her turda reaksiyon ve sorunun girişin üstünde bütünüyle görünmesini ölçer, dört ekran görüntüsü alır. Tam Gradle/lint/ARM64/R8, AOSP ve gerçek paket yükseltme sonuçları yayın koşusunda ayrıca doğrulanacaktır.
+Yerel bağımsız Kotlin/JUnit koşusunda 76 domain testi geçti. Bu koşu Android veya tüm Gradle testleri yerine sunulmaz. Yeni Android yöntemi dört cevabı gerçek ekran üzerinden girer; her turda reaksiyon ve sorunun girişin üstünde bütünüyle görünmesini ölçer, dört ekran görüntüsü alır. Tam Gradle koşusunda 115 JVM testi, lint, ARM64 debug/R8 release ve dört imza kapısı başarılı. AOSP koşusunda 13 olağan yöntem ve iki ayrı gerçek paket yükseltme yöntemi geçti. Dört ekran görüntüsü tek tek okunarak da kontrol edildi; yorum ve soru görünür. Hızlı oyunun standart beş ekran süresi 452/516/377/400/475 ms; p50 452, p95 516 ms. Bu fiziksel telefon veya AI çıkarım ölçümü değildir. [CI 40083476949](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40083476949), [kanıt](release-validation-0.6.json), [ham dört cevap](user-screenshot-replay-0.6.json).
 
 ## Sınır
 
