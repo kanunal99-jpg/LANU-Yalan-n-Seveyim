@@ -1,6 +1,6 @@
 # 0.8: beş bağımsız aktif konu
 
-Oyna ekranındaki **Konularım** veya oyun araç çubuğundaki **Konular** düğmesi, en fazla beş aktif hikâyeyi açar. Her hikâyenin kimliği, seviyesi, soru-cevap geçmişi, son puanı, oyun modu ve gönderilmemiş cevap taslağı ayrıdır. Yeni konu açmak devam eden hikâyeyi değiştirmez; önceki hikâye bekletilir. Beş aktif konu doluysa yeni konu açılamaz; bir hikâye açık kapatma onayıyla kaldırılmalıdır. Kazanılan seviyeler ve en iyi puanlar kapatma işleminden etkilenmez.
+Oyna ekranındaki **Konularım** veya oyun cevap alanındaki **Konular** düğmesi, en fazla beş aktif hikâyeyi açar. Her hikâyenin kimliği, seviyesi, soru-cevap geçmişi, son puanı, oyun modu ve gönderilmemiş cevap taslağı ayrıdır. Yeni konu açmak devam eden hikâyeyi değiştirmez; önceki hikâye bekletilir. Beş aktif konu doluysa yeni konu açılamaz; bir hikâye açık kapatma onayıyla kaldırılmalıdır. Kazanılan seviyeler ve en iyi puanlar kapatma işleminden etkilenmez.
 
 Tamamlanan sonuç seçiliyken görüntülenir. Başka hikâyeye geçince veya yeni konu açınca tamamlanan konuşma yerini bırakır; seviye ve en iyi puan korunur. Bu özellik sınırsız tamamlanmış konuşma arşivi değildir. Aynı seviyedeki iki hikâyeyi tamamlamak aradaki seviyeleri atlatmaz.
 

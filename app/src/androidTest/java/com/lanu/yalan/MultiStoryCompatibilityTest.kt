@@ -1,6 +1,7 @@
 package com.lanu.yalan
 
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -40,6 +41,7 @@ class MultiStoryCompatibilityTest {
         if(fromHome) compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("manage-stories"))
         compose.onNodeWithTag("manage-stories").assertIsDisplayed().performClick()
         compose.onNodeWithTag("story-list").assertExists()
+        if(fromHome) capture("lanu-multi-stories.png")
     }
     private fun choose(n: Int, succeeds: Boolean=true) {
         compose.onNodeWithTag("story-list").performScrollToNode(hasTestTag("resume-story-shelf-$n"))
@@ -65,6 +67,7 @@ class MultiStoryCompatibilityTest {
         compose.activityRule.scenario.recreate()
         compose.waitUntil(5_000) {saved().session?.draftAnswer=="Beşinci hikâyede gönderilmemiş cevap"}
         compose.onNodeWithTag("answer-input").assertTextContains("Beşinci hikâyede gönderilmemiş cevap")
+        capture("lanu-multi-draft.png")
         val all=saved()
         assertEquals(5,StoryShelf.activeCount(all))
         for(n in 1..5) {
@@ -129,7 +132,7 @@ class MultiStoryCompatibilityTest {
             compose.onNodeWithTag("answer-input").performTextReplacement("Yeniden adlandırılamayan taslak")
             manager();choose(2,succeeds=false)
             compose.onNodeWithTag("answer-input").assertTextContains("Yeniden adlandırılamayan taslak")
-            compose.onNodeWithTag("current-question").assertTextContains("Konu 1 için sonra ne oldu?")
+            compose.onNode(hasText("Konu 1 için sonra ne oldu?") and hasAnyAncestor(hasTestTag("current-question"))).assertExists()
         } finally {
             progress.deleteRecursively();progress.writeBytes(original)
         }
@@ -137,5 +140,11 @@ class MultiStoryCompatibilityTest {
         manager();choose(2)
         assertEquals("Yeniden adlandırılamayan taslak",saved().parkedSessions.single {it.id=="shelf-1"}.draftAnswer)
         println("LANU_ATOMIC_RENAME_FAILURE_NOT_ACKNOWLEDGED_RETRY_PRESERVED_DRAFT")
+    }
+    private fun capture(name: String) {
+        require(name in setOf("lanu-multi-stories.png","lanu-multi-draft.png"))
+        compose.waitForIdle()
+        val fd=InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("screencap -p /data/local/tmp/$name")
+        ParcelFileDescriptor.AutoCloseInputStream(fd).use {it.readBytes()}
     }
 }

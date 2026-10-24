@@ -314,7 +314,6 @@ internal class OnlineConnectionDraft {
                 Text(session.mode.label(),color=Mint,fontSize=10.sp)
             }
             Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
-            TextButton(onClick={keyboard?.hide();focus.clearFocus();onStories()},enabled=!s.busy,modifier=Modifier.testTag("manage-stories"),contentPadding=PaddingValues(4.dp)) { Text("Konular",fontSize=12.sp) }
             TextButton(onClick={keyboard?.hide();focus.clearFocus();vm.navigate(Screen.HOME)},enabled=!s.busy,contentPadding=PaddingValues(4.dp)) {Text("Çık",fontSize=12.sp)}
         }
         LazyColumn(Modifier.weight(1f),state=scroll,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
@@ -359,6 +358,7 @@ internal class OnlineConnectionDraft {
                         Text("${s.answer.length}/280",color=Muted,fontSize=12.sp)
                         if(s.answer.isNotEmpty()) Text(if(session.draftAnswer==s.answer) "Taslak kaydedildi" else "Taslak kaydediliyor…",color=Muted,fontSize=10.sp,modifier=Modifier.testTag("draft-save-status"))
                     }
+                    TextButton(onClick={keyboard?.hide();focus.clearFocus();onStories()},enabled=!s.busy,modifier=Modifier.testTag("manage-stories"),contentPadding=PaddingValues(6.dp)) {Text("Konular",fontSize=12.sp)}
                     Button(onClick=send,modifier=Modifier.testTag("send-answer"),enabled=!s.busy && s.canAnswer && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
                 }
             }

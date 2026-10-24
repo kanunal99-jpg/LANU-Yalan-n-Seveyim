@@ -9,6 +9,9 @@ capture_on_failure() {
     for part in meal motive plan jump; do
       adb pull "/data/local/tmp/lanu-story-$part.png" "app/build/reports/ota-upgrade/story-$part.png" || true
     done
+    for part in stories draft; do
+      adb pull "/data/local/tmp/lanu-multi-$part.png" "app/build/reports/ota-upgrade/multi-$part.png" || true
+    done
   fi
   return "$status"
 }
@@ -23,6 +26,9 @@ adb pull /data/local/tmp/lanu-comic-objection.png app/build/reports/ota-upgrade/
 adb pull /data/local/tmp/lanu-persistent-objection.png app/build/reports/ota-upgrade/persistent-objection.png
 for part in meal motive plan jump; do
   adb pull "/data/local/tmp/lanu-story-$part.png" "app/build/reports/ota-upgrade/story-$part.png"
+done
+for part in stories draft; do
+  adb pull "/data/local/tmp/lanu-multi-$part.png" "app/build/reports/ota-upgrade/multi-$part.png"
 done
 # The connected-test runner removes installed test packages after it finishes.
 adb install -r app/build/outputs/apk/debug/app-debug.apk
