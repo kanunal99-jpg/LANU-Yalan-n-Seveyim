@@ -119,4 +119,23 @@ class MultiStoryCompatibilityTest {
         assertEquals("Disk doluyken korunacak cevap",saved().parkedSessions.single {it.id=="shelf-1"}.draftAnswer)
         println("LANU_FAILED_DRAFT_WRITE_KEPT_SELECTION_AND_ANSWER_RETRY_RECOVERED")
     }
+    @Test fun aFailedAtomicRenameCannotBeAcknowledgedAsASavedDraft() {
+        home();manager(true);choose(1)
+        val progress=File(context.filesDir,"progress.enc")
+        val original=progress.readBytes()
+        check(progress.delete());check(progress.mkdir())
+        File(progress,"block-atomic-rename").writeText("controlled smoke fixture")
+        try {
+            compose.onNodeWithTag("answer-input").performTextReplacement("Yeniden adlandırılamayan taslak")
+            manager();choose(2,succeeds=false)
+            compose.onNodeWithTag("answer-input").assertTextContains("Yeniden adlandırılamayan taslak")
+            compose.onNodeWithTag("current-question").assertTextContains("Konu 1 için sonra ne oldu?")
+        } finally {
+            progress.deleteRecursively();progress.writeBytes(original)
+        }
+        assertEquals(fixture,saved())
+        manager();choose(2)
+        assertEquals("Yeniden adlandırılamayan taslak",saved().parkedSessions.single {it.id=="shelf-1"}.draftAnswer)
+        println("LANU_ATOMIC_RENAME_FAILURE_NOT_ACKNOWLEDGED_RETRY_PRESERVED_DRAFT")
+    }
 }

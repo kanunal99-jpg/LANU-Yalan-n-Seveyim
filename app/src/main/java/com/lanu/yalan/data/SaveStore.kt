@@ -27,7 +27,8 @@ import javax.inject.Singleton
 @Singleton
 class SaveStore @Inject constructor(@ApplicationContext context: Context) {
     private val file = AtomicFile(File(context.filesDir, "progress.enc"))
-    private val mutex=Mutex()
+    // AtomicFile readers must share the writer's lock, even across fresh repository instances.
+    companion object { private val mutex=Mutex() }
     private val json = Json { ignoreUnknownKeys = true }
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
@@ -63,7 +64,12 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
             cipher.iv+cipher.doFinal(plain)
         } finally {plain.fill(0)}
         val stream = file.startWrite()
-        try { stream.write(bytes); file.finishWrite(stream) }
+        try {
+            stream.write(bytes);file.finishWrite(stream)
+            // AtomicFile reports some sync/rename failures only in system logs. Do not acknowledge them.
+            val committed=file.openRead().use {PortableBackup.readBounded(it)}
+            check(committed.contentEquals(bytes)) { "Kayıt yazımı doğrulanamadı" }
+        }
         catch (e: Exception) { file.failWrite(stream); throw e }
     }
     suspend fun exportBackup(passphrase: CharArray): ByteArray = withContext(Dispatchers.IO) {
