@@ -106,6 +106,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
     val focus=LocalFocusManager.current
     var topic by rememberSaveable { mutableStateOf("") }
     var confirm by remember { mutableStateOf(false) }
+    val onlineDraft=remember {OnlineConnectionDraft()}
+    DisposableEffect(onlineDraft) {onDispose {onlineDraft.clear()}}
     if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni hikâye açılsın mı?")},text={Text("Devam eden turun yerini yeni hikâye alacak. Kazandığın seviyeler korunur.")},confirmButton={TextButton(onClick={confirm=false;vm.start(topic)}){Text("Yeni hikâye")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item {
@@ -122,7 +124,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
         if(!s.save.onboarding) item { Text("Nasıl oynanır?\nBir konu seç, beş soruya aynı hikâyeyi koruyarak cevap ver. İnandırıcılık puanın yeterliyse sonraki seviye açılır.",color=Muted,lineHeight=22.sp) }
         item { ModeCard(s,vm) }
-        if(s.save.mode==PlayMode.FREE_ONLINE_AI) item { OnlineAiCard(s,vm) }
+        if(s.save.mode==PlayMode.FREE_ONLINE_AI) item { OnlineAiCard(s,vm,onlineDraft) }
         if(s.save.mode==PlayMode.LOCAL_AI && !s.ready) item { ModelCard(s,vm) }
         item {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
@@ -168,12 +170,17 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
     }
 }
-@Composable internal fun OnlineAiCard(s:UiState,vm:GameViewModel) {
+/** Ephemeral parent-screen state: LazyColumn item eviction must not erase an unfinished form.
+ * Deliberately not rememberSaveable: a personal key must never enter an Android state bundle. */
+internal class OnlineConnectionDraft {
+    var key by mutableStateOf("")
+    var consent by mutableStateOf(false)
+    var browserError by mutableStateOf(false)
+    fun clear() {key="";consent=false;browserError=false}
+}
+@Composable internal fun OnlineAiCard(s:UiState,vm:GameViewModel,draft: OnlineConnectionDraft) {
     val context=LocalContext.current
-    var key by remember {mutableStateOf("")}
-    var consent by remember {mutableStateOf(false)}
-    var browserError by remember {mutableStateOf(false)}
-    LaunchedEffect(s.onlineReady) {if(s.onlineReady) key=""}
+    LaunchedEffect(s.onlineReady) {if(s.onlineReady) draft.clear()}
     Card(Modifier.fillMaxWidth().testTag("online-ai-card")) {
         Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
             Text(if(s.onlineReady) "Ücretsiz AI bağlı ✓" else "Ücretsiz AI'yı bağla",fontWeight=FontWeight.Bold)
@@ -183,17 +190,17 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 OutlinedButton(onClick=vm::disconnectOnline,enabled=!s.busy,modifier=Modifier.testTag("disconnect-online")) {Text("AI bağlantısını kaldır")}
             } else {
                 OutlinedButton(onClick={
-                    try {context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://openrouter.ai/settings/keys")))} catch(_: android.content.ActivityNotFoundException) {browserError=true}
+                    try {context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://openrouter.ai/settings/keys")))} catch(_: android.content.ActivityNotFoundException) {draft.browserError=true}
                 },enabled=!s.busy,modifier=Modifier.testTag("get-online-key")) {Text("Ücretsiz anahtar sayfasını aç")}
-                if(browserError) Text("Tarayıcı açılamadı. openrouter.ai/settings/keys adresini kendi tarayıcında açabilirsin.",fontSize=12.sp,color=Gold)
-                OutlinedTextField(value=key,onValueChange={key=it.take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
+                if(draft.browserError) Text("Tarayıcı açılamadı. openrouter.ai/settings/keys adresini kendi tarayıcında açabilirsin.",fontSize=12.sp,color=Gold)
+                OutlinedTextField(value=draft.key,onValueChange={draft.key=it.take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
                     label={Text("Kişisel API anahtarın")},singleLine=true,visualTransformation=PasswordVisualTransformation(),
                     keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),supportingText={Text("Anahtarı sohbete veya başka kişilere gönderme.")})
                 Row(verticalAlignment=Alignment.CenterVertically) {
-                    Checkbox(checked=consent,onCheckedChange={consent=it},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
+                    Checkbox(checked=draft.consent,onCheckedChange={draft.consent=it},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
                     Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",fontSize=12.sp,lineHeight=18.sp)
                 }
-                Button(onClick={vm.connectOnline(key,consent)},enabled=!s.busy && consent && FreeAiProtocol.validKey(key),modifier=Modifier.testTag("connect-online")) {Text("Doğrula ve şifreli kaydet")}
+                Button(onClick={vm.connectOnline(draft.key,draft.consent)},enabled=!s.busy && draft.consent && FreeAiProtocol.validKey(draft.key),modifier=Modifier.testTag("connect-online")) {Text("Doğrula ve şifreli kaydet")}
             }
         }
     }
@@ -210,7 +217,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
         Text(s.status,Modifier.padding(top=12.dp),color=Muted,fontSize=13.sp)
-        Text(when(s.save.session?.mode ?: s.save.mode) {PlayMode.LOCAL_AI -> "$elapsed sn · AI yükleme ve yanıt bütçesi: 30 sn";PlayMode.FREE_ONLINE_AI -> "$elapsed sn · Çevrimiçi AI süre sınırı: 15 sn";PlayMode.FAST -> "$elapsed sn"},color=Muted,fontSize=11.sp)
+        Text(when((if(s.screen==Screen.GAME) s.save.session?.mode else null) ?: s.save.mode) {PlayMode.LOCAL_AI -> "$elapsed sn · AI yükleme ve yanıt bütçesi: 30 sn";PlayMode.FREE_ONLINE_AI -> "$elapsed sn · Çevrimiçi AI süre sınırı: 15 sn";PlayMode.FAST -> "$elapsed sn"},color=Muted,fontSize=11.sp)
         TextButton(onClick=vm::cancel) { Text("Durdur") }
     }
 }
@@ -346,12 +353,14 @@ private fun Home(s: UiState,vm: GameViewModel) {
 @Composable private fun Settings(s:UiState,vm:GameViewModel,m:MaintenanceState,maintenance:MaintenanceViewModel) {
     var reset by remember { mutableStateOf(false) }
     var remove by remember { mutableStateOf(false) }
+    val onlineDraft=remember {OnlineConnectionDraft()}
+    DisposableEffect(onlineDraft) {onDispose {onlineDraft.clear()}}
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
     if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Hızlı oyun çalışmaya devam eder. AI modu için modeli yeniden indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
         item { ModeCard(s,vm) }
-        if(s.save.mode==PlayMode.FREE_ONLINE_AI || s.onlineReady) item {OnlineAiCard(s,vm)}
+        if(s.save.mode==PlayMode.FREE_ONLINE_AI || s.onlineReady) item {OnlineAiCard(s,vm,onlineDraft)}
         item { MaintenanceTools(s,m,maintenance) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Biraz sivri dil",fontWeight=FontWeight.Bold);Text("Hafif argo ve daha iğneleyici espriler. Ağır hakaret yok.",color=Muted,fontSize=13.sp,modifier=Modifier.padding(top=5.dp)) }
