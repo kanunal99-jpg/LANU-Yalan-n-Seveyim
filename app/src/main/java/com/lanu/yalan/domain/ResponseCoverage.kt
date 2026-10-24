@@ -5,7 +5,7 @@ object ResponseCoverage {
     enum class Dimension(val label: String) {
         TIME("zaman"), PLACE("yer/rota"), PERSON("kişi"), SOURCE("bilginin kaynağı"),
         SEQUENCE("olay sırası"), CAUSE("neden"), ACTION("yapılan işlem"),
-        DURATION("süre"), ALTERNATIVE("diğer seçenek"), CONTENT("haberin içeriği"), AMOUNT("tutar")
+        DURATION("süre"), ALTERNATIVE("diğer seçenek"), CONTENT("haberin içeriği"), AMOUNT("tutar"), TRANSPORT("ulaşım aracı")
     }
     data class Result(val requested: Set<Dimension>,val answered: Set<Dimension>,val score: Int,val evasive: Boolean,val explanation: String)
     private val action=Regex("\\b(?:cik|var|ulas|ara|bekle|bildir|soyle|iste|gonder|al|ver|bak|gor|kontrol et|hazirla|bitir|yukle|dene|unut|bul|don|uyan|uyuyakal|kur|fark et|git|bin|dur|kapan|yaz)[a-z]*?(?:dim|dum|tim|tum|dik|duk|tik|tuk|di|du|ti|tu|mis|misti|ladi|ledi|di\u011f)[a-z]*\\b")
@@ -17,16 +17,17 @@ object ResponseCoverage {
         val n=StoryEvidence.normal(o.text)
         val requested=linkedSetOf<Dimension>()
         if(contains(q,"hangi saat","saat kac","kacta","ne zaman","hangi an","olman gereken saat","uyandigin saat","kurulu oldugu saat","hangi saati")) requested+=Dimension.TIME
-        if(contains(q,"nerede","nereden","nereye","yol hangisi","takildigin yol","rotayi","rotani")) requested+=Dimension.PLACE
-        if(Regex("\\b(kim|kime|kimden)\\b").containsMatchIn(q)) requested+=Dimension.PERSON
-        if(contains(q,"neye gore","hangi gozlem","neyle","kanit","dogrudan","kendin gozle","kendin gor","nasil fark","nasil ayir","neyi kontrol","ne gordun","nereden biliyorsun")) requested+=Dimension.SOURCE
+        if(contains(q,"nerede","nereden","nereye","neresi","yol hangisi","takildigin yol","rotayi","rotani")) requested+=Dimension.PLACE
+        if(Regex("\\b(kim|kime|kimden|kimdi|kimin)\\b").containsMatchIn(q)) requested+=Dimension.PERSON
+        if(contains(q,"neye gore","neye dayandir","hangi gozlem","neyle","kanit","dogrudan","kendin gozle","kendin gor","kendin ne gor","nasil fark","nasil ayir","neyi kontrol","ne gordun","nereden biliyorsun")) requested+=Dimension.SOURCE
         if(contains(q,"siray","sirasi","sirasini","once ne","sonra ne","onceki","sonraki","gecisi","gecisi anlat","gecis neydi","aradaki eksik","arasindaki eksik")) requested+=Dimension.SEQUENCE
         if(contains(q,"neden","sebep","gerekce","seni geciktiren","ne engelledi","hangi engel","ne degisti","niye")) requested+=Dimension.CAUSE
-        if(contains(q,"ne yaptin","ilk ne","ne yapildi","hangi islem","hangi adim","ne oldu","hangi hareket","ne denedin","nasil degerlendirdin","hangi is","son yaptigin")) requested+=Dimension.ACTION
+        if(contains(q,"ne yaptin","ilk ne","ilk hareket","ne yapildi","hangi islem","hangi adim","ne oldu","hangi hareket","ne denedin","nasil degerlendirdin","hangi is","son yaptigin")) requested+=Dimension.ACTION
         if(contains(q,"kac dakika","kac saat","ne kadar","bekledigin sure","bu sure","bekleme hangi","baslangici ve bitisi")) requested+=Dimension.DURATION
         if(contains(q,"baska","alternatif","secenek","firsatin","imkani","imkanin")) requested+=Dimension.ALTERNATIVE
         if(contains(q,"haberin icerigi","hangi aciklamayla","ne yazdin","ne soyledin","ne biliyordu")) requested+=Dimension.CONTENT
         if(contains(q,"miktar","tutar","kac para","hesabi","tek hesabin")) requested+=Dimension.AMOUNT
+        if(contains(q,"hangi arac","kullandigin arac","neyle gitt","ulasimi")) requested+=Dimension.TRANSPORT
 
         val actions=action.findAll(n).count()
         val vague=has(n,"bilmem","hatirlam","bosver","bilmiyor")
@@ -36,16 +37,17 @@ object ResponseCoverage {
             o.clocks.size>1 || (o.clocks.isNotEmpty() && (actions>1 || o.messaged))
         val answered=requested.filterTo(linkedSetOf()) { dimension -> when(dimension) {
             Dimension.TIME -> o.clocks.isNotEmpty() || o.duration!=null || contains(n,"kapaninca","cikinca","bitince","sonra","once","sabah","aksam","ogle","gece","uyandigimda","kapanirken")
-            Dimension.PLACE -> o.place!=null || o.vehicle!=null || has(n,"sokak","cadde","mahalle","kopru","istasyon","mutfak","salon","odam","yolday","otobustey","arabaday")
+            Dimension.PLACE -> o.place!=null || o.vehicle!=null || StoryThread.placesIn(o.text).isNotEmpty() || has(n,"sokak","cadde","mahalle","kopru","istasyon","us","mutfak","salon","odam","yolday","otobustey","arabaday")
             Dimension.PERSON -> o.person!=null || properPerson || contains(n,"kimseye","kimse yok","yalnizdim")
             Dimension.SOURCE -> source
             Dimension.SEQUENCE -> ordered
-            Dimension.CAUSE -> o.focuses.isNotEmpty() || contains(n,"cunku","yuzunden","dolayi","engelledi","unut","yetisemed","kacirdim")
+            Dimension.CAUSE -> o.focuses.isNotEmpty() || StoryThread.hasMotive(o.text) || contains(n,"cunku","yuzunden","dolayi","engelledi","unut","yetisemed","kacirdim")
             Dimension.ACTION -> actions>0 || o.messaged || o.vehicle!=null || o.focuses.isNotEmpty()
             Dimension.DURATION -> o.duration!=null || contains(n,"yarim saat","birkac dakika","bir kac dakika","bir saat")
             Dimension.ALTERNATIVE -> contains(n,"baska","denedim","yoktu","yok","bulamadim","mumkun degil","imkanim","firsatim","kapaliydi","ulasamadim")
             Dimension.CONTENT -> o.messaged && (o.focuses.isNotEmpty() || o.text.any { it in "\"“‘" }) || contains(n,"dedim","diye yazdim","diye haber")
             Dimension.AMOUNT -> Regex("\\b(?:\\d+|yuz|bin|on|yirmi|otuz|elli|altmis|yetmis|seksen|doksan)\\b").containsMatchIn(n)
+            Dimension.TRANSPORT -> StoryThread.hasTransport(o.text)
         } }
         val score=when {
             vague && answered.isEmpty() -> 3

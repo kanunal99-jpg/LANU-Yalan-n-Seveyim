@@ -4,7 +4,7 @@ import hashlib
 import json
 import urllib.request
 from pathlib import Path
-for folder in sorted(Path('apk').glob('v0.5.*-alpha')):
+for folder in sorted(Path('apk').glob('v0.6.*-alpha')):
  expected=json.loads((folder/'lanu-update.json').read_text())
  public_manifest=expected['apkUrl'].rsplit('/',1)[0]+'/lanu-update.json'
  with urllib.request.urlopen(public_manifest,timeout=60) as response:

@@ -137,10 +137,10 @@ class AndroidCompatibilityTest {
         compose.onNodeWithText("Seviyeler").performClick()
         compose.onNodeWithText("02").assertIsEnabled()
     }
-    private fun startSpecificStory() {
+    private fun startSpecificStory(topic: String="İşe geç kaldım") {
         awaitHome()
         compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("topic-input"))
-        compose.onNodeWithTag("topic-input").performTextInput("İşe geç kaldım")
+        compose.onNodeWithTag("topic-input").performTextInput(topic)
         compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("start-game"))
         compose.onNodeWithTag("start-game").performClick()
         compose.waitUntil(3_000) { compose.onAllNodesWithTag("answer-input").fetchSemanticsNodes().isNotEmpty() }
@@ -180,6 +180,26 @@ class AndroidCompatibilityTest {
         assertCurrentExchangeFullyVisible()
         captureObjection("lanu-persistent-objection.png")
         println("LANU_COMIC_OBJECTION_VISIBLE_AND_PERSISTENT")
+    }
+    @Test fun userScreenshotStoryTracksTheMealMotivePlanChangeAndNextCityWithoutAQuestionLoop() {
+        startSpecificStory("alon musk ile marsa gittim")
+        val answers=listOf(
+            "Bir gün aradı dedi hadi marsa gidelim akşam yemeği yeriz barbunya yedik geldik",
+            "canım sıkılmıştı Elon bu biliyorsun",
+            "sonra zaten kadar değiştirdik Hatay da künefe yedik",
+            "Akabinde Newyork Türk Kahvesi içtik")
+        val shots=listOf("meal","motive","plan","jump")
+        val replyAnchors=listOf("barbunya","Elon","künefe","Türk kahvesi")
+        val questionAnchors=listOf("yanınızda","buluşup","iptal","Hatay'dan")
+        answers.forEachIndexed { index,answer ->
+            sendSpecific(answer,index+2)
+            compose.onNode(hasText(replyAnchors[index],substring=true) and hasAnyAncestor(hasTestTag("current-reply"))).assertIsDisplayed()
+            compose.onNode(hasText(questionAnchors[index],substring=true) and hasAnyAncestor(hasTestTag("current-question"))).assertIsDisplayed()
+            compose.onNodeWithTag("current-question").assert(hasAnyDescendant(hasText("sorusunda",substring=true)).not())
+            assertCurrentExchangeFullyVisible()
+            captureObjection("lanu-story-${shots[index]}.png")
+        }
+        println("LANU_USER_SCREENSHOT_STORY_REPLAYED_WITHOUT_LOOP")
     }
     private fun assertCurrentExchangeFullyVisible() {
         compose.waitForIdle()

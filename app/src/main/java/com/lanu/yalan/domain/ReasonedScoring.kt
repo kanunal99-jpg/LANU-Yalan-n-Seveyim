@@ -21,7 +21,8 @@ object ReasonedScoring {
         val difficulty=(s.level.coerceIn(1,100)-1)/25
         val evidence=evidence(s,a)
         val objection=a.claim.active
-        val unresolved=a.conflict?.confirmed==true || objection!=null
+        val routeGap=a.thread?.pending?.firstOrNull()
+        val unresolved=a.conflict?.confirmed==true || objection!=null || routeGap!=null
         if(isScoreInstruction(o.text)) return Assessment(0,0,0,0,ScoreReasons(
             "Puan veya rol talimatı, hikâyenin tutarlılığına kanıt sağlamaz.",
             "Talimat vermek, anlattığın olayın makullüğünü savunmaz.",
@@ -38,12 +39,16 @@ object ReasonedScoring {
         }
         val concrete=a.observations.zip(coverages).map { (e,c) -> if(c.evasive) rawDetail(e).coerceAtMost(8) else rawDetail(e) }.average().roundToInt()
         val plausibility=when { objection!=null -> 4; unresolved -> 8; coverage.evasive -> 10; else -> (15+concrete/3).coerceAtMost(23) }
-        val detail=(when { objection!=null -> concrete.coerceAtMost(8);unresolved || duplicate -> concrete.coerceAtMost(12);else -> concrete })-difficulty
+        val detail=(when { objection!=null || routeGap!=null -> concrete.coerceAtMost(8);unresolved || duplicate -> concrete.coerceAtMost(12);else -> concrete })-difficulty
         val meanDefense=coverages.map { it.score }.average().roundToInt()
-        val defense=(when { objection!=null -> meanDefense.coerceAtMost(4);unresolved || duplicate -> meanDefense.coerceAtMost(8);coverage.evasive -> meanDefense.coerceAtMost(12);else -> meanDefense })-difficulty
+        val defense=(when { objection!=null || routeGap!=null -> meanDefense.coerceAtMost(4);unresolved || duplicate -> meanDefense.coerceAtMost(8);coverage.evasive -> meanDefense.coerceAtMost(12);else -> meanDefense })-difficulty
+        // Unexplained travel is a missing link, not proof of a contradiction. It cannot earn a pass
+        // through unrelated meals, names or cities while the requested journey remains unaddressed.
+        val scoredConsistency=if(routeGap!=null && a.conflict==null) consistency.coerceAtMost(18) else consistency
         val consistencyReason=when {
             a.conflict?.confirmed==true -> "${a.conflict.finding} Bu açıklanmamış çelişki tutarlılığı düşürdü."
             a.conflict!=null -> "${a.conflict.finding} Bağlantı eksik; bu tek başına yalan kanıtı sayılmadı."
+            routeGap!=null -> "${routeGap.label} için geçiş henüz açıklanmadı. Bu, birbiriyle çelişen iki ifade saptandığı anlamına gelmez."
             a.repaired -> "Eklediğin açıklama önceki boşluğu kapattı; eski çelişki için puan kesilmiyor."
             a.observations.size==1 -> "İlk ifaden alındı; önceki cevapla karşılaştırma yapacak kadar hikâye henüz yok."
             duplicate -> "Önceki ifadenle çelişmedin; aynı cevabı tekrarlamak yeni bir savunma sağlamadı."
@@ -52,6 +57,7 @@ object ReasonedScoring {
         }
         val plausibilityReason=when {
             objection!=null -> "${objection.finding} Bu itiraz henüz açıklanmadığı için makullük düşük."
+            routeGap!=null -> "${routeGap.label} için araç ve yolculuk sırası açık kaldı; puan kurulan hikâyenin kendi bağlantılarına göre verildi."
             coverage.evasive -> "Sorunun istediği bağlantı açık kaldığı için neden-sonuç zinciri yeterince savunulmadı."
             a.conflict?.confirmed==true -> "Bazı olay ayrıntıları makul olabilir; bunlar zaman/araç çelişkisini kendiliğinden çözmez."
             else -> "Tanınan olay nedenleri ve ayrıntılar gündelik bir açıklamayı destekliyor; dışarıdan doğrulanmış kanıt sayılmıyor."
@@ -71,17 +77,22 @@ object ReasonedScoring {
         }+if(difficulty>0) " Seviye ayrıntı beklentisi: −$difficulty puan." else ""
         val defenseReason=(when {
             objection!=null -> "${objection.finding} Önce bu iddiayı açıklaman gerekiyor; başka ayrıntılar itirazı kapatmadı."
+            routeGap!=null -> "${routeGap.label} açıklanmadı; yeni yemek, isim veya yer söylemek bu sorunun cevabı sayılmadı."
             unresolved -> "${a.conflict!!.finding} Sorunun ana itirazı kapanmadığı için savunma düşük kaldı."
             duplicate -> "Aynı cevap tekrarlandı; ${coverage.explanation}"
             else -> coverage.explanation
         })+
             if(difficulty>0) " Seviye savunma beklentisi: −$difficulty puan." else ""
-        return Assessment(consistency,plausibility,detail.coerceIn(0,25),defense.coerceIn(0,25),
+        return Assessment(scoredConsistency,plausibility,detail.coerceIn(0,25),defense.coerceIn(0,25),
             ScoreReasons(consistencyReason,plausibilityReason,detailReason,defenseReason).validated(),evidence,coverage.evasive)
     }
     fun evidence(s: Session,a: StoryEvidence.Analysis): EvidenceCard? {
         a.conflict?.let { c -> return EvidenceCard(if(c.confirmed) EvidenceStatus.CONTRADICTION else EvidenceStatus.NEEDS_EXPLANATION,c.earlier.take(280),c.later.take(280),c.finding.take(400)).validated() }
         a.claim.active?.let { return EvidenceCard(EvidenceStatus.NEEDS_EXPLANATION,s.topic.take(280),it.quote,it.finding).validated() }
+        a.thread?.pending?.firstOrNull()?.let { gap -> return EvidenceCard(EvidenceStatus.NEEDS_EXPLANATION,gap.quote.take(280),a.latest.text.take(280),
+            "${gap.label} için ulaşım bağlantısı henüz kurulmadı. Bu bir eksik açıklama; doğrulanmış çelişki değil.").validated() }
+        if(a.thread?.repaired==true) return EvidenceCard(EvidenceStatus.RESOLVED,s.topic.take(280),a.latest.text.take(280),
+            "Yolculuk bağlantısını açıkladın veya planı açıkça iptal edip yerine yeni rotayı kurdun; eski soru kapandı.").validated()
         a.claim.resolved?.let { return EvidenceCard(EvidenceStatus.RESOLVED,it.quote,a.latest.text.take(280),"Olağan dışı iddianı açıkça geri alıp yerine somut bir açıklama verdin; eski itiraz artık aktif değil.").validated() }
         if(a.repaired && s.turns.isNotEmpty()) {
             val previous=StoryEvidence.inspect(s.copy(turns=s.turns.dropLast(1)),s.turns.last().answer).conflict

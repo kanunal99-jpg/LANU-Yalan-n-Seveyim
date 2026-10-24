@@ -7,6 +7,7 @@ object QuestionDirector {
     data class Beat(val key: String, val question: String, val reaction: String, val jokeKey: String? = null)
     private fun q(text: String) = StoryEvidence.quote(text)
     fun opening(topic: String, level: Int): String {
+        StoryThread.opening(topic,level)?.let { return it }
         val hard=level>60
         return when {
             StoryEvidence.has(topic,"gec","trafik","yetis") -> if(hard)
@@ -43,7 +44,9 @@ object QuestionDirector {
             return selected.copy(reaction=joke.text,jokeKey=joke.key)
         }
         a.claim.active?.let { return ClaimReview.beat(s,it) }
+        StoryThread.beat(s,a)?.let { return it }
         val repairedQuestion=when {
+            a.thread?.repaired==true -> "Yolculuk bağlantısını kurdun. ${a.thread.places.last().label} için varıştan sonra ilk yaptığın hareket neydi?"
             o.clocks.isNotEmpty() -> "Açıkladığın geçişi kabul ettim. ${o.clocks.last().label} anını hangi olayla sabitliyorsun; tahmin mi, o anda bildiğin saat mi?"
             o.messaged -> "Açıkladığın geçişi kabul ettim. Haber verdiğin anda karşı taraf ne biliyordu; sonradan öğrendiğin kısmı ayırır mısın?"
             o.person!=null -> "Açıkladığın geçişi kabul ettim. ${o.person} olayın hangi kısmını doğrudan biliyor; sadece senden duyduğu kısım hangisi?"

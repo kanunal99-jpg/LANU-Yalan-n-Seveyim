@@ -40,7 +40,9 @@ object ClaimReview {
     }
 
     fun find(topic: String, text: String): Objection? {
-        val fantasy=fiction.containsMatchIn(normal(topic))
+        // A space trip chosen as the game's premise establishes a fictional story world.
+        // Cross-examine its route and internal timeline instead of outlawing the whole premise.
+        val fantasy=fiction.containsMatchIn(normal(topic)) || StoryThread.spacePremise(topic)
         for(part in clauses.split(text)) {
             val n=normal(part)
             if(notLiteral.containsMatchIn(n)) continue

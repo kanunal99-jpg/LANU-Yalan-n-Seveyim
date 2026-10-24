@@ -32,7 +32,7 @@ object StoryEvidence {
     }
     data class Conflict(val key: String, val earlier: String, val later: String, val finding: String, val question: String, val joke: String, val confirmed: Boolean)
     data class Analysis(val observations: List<Observation>, val conflict: Conflict?, val repaired: Boolean,
-        val claim: ClaimReview.Review = ClaimReview.Review(null,null)) {
+        val claim: ClaimReview.Review = ClaimReview.Review(null,null), val thread: StoryThread.Review? = null) {
         val latest: Observation get() = observations.last()
     }
 
@@ -48,7 +48,9 @@ object StoryEvidence {
         val conflict=findConflict(observations)
         val before=if(observations.size>1) findConflict(observations.dropLast(1)) else null
         val claim=ClaimReview.inspect(s.topic,observations)
-        return Analysis(observations,conflict,conflict==null && (before!=null || claim.resolved!=null),claim)
+        val thread=StoryThread.inspect(s,observations)
+        return Analysis(observations,conflict,conflict==null && (before!=null || claim.resolved!=null ||
+            (thread?.repaired==true && thread.pending.isEmpty())),claim,thread)
     }
     fun observe(text: String, turn: Int = 1): Observation {
         val n=normal(text)

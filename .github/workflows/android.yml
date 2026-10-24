@@ -41,10 +41,10 @@ jobs:
         run: ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} testDebugUnitTest lintDebug assembleDebug assembleRelease --stacktrace
       - name: Build same-signature OTA pair
         run: |
-          mkdir -p release-packages/v0.5.0-alpha release-packages/v0.5.1-alpha
-          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.5.0-alpha/LANU-Yalanini-Seveyim-v0.5.0-alpha-arm64-test.apk
-          ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} -Planu.versionCode=8 -Planu.versionName=0.5.1-alpha assembleDebug --stacktrace
-          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.5.1-alpha/LANU-Yalanini-Seveyim-v0.5.1-alpha-arm64-test.apk
+          mkdir -p release-packages/v0.6.0-alpha release-packages/v0.6.1-alpha
+          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.6.0-alpha/LANU-Yalanini-Seveyim-v0.6.0-alpha-arm64-test.apk
+          ./gradlew -Planu.requireProductionSigning=${LANU_REQUIRE_SIGNING:-false} -Planu.versionCode=10 -Planu.versionName=0.6.1-alpha assembleDebug --stacktrace
+          cp app/build/outputs/apk/debug/app-debug.apk release-packages/v0.6.1-alpha/LANU-Yalanini-Seveyim-v0.6.1-alpha-arm64-test.apk
           python3 scripts/release_packages.py
           for apk in release-packages/*/*.apk; do "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$apk"; done
       - uses: actions/upload-artifact@v4
@@ -120,15 +120,15 @@ jobs:
           COMMIT: ${{ github.sha }}
         run: |
           cat > notes.md <<'NOTES'
-          LANU alpha: uygulama içinden güncelleme kontrolü, indirme ve Android kurulum düğmeleri; boyut/SHA-256/paket/sürüm/imza doğrulaması. v0.4.0 ve v0.4.1 aynı çalıştırmada aynı anahtarla üretilir. OTA'yi denemek için önce v0.4.0'ı kurup Ayarlar > Güncellemeleri kontrol et yoluyla v0.4.1'e geçebilirsin. AOSP'de gerçek paket yükseltmesi ve şifreli ilerleme korunması test edilir.
+          LANU 0.6 alpha: kullanıcının Mars → Hatay → New York örneğindeki iç içe soru ve aynı espri döngüsü düzeltildi. Yolculuk konusu, sonradan eklenen yer, yemek, gerekçe ve plan değişikliği birlikte takip edilir. Mars gibi kurgusal başlangıç doğrudan yasaklanmaz; rota ve hikâyenin iç bağlantıları sorgulanır. Açıklanan geçiş kabul edilir; yeni yer eklemek önceki açıkları silmez. Kaçamak cevapta önceki soruyu alıntı içine alıp tekrar etmek yerine açık kalan başlık kısa ve doğrudan sorulur.
 
-          Mantıksız ulaşım ve süre/mesafe iddiaları doğrudan alıntılanır; espri o iddiadan kurulur. Açıklanmayan itiraz sıradaki genel soruya geçmez ve ilgisiz ayrıntılarla yüksek puan alamaz. Yorum ile takip sorusu birlikte görünür. Dört alt puanın açıklaması, önce/sonra ipucu kartları ve hikâyeler arası espri hafızası korunur. Hızlı oyun yerel kurallardır; gerçek AI ayrı bir seçenektir. Cihazda AI için 2–3 saniye veya kusursuz Türkçe/mizah garantisi yoktur; yayın kanıtları depodaki doğrulama raporundadır.
+          Bu iyileştirmeler Hızlı oyunun açıkça etiketlenmiş yerel kurallarıdır. Serbest generatif AI, insan düzeyinde Türk mizahı veya her cümleyi anlama iddiası değildir. Cihazda AI deneysel kalır; mevcut modelde kalite ve 2–3 saniyelik hız hedefi sağlanmış değildir. Referans uygulamanın mağaza açıklaması incelendi; uygulaması oynanarak kopyalanmadı.
 
-          Parolalı şifreli yedek oluşturma/geri yükleme ve cihazdaki süre özeti eklendi. Yanlış parola, değiştirilmiş paket, bozuk kayıt ve farklı imza mevcut ilerlemeyi sessizce silmez. Ücretsizdir; Google Play Hizmetleri gerektirmez. ARM64 Android 8+; fiziksel A55/Huawei/Xiaomi doğrulaması ayrıca yapılmalıdır.
+          v0.6.0 ve v0.6.1 aynı koşuda aynı anahtarla üretilir. OTA için v0.6.0 → Ayarlar → Güncellemeleri kontrol et → indir/doğrula → kur yoluyla v0.6.1'e geçilebilir. Hash/boyut/paket/sürüm/kurulu imza kontrolleri korunur. AOSP emülatörde gerçek yerinde yükseltme ve şifreli kayıt korunması sınanır. ARM64 Android 8+, Google Play Hizmetleri gerekmez. Fiziksel A55/Huawei/Xiaomi doğrulaması henüz yoktur.
 
-          Kalıcı imza secret'ları henüz ayarlı değilse bu ikili test anahtarıyla imzalanır. İkili içinde yerinde güncelleme mümkündür; ilerideki CI çalıştırmaları için kalıcı anahtar kurulmalıdır. v0.3 gibi önceki farklı test imzalı kurulumlarla uyumluluk garantisi yoktur. İmza hatasında uygulamayı kaldırmadan önce ilerlemeni yedekle.
+          Kalıcı imza secret'ları ayarlı değilse bu iki APK test anahtarı kullanır; önceki 0.5/0.4 test kurulumlarının imzasıyla eşleşmez. Eski uygulamayı kaldırmak ilerlemeyi siler: önce Ayarlar'dan parolalı yedek oluştur. Güncelleme hiçbir zaman imza kontrolünü atlamaz veya uygulamayı kendisi kaldırmaz. Kalıcı imza kurulumu docs/STABLE_SIGNING.md dosyasındadır.
           NOTES
-          for tag in v0.5.0-alpha v0.5.1-alpha; do
+          for tag in v0.6.0-alpha v0.6.1-alpha; do
             gh release create "$tag" apk/"$tag"/* --repo "$REPO" --title "LANU $tag · OTA test sürümü" --notes-file notes.md --prerelease --target "$COMMIT"
           done
       - name: Verify public APK downloads after publication
