@@ -41,16 +41,13 @@ class FreeAiCompatibilityTest {
 
     @Test fun connectionRequiresAPersonalKeyAndExplicitDataConsent() {
         home()
-        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("connect-online"))
+        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("open-online-setup"))
+        compose.onNodeWithTag("open-online-setup").assertIsDisplayed().performClick()
         compose.onNodeWithTag("connect-online").assertIsNotEnabled()
-        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("online-key"))
         compose.onNodeWithTag("online-key").performTextInput("test-personal-key-"+"x".repeat(32))
-        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("connect-online"))
         compose.onNodeWithTag("connect-online").assertIsNotEnabled()
-        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("online-consent"))
-        compose.onNodeWithTag("online-consent").performClick()
-        compose.onNodeWithTag("screen-content").performScrollToNode(hasTestTag("connect-online"))
-        compose.onNodeWithTag("connect-online").assertIsEnabled()
+        compose.onNodeWithTag("online-consent").performScrollTo().assertIsDisplayed().performClick().assertIsOn()
+        compose.onNodeWithTag("connect-online").assertIsDisplayed().assertIsEnabled()
         // Do NOT press: this is a fake key, not a live provider or quality test.
         println("LANU_ONLINE_KEY_AND_CONSENT_REQUIRED")
     }

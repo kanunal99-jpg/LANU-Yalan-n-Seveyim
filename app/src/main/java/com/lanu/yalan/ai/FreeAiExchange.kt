@@ -16,6 +16,9 @@ class FreeAiExchange(private val transport: FreeAiTransport,private val timeoutM
         catch(e: Exception) {throw AiException(AiFailure.ONLINE_OUTPUT,e)}
     }
     suspend fun ask(key: String,s: Session,answer: String?,spicy: Boolean): Verdict = withTimeout(timeoutMs) {
+        require(FreeAiProtocol.validKey(key))
+        val texts=listOf(s.topic,s.opening)+s.turns.flatMap {listOf(it.question,it.answer,it.verdict.reply,it.verdict.question)}+listOfNotNull(answer)
+        if(texts.any {key in it}) throw AiException(AiFailure.ONLINE_SECRET)
         var last: Exception?=null
         for(attempt in 0..1) {
             currentCoroutineContext().ensureActive()
@@ -23,7 +26,11 @@ class FreeAiExchange(private val transport: FreeAiTransport,private val timeoutM
                 val response=transport.send(key,FreeAiProtocol.request(s,answer,spicy,simpleJson=attempt==1))
                 if(response.status in listOf(400,422,408,500,502,503,504) && attempt==0) continue
                 failForStatus(response.status)
-                return@withTimeout try {FreeAiProtocol.parse(response.body,s,answer)}
+                return@withTimeout try {
+                    FreeAiProtocol.parse(response.body,s,answer).also {
+                        if(key in it.reply || key in it.question) throw AiException(AiFailure.ONLINE_SECRET)
+                    }
+                }
                 catch(e: AiException) {throw e}
                 catch(e: Exception) {throw AiException(AiFailure.ONLINE_OUTPUT,e)}
             } catch(e: CancellationException) {throw e}

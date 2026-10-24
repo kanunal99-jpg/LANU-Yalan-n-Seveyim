@@ -134,4 +134,9 @@ class FreeAiTest {
         val fake=Fake(listOf(FreeAiResponse(200,"{\"data\":{\"is_free_tier\":true}}")))
         FreeAiExchange(fake).verify(key);assertEquals(listOf<String?>(null),fake.bodies)
     }
+    @Test fun aPersonalKeyPastedIntoTheStoryNeverReachesTheModel()=runBlocking {
+        val fake=Fake(listOf(FreeAiResponse(200,envelope())))
+        val failure=assertThrows(AiException::class.java) {runBlocking {FreeAiExchange(fake).ask(key,story(),"Yanlışlıkla yapıştırdım: $key",false)}}
+        assertEquals(AiFailure.ONLINE_SECRET,failure.reason);assertTrue(fake.bodies.isEmpty())
+    }
 }

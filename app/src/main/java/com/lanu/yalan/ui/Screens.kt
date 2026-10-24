@@ -3,6 +3,8 @@ package com.lanu.yalan.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -108,6 +110,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     var confirm by remember { mutableStateOf(false) }
     val onlineDraft=remember {OnlineConnectionDraft()}
     DisposableEffect(onlineDraft) {onDispose {onlineDraft.clear()}}
+    OnlineConnectionDialog(s,vm,onlineDraft)
     if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni hikâye açılsın mı?")},text={Text("Devam eden turun yerini yeni hikâye alacak. Kazandığın seviyeler korunur.")},confirmButton={TextButton(onClick={confirm=false;vm.start(topic)}){Text("Yeni hikâye")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item {
@@ -176,11 +179,11 @@ internal class OnlineConnectionDraft {
     var key by mutableStateOf("")
     var consent by mutableStateOf(false)
     var browserError by mutableStateOf(false)
-    fun clear() {key="";consent=false;browserError=false}
+    var open by mutableStateOf(false)
+    fun clear() {key="";consent=false;browserError=false;open=false}
 }
 @Composable internal fun OnlineAiCard(s:UiState,vm:GameViewModel,draft: OnlineConnectionDraft) {
     val context=LocalContext.current
-    LaunchedEffect(s.onlineReady) {if(s.onlineReady) draft.clear()}
     Card(Modifier.fillMaxWidth().testTag("online-ai-card")) {
         Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
             Text(if(s.onlineReady) "Ücretsiz AI bağlı ✓" else "Ücretsiz AI'yı bağla",fontWeight=FontWeight.Bold)
@@ -193,17 +196,32 @@ internal class OnlineConnectionDraft {
                     try {context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://openrouter.ai/settings/keys")))} catch(_: android.content.ActivityNotFoundException) {draft.browserError=true}
                 },enabled=!s.busy,modifier=Modifier.testTag("get-online-key")) {Text("Ücretsiz anahtar sayfasını aç")}
                 if(draft.browserError) Text("Tarayıcı açılamadı. openrouter.ai/settings/keys adresini kendi tarayıcında açabilirsin.",fontSize=12.sp,color=Gold)
-                OutlinedTextField(value=draft.key,onValueChange={draft.key=it.take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
-                    label={Text("Kişisel API anahtarın")},singleLine=true,visualTransformation=PasswordVisualTransformation(),
-                    keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),supportingText={Text("Anahtarı sohbete veya başka kişilere gönderme.")})
-                Row(verticalAlignment=Alignment.CenterVertically) {
-                    Checkbox(checked=draft.consent,onCheckedChange={draft.consent=it},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
-                    Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",fontSize=12.sp,lineHeight=18.sp)
-                }
-                Button(onClick={vm.connectOnline(draft.key,draft.consent)},enabled=!s.busy && draft.consent && FreeAiProtocol.validKey(draft.key),modifier=Modifier.testTag("connect-online")) {Text("Doğrula ve şifreli kaydet")}
+                Button(onClick={vm.clearError();draft.open=true},enabled=!s.busy,modifier=Modifier.testTag("open-online-setup")) {Text("Anahtarını bağla")}
             }
         }
     }
+}
+@Composable private fun OnlineConnectionDialog(s:UiState,vm:GameViewModel,draft: OnlineConnectionDraft) {
+    val keyboard=LocalSoftwareKeyboardController.current
+    LaunchedEffect(s.onlineReady) {if(s.onlineReady) draft.clear()}
+    if(draft.open) AlertDialog(
+        onDismissRequest={if(s.busy) vm.cancel();draft.clear()},
+        title={Text("Ücretsiz AI bağlantısı")},
+        text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+            OutlinedTextField(value=draft.key,onValueChange={draft.key=it.trim().take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
+                label={Text("Kişisel API anahtarın")},singleLine=true,visualTransformation=PasswordVisualTransformation(),
+                keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),
+                supportingText={Text("Anahtarı sohbete veya başka kişilere gönderme.")})
+            Row(verticalAlignment=Alignment.CenterVertically) {
+                Checkbox(checked=draft.consent,onCheckedChange={draft.consent=it;keyboard?.hide()},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
+                Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",fontSize=12.sp,lineHeight=18.sp)
+            }
+            if(s.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
+            s.error?.let {Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp,lineHeight=18.sp)}
+        }},
+        confirmButton={TextButton(onClick={keyboard?.hide();vm.connectOnline(draft.key,draft.consent)},enabled=!s.busy && draft.consent && FreeAiProtocol.validKey(draft.key),modifier=Modifier.testTag("connect-online")) {Text(if(s.busy) "Doğrulanıyor…" else "Doğrula ve şifreli kaydet")}},
+        dismissButton={TextButton(onClick={if(s.busy) vm.cancel();draft.clear()}) {Text(if(s.busy) "Durdur" else "Vazgeç")}}
+    )
 }
 @Composable private fun ResponseTime(s:UiState) {
     s.responseMs?.let { ms ->
@@ -355,6 +373,7 @@ internal class OnlineConnectionDraft {
     var remove by remember { mutableStateOf(false) }
     val onlineDraft=remember {OnlineConnectionDraft()}
     DisposableEffect(onlineDraft) {onDispose {onlineDraft.clear()}}
+    OnlineConnectionDialog(s,vm,onlineDraft)
     if(reset) AlertDialog(onDismissRequest={reset=false},title={Text("İlerleme silinsin mi?")},text={Text("Tüm seviyeler, puanlar ve kayıtlı hikâye bu cihazdan silinir. Bu işlem geri alınamaz.")},confirmButton={TextButton(onClick={reset=false;vm.reset()}){Text("İlerlemeyi sil")}},dismissButton={TextButton(onClick={reset=false}){Text("Vazgeç")}})
     if(remove) AlertDialog(onDismissRequest={remove=false},title={Text("Model kaldırılsın mı?")},text={Text("Yaklaşık 2,74 GB alan açılır. Hızlı oyun çalışmaya devam eder. AI modu için modeli yeniden indirmen gerekir. Puanların korunur.")},confirmButton={TextButton(onClick={remove=false;vm.deleteModel()}){Text("Modeli kaldır")}},dismissButton={TextButton(onClick={remove=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {

@@ -83,7 +83,8 @@ class GameViewModel @Inject constructor(
             catch(e: Exception) {
                 diagnostic(e)
                 mutable.update { it.copy(aiError=e is AiException || e is DeviceNotReadyException,error=when {
-                    e is AiException -> "${e.reason.explanation} Cevabın duruyor. Yeniden deneyebilir veya bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-${e.reason.name}]"
+                    e is AiException -> e.reason.explanation+if(it.screen==Screen.GAME) " Cevabın duruyor. Yeniden deneyebilir veya bu hikâyeye Hızlı oyun ile devam edebilirsin. [AI-${e.reason.name}]"
+                        else " Yeni puan yazılmadı. Ayarlarını kontrol edip yeniden deneyebilirsin. [AI-${e.reason.name}]"
                     e is DeviceNotReadyException -> e.message ?: "Cihaz şu anda hazır değil."
                     it.downloading -> e.message ?: "İndirme durdu. Bağlantını kontrol edip devam et."
                     else -> "Kayıt işlemi tamamlanamadı. Önceki kaydın ve yazdığın cevap korunuyor. Boş depolama alanını kontrol edip yeniden dene. [SAVE]"
