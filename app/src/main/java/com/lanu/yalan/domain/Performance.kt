@@ -44,7 +44,8 @@ data class PerformanceSnapshot(
     val ai: TimingSummary = TimingSummary(),
     val opening: TimingSummary = TimingSummary(),
     val health: RuntimeHealth? = null,
-    val storageAvailable: Boolean = true
+    val storageAvailable: Boolean = true,
+    val online: TimingSummary = TimingSummary()
 )
 
 /** Bounded statistics; failed/cancelled requests never improve the success percentiles. */
@@ -74,6 +75,7 @@ object PerformanceStats {
         val replies=data.samples.filter { it.phase==TimingPhase.REPLY }
         return PerformanceSnapshot(summarize(replies.filter { it.mode==PlayMode.FAST }),
             summarize(replies.filter { it.mode==PlayMode.LOCAL_AI }),
-            summarize(data.samples.filter { it.phase==TimingPhase.OPENING }),health,storageAvailable)
+            summarize(data.samples.filter { it.phase==TimingPhase.OPENING }),health,storageAvailable,
+            online=summarize(replies.filter {it.mode==PlayMode.FREE_ONLINE_AI}))
     }
 }

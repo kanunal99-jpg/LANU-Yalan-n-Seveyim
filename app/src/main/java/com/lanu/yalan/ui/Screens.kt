@@ -30,6 +30,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.KeyboardType
+import android.content.Intent
+import android.net.Uri
+import com.lanu.yalan.ai.FreeAiProtocol
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -73,7 +78,7 @@ fun LanuAppScreen(vm: GameViewModel,maintenance: MaintenanceViewModel) {
                         Column { Text("LANU",fontWeight=FontWeight.Black,letterSpacing=3.sp,fontSize=19.sp); Text("YALANINI SEVEYİM",color=Muted,fontSize=10.sp,letterSpacing=1.sp) }
                     }
                     if(s.screen==Screen.GAME) TextButton(onClick={vm.navigate(Screen.HOME)},enabled=!s.busy) { Text("Çık") }
-                    else Text(if(s.save.mode==PlayMode.FAST) "HIZLI OYUN" else "CİHAZDA AI",color=Mint,fontSize=10.sp,fontWeight=FontWeight.Bold)
+                    else Text(when(s.save.mode) {PlayMode.FAST -> "HIZLI OYUN";PlayMode.LOCAL_AI -> "CİHAZDA AI";PlayMode.FREE_ONLINE_AI -> "ÇEVRİMİÇİ AI"},color=Mint,fontSize=10.sp,fontWeight=FontWeight.Bold)
                 }
                 if(s.error!=null) Card(Modifier.fillMaxWidth().padding(horizontal=20.dp),colors=CardDefaults.cardColors(containerColor=Color(0xFF482734))) {
                     Text(s.error!!,Modifier.padding(16.dp),fontSize=13.sp)
@@ -117,6 +122,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         }
         if(!s.save.onboarding) item { Text("Nasıl oynanır?\nBir konu seç, beş soruya aynı hikâyeyi koruyarak cevap ver. İnandırıcılık puanın yeterliyse sonraki seviye açılır.",color=Muted,lineHeight=22.sp) }
         item { ModeCard(s,vm) }
+        if(s.save.mode==PlayMode.FREE_ONLINE_AI) item { OnlineAiCard(s,vm) }
         if(s.save.mode==PlayMode.LOCAL_AI && !s.ready) item { ModelCard(s,vm) }
         item {
             Row(Modifier.fillMaxWidth(),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
@@ -139,7 +145,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Button(onClick={keyboard?.hide();focus.clearFocus();if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
         }
         if(s.busy && !s.downloading) item { Busy(s,vm) }
-        item { Text("Puanlar eğlence amaçlıdır. Gerçek bir yalan testi değildir. Konuşmaların bu cihazda kalır.",color=Muted,fontSize=12.sp,lineHeight=18.sp) }
+        item { Text("Puanlar eğlence amaçlıdır. Gerçek bir yalan testi değildir. "+if(s.save.mode==PlayMode.FREE_ONLINE_AI) "Çevrimiçi AI seçeneğinde konu ve bu hikâyenin cevapları OpenRouter üzerinden model sağlayıcısına gönderilir." else "Hızlı oyun ve Cihazda AI konuşmaları bu cihazda kalır.",color=Muted,fontSize=12.sp,lineHeight=18.sp) }
     }
 }
 @Composable private fun Tag(text: String) { Surface(color=Color(0xFF50346A),shape=RoundedCornerShape(8.dp)) { Text(text,Modifier.padding(horizontal=9.dp,vertical=6.dp),color=Color(0xFFF5E6FF),fontSize=11.sp) } }
@@ -151,10 +157,44 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 FilterChip(selected=s.save.mode==PlayMode.FAST,onClick={vm.playMode(PlayMode.FAST)},enabled=!s.busy,label={Text("Hızlı oyun")})
                 FilterChip(selected=s.save.mode==PlayMode.LOCAL_AI,onClick={vm.playMode(PlayMode.LOCAL_AI)},enabled=!s.busy,label={Text("Deneysel AI")})
             }
-            Text(if(s.save.mode==PlayMode.FAST)
+            FilterChip(selected=s.save.mode==PlayMode.FREE_ONLINE_AI,onClick={vm.playMode(PlayMode.FREE_ONLINE_AI)},enabled=!s.busy,modifier=Modifier.testTag("online-mode"),label={Text("Ücretsiz çevrimiçi AI")})
+            Text(when(s.save.mode) {
+                PlayMode.FAST ->
                 "Cevabındaki telefon, trafik, alarm, saat ve diğer ayrıntılara göre sorgu değişir. Önceki cevaplarını karşılaştıran kurallar kullanır; dil modeli değildir. Yanıt hedefi 2–3 saniye."
-                else "Deneysel Qwen3.5 4B modeli cevaplarını değerlendirir; bazı soruları veya esprileri zayıf kalabilir. 2,74 GB indirme gerekir. Telefonda 2–3 saniye garanti edilemez; toplam süre sınırı 30 saniye.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
+                PlayMode.LOCAL_AI -> "Deneysel Qwen3.5 4B modeli cevaplarını değerlendirir; bazı soruları veya esprileri zayıf kalabilir. 2,74 GB indirme gerekir. Telefonda 2–3 saniye garanti edilemez; toplam süre sınırı 30 saniye."
+                PlayMode.FREE_ONLINE_AI -> "İlk soruyu, yorumları ve puanları internet üzerinden gerçek dil modeli üretir. Yalnız ücretsiz modeller kullanılır. Ücretsiz hesap/anahtar ve internet gerekir; servis kotası ve yoğunluk yanıt süresini etkileyebilir."
+            },color=Muted,fontSize=13.sp,lineHeight=20.sp)
             if(s.save.session?.finished==false) Text("Bu seçim yeni hikâyeler içindir. Devam eden hikâyenin modu korunur.",color=Muted,fontSize=12.sp)
+        }
+    }
+}
+@Composable internal fun OnlineAiCard(s:UiState,vm:GameViewModel) {
+    val context=LocalContext.current
+    var key by remember {mutableStateOf("")}
+    var consent by remember {mutableStateOf(false)}
+    var browserError by remember {mutableStateOf(false)}
+    LaunchedEffect(s.onlineReady) {if(s.onlineReady) key=""}
+    Card(Modifier.fillMaxWidth().testTag("online-ai-card")) {
+        Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(10.dp)) {
+            Text(if(s.onlineReady) "Ücretsiz AI bağlı ✓" else "Ücretsiz AI'yı bağla",fontWeight=FontWeight.Bold)
+            Text("OpenRouter hesabından kişisel API anahtarı gerekir. Kredi satın alman gerekmez. Servis kotası dolunca ücretli modele geçilmez. 2–3 saniye garantisi yoktur; toplam bekleme sınırı 15 saniye.",color=Muted,fontSize=13.sp,lineHeight=20.sp)
+            if(s.onlineReady) {
+                Text("Anahtar cihazında şifreli saklanır; ilerleme yedeğine eklenmez.",fontSize=12.sp,color=Muted)
+                OutlinedButton(onClick=vm::disconnectOnline,enabled=!s.busy,modifier=Modifier.testTag("disconnect-online")) {Text("AI bağlantısını kaldır")}
+            } else {
+                OutlinedButton(onClick={
+                    try {context.startActivity(Intent(Intent.ACTION_VIEW,Uri.parse("https://openrouter.ai/settings/keys")))} catch(_: android.content.ActivityNotFoundException) {browserError=true}
+                },enabled=!s.busy,modifier=Modifier.testTag("get-online-key")) {Text("Ücretsiz anahtar sayfasını aç")}
+                if(browserError) Text("Tarayıcı açılamadı. openrouter.ai/settings/keys adresini kendi tarayıcında açabilirsin.",fontSize=12.sp,color=Gold)
+                OutlinedTextField(value=key,onValueChange={key=it.take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
+                    label={Text("Kişisel API anahtarın")},singleLine=true,visualTransformation=PasswordVisualTransformation(),
+                    keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),supportingText={Text("Anahtarı sohbete veya başka kişilere gönderme.")})
+                Row(verticalAlignment=Alignment.CenterVertically) {
+                    Checkbox(checked=consent,onCheckedChange={consent=it},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
+                    Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",fontSize=12.sp,lineHeight=18.sp)
+                }
+                Button(onClick={vm.connectOnline(key,consent)},enabled=!s.busy && consent && FreeAiProtocol.validKey(key),modifier=Modifier.testTag("connect-online")) {Text("Doğrula ve şifreli kaydet")}
+            }
         }
     }
 }
@@ -170,7 +210,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     Column(Modifier.fillMaxWidth(),horizontalAlignment=Alignment.CenterHorizontally) {
         LinearProgressIndicator(Modifier.fillMaxWidth())
         Text(s.status,Modifier.padding(top=12.dp),color=Muted,fontSize=13.sp)
-        Text(if((s.save.session?.mode ?: s.save.mode)==PlayMode.LOCAL_AI) "$elapsed sn · AI yükleme ve yanıt bütçesi: 30 sn" else "$elapsed sn",color=Muted,fontSize=11.sp)
+        Text(when(s.save.session?.mode ?: s.save.mode) {PlayMode.LOCAL_AI -> "$elapsed sn · AI yükleme ve yanıt bütçesi: 30 sn";PlayMode.FREE_ONLINE_AI -> "$elapsed sn · Çevrimiçi AI süre sınırı: 15 sn";PlayMode.FAST -> "$elapsed sn"},color=Muted,fontSize=11.sp)
         TextButton(onClick=vm::cancel) { Text("Durdur") }
     }
 }
@@ -204,7 +244,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
         Row(Modifier.fillMaxWidth().testTag("game-toolbar").padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
             Column(Modifier.weight(1f)) {
                 Text("LANU · SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
-                Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=10.sp)
+                Text(session.mode.label(),color=Mint,fontSize=10.sp)
             }
             Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
             TextButton(onClick={keyboard?.hide();focus.clearFocus();vm.navigate(Screen.HOME)},enabled=!s.busy,contentPadding=PaddingValues(8.dp)) { Text("Çık") }
@@ -238,7 +278,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
             if(s.busy) item { Busy(s,vm) }
         }
         if(!s.canAnswer) {
-            Text("AI için modeli indir veya bu hikâyeye Hızlı oyun ile devam et.",Modifier.padding(horizontal=16.dp),color=Gold)
+            Text(if(session.mode==PlayMode.FREE_ONLINE_AI) "Çevrimiçi AI anahtarını Ayarlar'dan bağla veya bu hikâyeye Hızlı oyun ile devam et." else "AI için modeli indir veya bu hikâyeye Hızlı oyun ile devam et.",Modifier.padding(horizontal=16.dp),color=Gold)
             TextButton(onClick=vm::continueFast,enabled=!s.busy) { Text("Bu hikâyeye hızlı devam et") }
         }
         Surface(modifier=Modifier.testTag("answer-composer"),color=Panel) {
@@ -273,7 +313,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
                 Text("İNANDIRICILIK",color=Muted,fontSize=12.sp,letterSpacing=2.sp,modifier=Modifier.padding(top=22.dp))
                 Text("${v.score}",fontSize=80.sp,fontWeight=FontWeight.Black,color=Gold)
                 Text("100 üzerinden · Geçme puanı ${Rules.threshold(session.level)}",color=Muted,fontSize=13.sp)
-                Text(if(session.mode==PlayMode.FAST) "Hızlı oyun · Kural tabanlı puanlama" else "Cihazda AI · Qwen3.5 4B",color=Mint,fontSize=12.sp,modifier=Modifier.padding(top=8.dp))
+                Text(session.mode.label(),color=Mint,fontSize=12.sp,modifier=Modifier.padding(top=8.dp))
                 ResponseTime(s)
                 Text("★".repeat(Rules.stars(v.score))+"☆".repeat(3-Rules.stars(v.score)),color=Gold,fontSize=28.sp,modifier=Modifier.padding(top=8.dp))
             }
@@ -311,6 +351,7 @@ private fun Home(s: UiState,vm: GameViewModel) {
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item { Text("Tam senlik ayarlar.",fontSize=28.sp,fontWeight=FontWeight.ExtraBold) }
         item { ModeCard(s,vm) }
+        if(s.save.mode==PlayMode.FREE_ONLINE_AI || s.onlineReady) item {OnlineAiCard(s,vm)}
         item { MaintenanceTools(s,m,maintenance) }
         item { Card { Row(Modifier.padding(18.dp),verticalAlignment=Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) { Text("Biraz sivri dil",fontWeight=FontWeight.Bold);Text("Hafif argo ve daha iğneleyici espriler. Ağır hakaret yok.",color=Muted,fontSize=13.sp,modifier=Modifier.padding(top=5.dp)) }
@@ -318,8 +359,8 @@ private fun Home(s: UiState,vm: GameViewModel) {
         } } }
         item { ModelCard(s,vm) }
         if(s.ready) item { OutlinedButton(onClick={remove=true},enabled=!s.busy,modifier=Modifier.fillMaxWidth()){Text("Modeli kaldır · 2,74 GB") } }
-        item { Text("Senin hikâyen, senin telefonun.",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Otomatik Android yedeklemesine dahil edilmez; istersen buradan kendi parolalı yedeğini oluşturabilirsin. Hızlı oyun hemen, AI modu ise model indirildikten sonra internetsiz çalışır. Hesap, reklam ve abonelik yok.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
-        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun; saat sırası, bekleme süresi, araç değişimi ve iletişim sırası gibi sınırlı kurallarla önceki cevapları karşılaştırır. Şüpheli boşlukla açık çelişkiyi ayrı değerlendirir; açıkladığın bağlantıyı yeniden suçlama yapmaz. Anlamı bütünüyle anlayamaz. AI modunda puanları Qwen üretir. Final tüm cevapları dikkate alır. Geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Hikâyen ve gizlilik",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Konuşmaların ve ilerlemen bu telefonda şifreli saklanır. Otomatik Android yedeklemesine dahil edilmez; kendi parolalı yedeğini oluşturabilirsin. Hızlı oyun ve Cihazda AI internetsiz çalışır. İsteğe bağlı çevrimiçi AI için konu/cevaplar OpenRouter üzerinden model sağlayıcısına gönderilir; anahtar cihazda şifrelenir ve yedeğe eklenmez. Uygulamada reklam veya abonelik yoktur.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
+        item { Text("Puanlama nasıl çalışır?",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Dört alana 0–25 puan verilir. Hızlı oyun sınırlı yerel kurallarla değerlendirme yapar. Cihazda AI'da Qwen, çevrimiçi AI'da servisin seçtiği ücretsiz dil modeli puanları üretir. Hatalı çıktı kabul edilmez; modelin puanı yerine yerel puan yazılmaz. Final tüm cevapları dikkate alır. Geçme eşiği 40’tan 73’e çıkar. Puanlar eğlence amaçlıdır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { s.device?.let { Text(it.summary,Modifier.testTag("device-summary"),color=Muted,fontSize=13.sp) } }
         item { Text("Cihaz ve performans",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Samsung, Huawei, Xiaomi ve diğer markaların 64 bit Android 8+ cihazları için hazırlanmıştır. Google Play Hizmetleri gerekmez. Hızlı oyun büyük model yüklemez. AI modu için 8 GB RAM önerilir ve 2–3 saniyelik yanıt garanti edilemez. AI yükleme ve üretim toplamında 30 saniyelik iptal bütçesi kullanılır. Fiziksel cihaz süreleri henüz doğrulanmadı.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }
         item { Text("Açık kaynak",fontWeight=FontWeight.Bold,fontSize=18.sp);Text("Qwen3.5 4B — Apache 2.0\nllama.cpp — MIT\nLisans metinleri ve kaynaklar GitHub deposundadır.",color=Muted,fontSize=13.sp,lineHeight=21.sp,modifier=Modifier.padding(top=8.dp)) }

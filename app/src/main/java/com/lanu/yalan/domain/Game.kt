@@ -62,7 +62,12 @@ data class Verdict(
 @Serializable
 data class Turn(val question: String, val answer: String, val verdict: Verdict)
 @Serializable
-enum class PlayMode { FAST, LOCAL_AI }
+enum class PlayMode { FAST, LOCAL_AI, FREE_ONLINE_AI }
+fun PlayMode.label(): String = when(this) {
+    PlayMode.FAST -> "Hızlı oyun · Kural tabanlı puanlama"
+    PlayMode.LOCAL_AI -> "Cihazda AI · Qwen3.5 4B"
+    PlayMode.FREE_ONLINE_AI -> "Çevrimiçi AI · Ücretsiz modeller"
+}
 @Serializable
 data class Session(
     val id: String,

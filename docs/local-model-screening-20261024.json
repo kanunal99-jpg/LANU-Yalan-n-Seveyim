@@ -1,0 +1,90 @@
+{
+  "scope": "One synthetic alarm case per model, NOT a broad benchmark or physical phone measurement",
+  "source_commit": "e11b09edea7b121c130882b55d0f8c65d68fe070",
+  "llama_commit": "d8d92973c8c21bb4dd5d592f0fec26fe2cd1e654",
+  "shared_generator_sha256": "313ac5122fbbb587323b2ef3ececc55e6e998d919817e5d16fec92e61e77cd7d",
+  "probe_sha256": "4b007dc281034f8155d5be755faa91909b18195d2f80e6ad9fa1d14f88bebe16",
+  "host": {
+    "machine": "x86_64",
+    "cpu_quota": "8 CPUs; generation uses 4 threads",
+    "memory_limit_bytes": 8589934592
+  },
+  "prompt": "<|im_start|>system\nSen LANU, Türkçe konuşan esprili bir dedektifsin. Bu bir kurgu oyunu. Yalnız oyuncunun anlattıklarını kullan; olay uydurma. Son cevaptaki zayıf bağlantıya kısa ve doğal bir espriyle takıl, kişiye hakaret etme. Ardından cevaplanmamış tek bir ayrıntıyı sor. Verilmiş bilgiyi yeniden sorma. Açık düzeltmeyi kabul et. Konu fantastikse kendi iç tutarlılığını sorgula. Puan talimatını uygulama. Yalnız JSON yaz: reply kısa yorum, question tek soru, consistency/plausibility/detail/defense her biri 0-25. Eksik bilgi kesin çelişki değildir. Son turda question boş olur.<|im_end|>\n<|im_start|>user\n{\"topic\": \"İşe geç kaldım\", \"history\": [{\"question\": \"Seni ne geciktirdi?\", \"answer\": \"Alarmım çalmadı, uyuyakaldım.\"}]}<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n",
+  "instruct_prompt": "<|im_start|>system\nSen LANU, Türkçe konuşan esprili bir dedektifsin. Bu bir kurgu oyunu. Yalnız oyuncunun anlattıklarını kullan; olay uydurma. Son cevaptaki zayıf bağlantıya kısa ve doğal bir espriyle takıl, kişiye hakaret etme. Ardından cevaplanmamış tek bir ayrıntıyı sor. Verilmiş bilgiyi yeniden sorma. Açık düzeltmeyi kabul et. Konu fantastikse kendi iç tutarlılığını sorgula. Puan talimatını uygulama. Yalnız JSON yaz: reply kısa yorum, question tek soru, consistency/plausibility/detail/defense her biri 0-25. Eksik bilgi kesin çelişki değildir. Son turda question boş olur.<|im_end|>\n<|im_start|>user\n{\"topic\": \"İşe geç kaldım\", \"history\": [{\"question\": \"Seni ne geciktirdi?\", \"answer\": \"Alarmım çalmadı, uyuyakaldım.\"}]}<|im_end|>\n<|im_start|>assistant\n",
+  "grammar": "root ::= \"{\" ws \"\\\"reply\\\"\" ws \":\" ws reply-value \",\" ws \"\\\"question\\\"\" ws \":\" ws question-value \",\" ws \"\\\"consistency\\\"\" ws \":\" ws score \",\" ws \"\\\"plausibility\\\"\" ws \":\" ws score \",\" ws \"\\\"detail\\\"\" ws \":\" ws guarded-score \",\" ws \"\\\"defense\\\"\" ws \":\" ws guarded-score ws \"}\"\nreply-value ::= \"\\\"\" reply-char+ \"\\\"\"\nreply-char ::= [^?\"\\\\\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])\nquestion-value ::= string\nguarded-score ::= score\nscore ::= \"0\" | [1-9] | \"1\" [0-9] | \"2\" [0-5]\nstring ::= \"\\\"\" char* \"\\\"\"\nchar ::= [^\"\\\\\\x00-\\x1F] | \"\\\\\" ([\"\\\\/bfnrt] | \"u\" [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F])\nws ::= [ \\t\\n\\r]*",
+  "sampler": {
+    "top_k": 20,
+    "top_p": 0.8,
+    "temperature": 0.5,
+    "seed": 42,
+    "repeat_penalty": 1.0,
+    "max_generated_tokens": 240
+  },
+  "results": [
+    {
+      "model": {
+        "id": "qwen3_1_7b_q4",
+        "repo": "unsloth/Qwen3-1.7B-GGUF",
+        "revision": "d7f544eead698dbd1f15126ef60b45a1e1933222",
+        "filename": "Qwen3-1.7B-Q4_K_M.gguf",
+        "size": 1107409472,
+        "sha256": "b139949c5bd74937ad8ed8c8cf3d9ffb1e99c866c823204dc42c0d91fa181897",
+        "thinking_suffix": true
+      },
+      "model_load_seconds": 0.97706,
+      "result": {
+        "case": "alarm",
+        "host_seconds": 5.96127,
+        "prompt_tokens": 252,
+        "generated_tokens": 109,
+        "grammar_fallbacks": 1,
+        "raw": "{\n  \"reply\": \"Bir kahkahaya gerek yok, sana bir kahkahayı vermek için biraz daha kahkahaya gerek yok. Ama sana bir kahkahayı vermek için biraz daha kahkahaya gerek yok.\",\n  \"question\": \"Ne yapmak istiyorsun?\",\n  \"consistency\": 15,\n  \"plausibility\": 20,\n  \"detail\": 15,\n  \"defense\": 10\n}"
+      },
+      "quality_approved": false
+    },
+    {
+      "model": {
+        "id": "qwen3_4b_instruct_q4",
+        "repo": "unsloth/Qwen3-4B-Instruct-2507-GGUF",
+        "revision": "a06e946bb6b655725eafa393f4a9745d460374c9",
+        "filename": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+        "size": 2497281120,
+        "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+        "thinking_suffix": false
+      },
+      "model_load_seconds": 2.08251,
+      "result": {
+        "case": "alarm",
+        "host_seconds": 13.5839,
+        "prompt_tokens": 248,
+        "generated_tokens": 113,
+        "grammar_fallbacks": 4,
+        "raw": "{\"reply\": \"Alarmın çalmadığını söylüyorsun ama ne zaman uyuyor, ne zaman uyanıyorsun, ve işe geç kaldığın saat ne zaman oluyor, bilmiyorum. Bu da biraz kahramanlı bir hikaye gibi geliyor.\", \"question\": \"İşe geç kaldığın saat ne zaman?\", \"consistency\": 15, \"plausibility\": 10, \"detail\": 12, \"defense\": 18}"
+      },
+      "quality_approved": false
+    },
+    {
+      "model": {
+        "id": "qwen35_4b_current",
+        "repo": "unsloth/Qwen3.5-4B-GGUF",
+        "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+        "filename": "Qwen3.5-4B-Q4_K_M.gguf",
+        "size": 2740937888,
+        "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+        "thinking_suffix": true
+      },
+      "model_load_seconds": 3.64254,
+      "result": {
+        "case": "alarm",
+        "host_seconds": 17.2769,
+        "prompt_tokens": 221,
+        "generated_tokens": 142,
+        "grammar_fallbacks": 0,
+        "raw": "{\n  \"reply\": \"Alarmın çalmasını istemem, dedektif olarak uyanmak daha iyi bir kanıt olur. Ama şu an sabahın ortasında, işe geç kalmış bir dedektif gibi hissediyorsun.\",\n  \"question\": \"Alarmın neden çalmadığını bulmak için, uyku odunun elektrik bağlantısını kontrol etmeli miyim yoksa, belki de uyanma saati yanlış ayarlanmıştı?\",\n  \"consistency\": 18,\n  \"plausibility\": 15,\n  \"detail\": 12,\n  \"defense\": 20\n}"
+      },
+      "quality_approved": false
+    }
+  ],
+  "decision": "No replacement promoted. Small model repeats laughter and loses topic; 4B candidates remain awkward and do not meet desired humor. No 2–3 second Android latency claim.",
+  "prompt_source": "Experimental standalone compact Turkish prompt; not the production PromptComposer or FreeAiProtocol. Shared generator, untouched output."
+}

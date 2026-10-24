@@ -6,6 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.lanu.yalan.ai.GameEngine
 import com.lanu.yalan.ai.ModelStore
 import com.lanu.yalan.ai.AiException
+import com.lanu.yalan.ai.FreeAiService
+import com.lanu.yalan.ai.FreeAiProtocol
+import com.lanu.yalan.data.OnlineAiCredentials
 import com.lanu.yalan.data.SaveStore
 import com.lanu.yalan.data.DeviceInfo
 import com.lanu.yalan.data.PerformanceMonitor
@@ -37,10 +40,11 @@ data class UiState(
     val answer: String = "",
     val device: DeviceProfile? = null,
     val aiError: Boolean = false,
-    val responseMs: Long? = null
+    val responseMs: Long? = null,
+    val onlineReady: Boolean = false
 ) {
-    val canStart: Boolean get() = save.mode == PlayMode.FAST || ready
-    val canAnswer: Boolean get() = save.session?.mode == PlayMode.FAST || ready
+    val canStart: Boolean get() = when(save.mode) {PlayMode.FAST -> true;PlayMode.LOCAL_AI -> ready;PlayMode.FREE_ONLINE_AI -> onlineReady}
+    val canAnswer: Boolean get() = when(save.session?.mode) {PlayMode.FAST -> true;PlayMode.LOCAL_AI -> ready;PlayMode.FREE_ONLINE_AI -> onlineReady;null -> false}
 }
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -48,7 +52,9 @@ class GameViewModel @Inject constructor(
     private val model: ModelStore,
     private val engine: GameEngine,
     private val performance: PerformanceMonitor,
-    private val deviceInfo: DeviceInfo
+    private val deviceInfo: DeviceInfo,
+    private val online: FreeAiService,
+    private val credentials: OnlineAiCredentials
 ) : ViewModel() {
     private val mutable = MutableStateFlow(UiState())
     val state = mutable.asStateFlow()
@@ -57,7 +63,8 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val saved = store.read()
-                mutable.update { it.copy(save=saved, selectedLevel=saved.unlocked, ready=model.ready(), loading=false, device=deviceInfo.snapshot()) }
+                val onlineReady=try {credentials.read()!=null} catch(e: CancellationException) {throw e} catch(e: Exception) {diagnostic(e);false}
+                mutable.update { it.copy(save=saved, selectedLevel=saved.unlocked, ready=model.ready(), onlineReady=onlineReady, loading=false, device=deviceInfo.snapshot()) }
             } catch(e: Exception) {
                 mutable.update { it.copy(loading=false, recovery=true, error="Kayıt okunamadı. Veriyi sessizce silmedik. Ayarlardan sıfırlayabilir veya uygulamayı yeniden açabilirsin.") }
             }
@@ -98,7 +105,7 @@ class GameViewModel @Inject constructor(
         var elapsed=0L
         val result=try { work().also { outcome=TimingOutcome.SUCCESS } }
         catch(e: CancellationException) { outcome=TimingOutcome.CANCELLED;throw e }
-        catch(e: AiException) { if(e.reason==com.lanu.yalan.ai.AiFailure.TIMEOUT) outcome=TimingOutcome.TIMEOUT;throw e }
+        catch(e: AiException) { if(e.reason in setOf(com.lanu.yalan.ai.AiFailure.TIMEOUT,com.lanu.yalan.ai.AiFailure.ONLINE_TIMEOUT)) outcome=TimingOutcome.TIMEOUT;throw e }
         finally {
             elapsed=(System.nanoTime()-start)/1_000_000
             withContext(NonCancellable) { try { performance.record(mode,elapsed,outcome,phase) } catch(e: Exception) { diagnostic(e) } }
@@ -140,7 +147,7 @@ class GameViewModel @Inject constructor(
         }
     }
     fun playMode(mode: PlayMode) = task("Oyun tercihi kaydediliyor…") {
-        if(mode == PlayMode.FAST) engine.release()
+        if(mode != PlayMode.LOCAL_AI) engine.release()
         persist(mutable.value.save.copy(mode=mode))
     }
     fun continueFast() {
@@ -150,6 +157,16 @@ class GameViewModel @Inject constructor(
             engine.release()
             persist(mutable.value.save.copy(mode=PlayMode.FAST,session=s.copy(mode=PlayMode.FAST)))
         }
+    }
+    fun connectOnline(key: String,consent: Boolean) {
+        if(!consent || !FreeAiProtocol.validKey(key)) return
+        task("Ücretsiz AI bağlantısı doğrulanıyor…") {
+            online.connect(key,consent)
+            mutable.update {it.copy(onlineReady=true)}
+        }
+    }
+    fun disconnectOnline() = task("AI bağlantısı kaldırılıyor…") {
+        online.cancel();credentials.delete();mutable.update {it.copy(onlineReady=false)}
     }
     fun download() {
         task("Oyun beyni indiriliyor…") {

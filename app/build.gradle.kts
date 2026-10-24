@@ -50,8 +50,8 @@ android {
         applicationId = "com.lanu.yalan"
         minSdk = 26
         targetSdk = 35
-        versionCode = providers.gradleProperty("lanu.versionCode").orNull?.toInt() ?: 9
-        versionName = providers.gradleProperty("lanu.versionName").orNull ?: "0.6.0-alpha"
+        versionCode = providers.gradleProperty("lanu.versionCode").orNull?.toInt() ?: 11
+        versionName = providers.gradleProperty("lanu.versionName").orNull ?: "0.7.0-alpha"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         if (!uiSmoke) {
             ndk { abiFilters += "arm64-v8a" }

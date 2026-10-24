@@ -14,13 +14,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GameEngine @Inject constructor(private val models: ModelStore, @ApplicationContext private val context: Context, private val deviceInfo: DeviceInfo) {
+class GameEngine @Inject constructor(private val models: ModelStore, @ApplicationContext private val context: Context, private val deviceInfo: DeviceInfo,private val online: FreeAiService) {
     private val lock = Mutex()
     private var native: NativeBridge? = null
     private var loaded = false
-    fun cancel() { native?.cancel() }
+    fun cancel() { native?.cancel();online.cancel() }
     suspend fun release() = withContext(Dispatchers.Default) { lock.withLock { native?.close(); loaded = false } }
     suspend fun ask(session: Session, answer: String?, spicy: Boolean): Verdict = withContext(Dispatchers.Default) {
+        if(session.mode==PlayMode.FREE_ONLINE_AI) return@withContext lock.withLock { online.ask(session,answer,spicy) }
         // Starting a story never needs model loading or a generated JSON score.
         if(answer == null) return@withContext Verdict("Hadi hikâyeni kuralım.", FastGame.opening(session.topic,session.level), 0, 0, 0, 0)
         if(session.mode == PlayMode.FAST) return@withContext FastGame.evaluate(session, answer, spicy)

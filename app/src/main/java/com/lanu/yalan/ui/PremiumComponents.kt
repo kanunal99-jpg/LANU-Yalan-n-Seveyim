@@ -129,7 +129,7 @@ import java.util.Locale
     Card(Modifier.fillMaxWidth().testTag("performance-summary")) { Column(Modifier.padding(18.dp),verticalArrangement=Arrangement.spacedBy(12.dp)) {
         Text("Bu cihazdaki süreler",fontSize=18.sp,fontWeight=FontWeight.Bold)
         Text("Son 100 değerlendirme ve kayıt işlemi. Ekranın çizilme süresini içermez.",fontSize=12.sp,lineHeight=18.sp,color=MaterialTheme.colorScheme.onSurfaceVariant)
-        listOf("Hızlı oyun" to p.fast,"Cihazda AI" to p.ai,"İlk soru" to p.opening).forEach { (label,t) ->
+        listOf("Hızlı oyun" to p.fast,"Cihazda AI" to p.ai,"Çevrimiçi AI" to p.online,"İlk soru" to p.opening).forEach { (label,t) ->
             Text("$label · ${t.successCount} başarılı işlem",fontWeight=FontWeight.SemiBold,fontSize=13.sp)
             Text(if(t.successCount==0) "Henüz ölçüm yok." else "Ortanca ${time(t.p50Ms)} · %95'i ${time(t.p95Ms)} ve altında",fontSize=12.sp)
             if(t.timeoutCount+t.errorCount+t.cancelledCount>0) Text("${t.timeoutCount} süre aşımı · ${t.errorCount} hata · ${t.cancelledCount} iptal",fontSize=11.sp)
