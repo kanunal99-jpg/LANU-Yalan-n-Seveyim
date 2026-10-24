@@ -1,5 +1,15 @@
 # Doğrulama kaydı
 
+## 0.7: isteğe bağlı ücretsiz çevrimiçi AI
+
+Kaynak `869cb356b7daa272da7212ceec613eb2d7712945`, [CI 40105882983](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40105882983): **136 JVM testi, 18 ayrı Android yöntemi ve 4 imza senaryosu geçti**. Lint, normal ARM64 debug/native ve R8 release başarılı. Android'de 16 olağan yöntem, gerçek 11 → 12 yükseltmesinin hazırlık/sonrası iki yöntem ayrı başarılı çalıştı. Hızlı oyun ekran süreleri 507/434/417/458/626 ms; p50 458, p95 626 ms. Bu küçük AOSP emülatör örneklemi gerçek çevrimiçi AI veya fiziksel telefon hızı değildir.
+
+Ücretsiz bağlantının 21 kontrollü protokol testi, sıfır fiyat sınırları, aynı ücretsiz yönlendiricide sınırlı alternatif, kota/kimlik hatası, bozuk çıktı, tekrar soru, iptal ve süre bütçesini doğruladı. Üç yeni Android testi; gerçek Keystore anahtar şifreleme/tahrifat reddi, açık veri izniyle bağlantı formunun etkinleşmesi ve eksik anahtarda aynı hikâyeyle Hızlı oyun geçişini doğruladı. İlk iki form denemesi Android'de geçmedi; kaydırılabilir ayrı pencereyle son koşuda geçti. Testler sahte anahtarı sağlayıcıya göndermedi.
+
+v0.7.0/v0.7.1 açık APK'ları HTTP 200 ile yeniden indirildi; boyut ve SHA-256 eşleşti. Gerçek APK paket/sürüm/imzaları CI'de platform araçlarıyla doğrulandı. Kalıcı imza kapalı; 0.6 ile sertifika farklı, önce uygulama içinden parolalı yedek gerekir. [Yayın kanıtı](release-validation-0.7.json), [açık dosya doğrulaması](ota-release-verification-0.7.json), [bağlantı ve sınırlar](FREE_ONLINE_AI.md).
+
+Kişisel API anahtarı bu ortamda olmadığı için **canlı çevrimiçi üretim, mizah/muhakeme kalitesi ve 2–3 saniyelik telefon yanıtı onaylanmadı**. Kimlik doğrulamasız metadata isteği HTTP 401 döndürdü; hikâye veya üretim gönderilmedi. Üç yerel modeldeki tek örnekli gerçek native tarama yeterli kalite/hız göstermedi; yeni varsayılan seçilmedi. [Ham tarama](local-model-screening-20261024.json). Fiziksel cihaz testi, beş eşzamanlı aktif hikâye, kalıcı imza ve aktif Crashlytics tamamlanmış sayılmaz.
+
 ## 0.6 yayın ve gerçek kullanıcı konuşması
 
 Kaynak `03166b3ff3ea48adab4387243a4f714cbe6c65d5`, [CI 40083476949](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40083476949). **115 JVM / 15 Android yöntemi / 4 imza senaryosu başarılı**; lint, ARM64 debug ve R8 release geçti. Android'de 13 olağan yöntem; 9 → 10 gerçek yerinde yükseltmenin hazırlık/sonrası iki yöntemi ayrı çalıştı. Gönderilen dört cevap gerçek UI ile yeniden oynatıldı; her reaksiyon ve soru büyük yazıda bütünüyle görünür. Hızlı ekran süreleri 452/516/377/400/475 ms; p50 452, p95 516. AOSP emülatör kanıtıdır; fiziksel A55 veya gerçek AI süresi değildir.

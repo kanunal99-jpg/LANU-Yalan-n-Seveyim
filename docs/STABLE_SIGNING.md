@@ -29,3 +29,7 @@ v0.5.0-alpha (kod 7) ve v0.5.1-alpha (kod 8), `5f2cff8` kaynağından aynı test
 ## Yayımlanan 0.6 ikilisinin durumu
 
 v0.6.0-alpha (kod 9) ve v0.6.1-alpha (kod 10), `03166b3` kaynağından aynı test sertifikasıyla yayımlandı: `b9cc707e16796c5d7152a703b28a55e9b2f7ee9cfd93f164fae0641b2b45ac56`. `permanentSigning=false`. İki açık APK indirildi ve hash/boyutu doğrulandı. 0.6 ikilisi içinde OTA mümkündür; 0.5 sertifikası farklı olduğu için 0.5 → 0.6 yerinde güncellenemez. Önce eski uygulamanın Ayarlar ekranından parolalı yedek oluştur; yedeksiz kaldırma. Gelecek CI yayınlarının aynı imzayı koruması için yukarıdaki kalıcı anahtar kurulumu hâlâ gereklidir. [Doğrulama kaydı](ota-release-verification-0.6.json).
+
+## Yayımlanan 0.7 ikilisinin durumu
+
+v0.7.0-alpha (kod 11) ve v0.7.1-alpha (kod 12), `869cb35` kaynağından aynı test sertifikasıyla yayımlandı: `92ac5830a73babd14fd31b12a3831d87a99db8cbbbdce418fa991a752a1d78fb`. Her biri 25.678.502 bayt; iki açık indirme tekrar doğrulandı. `permanentSigning=false`. 0.7 ikilisi içinde OTA mümkündür; 0.6 sertifikası farklı olduğundan 0.6 → 0.7 yerinde güncellenemez. Eski uygulamadan önce parolalı yedek oluştur; silmek ilerlemeyi ve varsa modeli kaldırır. Yeni kişisel AI anahtarı taşınabilir ilerleme yedeğine alınmaz; yeniden kurulumdan sonra uygulama içinde yeniden bağlanır. [Açık APK ve imza kaydı](ota-release-verification-0.7.json). Kalıcı imza kurulumu hâlâ gereklidir.

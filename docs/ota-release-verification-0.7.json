@@ -1,0 +1,61 @@
+{
+  "source_commit": "869cb356b7daa272da7212ceec613eb2d7712945",
+  "workflow_run_id": 40105882983,
+  "workflow_url": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40105882983",
+  "checked_at_utc": "2026-10-24T15:22:56.789368+00:00",
+  "checked_at_istanbul": "2026-10-24T18:22:56.789368+03:00",
+  "published_apks": [
+    {
+      "manifest": {
+        "versionCode": 11,
+        "versionName": "0.7.0-alpha",
+        "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.7.0-alpha/LANU-Yalanini-Seveyim-v0.7.0-alpha-arm64-test.apk",
+        "sha256": "5451311726cca4e97a24f169d8e36f73747bc5bf5d17e5e0e6c2160b214189fc",
+        "apkBytes": 25678502
+      },
+      "signing": {
+        "package": "com.lanu.yalan",
+        "versionCode": 11,
+        "versionName": "0.7.0-alpha",
+        "signerSha256": [
+          "92ac5830a73babd14fd31b12a3831d87a99db8cbbbdce418fa991a752a1d78fb"
+        ],
+        "permanentSigning": false
+      },
+      "http_status": 200,
+      "downloaded_bytes": 25678502,
+      "downloaded_sha256": "5451311726cca4e97a24f169d8e36f73747bc5bf5d17e5e0e6c2160b214189fc",
+      "hash_and_size_match": true,
+      "platform_signature_verified_in_ci": true
+    },
+    {
+      "manifest": {
+        "versionCode": 12,
+        "versionName": "0.7.1-alpha",
+        "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.7.1-alpha/LANU-Yalanini-Seveyim-v0.7.1-alpha-arm64-test.apk",
+        "sha256": "4f4b0bcd2795e2f107c5b3c7cb4947bf64dfc36a9acae105377d3339c02c2076",
+        "apkBytes": 25678502
+      },
+      "signing": {
+        "package": "com.lanu.yalan",
+        "versionCode": 12,
+        "versionName": "0.7.1-alpha",
+        "signerSha256": [
+          "92ac5830a73babd14fd31b12a3831d87a99db8cbbbdce418fa991a752a1d78fb"
+        ],
+        "permanentSigning": false
+      },
+      "http_status": 200,
+      "downloaded_bytes": 25678502,
+      "downloaded_sha256": "4f4b0bcd2795e2f107c5b3c7cb4947bf64dfc36a9acae105377d3339c02c2076",
+      "hash_and_size_match": true,
+      "platform_signature_verified_in_ci": true
+    }
+  ],
+  "pair_same_signer": true,
+  "permanent_signing": false,
+  "signature_verification": "Android build-tools 35 aapt and apksigner verified actual APK package/version/certificates in CI. Root separately downloaded public APK bytes and checked HTTP status, size and SHA-256 against each manifest.",
+  "old_0_6_signer": "b9cc707e16796c5d7152a703b28a55e9b2f7ee9cfd93f164fae0641b2b45ac56",
+  "can_upgrade_0_6_in_place": false,
+  "migration": "Create a portable password-protected backup before removing an older differently signed test app. Never uninstall silently or bypass signature checks. Personal AI keys are excluded from progress backups; reconnect in the app after reinstalling."
+}

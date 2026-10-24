@@ -1,0 +1,194 @@
+{
+  "source_commit": "869cb356b7daa272da7212ceec613eb2d7712945",
+  "workflow_run_id": 40105882983,
+  "workflow_url": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40105882983",
+  "jobs": {
+    "build": 120907349247,
+    "ui_smoke": 120907349599,
+    "prerelease": 120908634945
+  },
+  "jvm": {
+    "tests": 136,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android": {
+    "distinct_methods": 18,
+    "normal_passed": 16,
+    "separately_passed_upgrade_methods": 2,
+    "failures": 0,
+    "methods": [
+      {
+        "name": "missingModelCanContinueTheSameStoryWithExplicitFastChoice",
+        "classname": "com.lanu.yalan.AiFallbackCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "displaysDeviceDetailsAndSettingsInLargeFont",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "userScreenshotStoryTracksTheMealMotivePlanChangeAndNextCityWithoutAQuestionLoop",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "contradictoryClocksAreRenderedAsACrossCheckOfBothPlayerTimes",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "settingsExposeUpdatesAndRequireMatchingLongBackupPasswords",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "phoneAnswersRenderDifferentSpecificQuestionsInsteadOfGenericPrompts",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "absurdAnswerShowsItsComicObjectionAndSpecificQuestionTogetherWithoutManualScrolling",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "opensAndNavigatesToLockedLevelMapWithoutGoogleServices",
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "failedImportKeepsCurrentProgressAndValidBackupRecoversCorruptStorage",
+        "classname": "com.lanu.yalan.BackupCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "portableBackupRestoresAfterTheDeviceKeyIsGone",
+        "classname": "com.lanu.yalan.BackupCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "thePersonalKeyIsEncryptedSeparateFromProgressAndPortableBackup",
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "aMissingOnlineKeyCanContinueTheSameStoryWithExplicitFastChoice",
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "connectionRequiresAPersonalKeyAndExplicitDataConsent",
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "candidateUsesProductionVerificationAndInstallerProvider",
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "normal_phase": "passed"
+      },
+      {
+        "name": "afterUpgradeReadsProgress",
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "name": "prepareUpgrade",
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "name": "metricsSurviveRestartAndCorruptionCannotBlockNewMeasurements",
+        "classname": "com.lanu.yalan.PerformancePersistenceTest",
+        "normal_phase": "passed"
+      }
+    ],
+    "real_emulator_package_upgrade": [
+      11,
+      12
+    ],
+    "platform": "AOSP API 30 x86_64, no Google Play Services, font_scale 1.3; UI_SMOKE build without native AI",
+    "physical_A55_Huawei_Xiaomi_tested": false
+  },
+  "signing_guards": {
+    "passed": 4,
+    "cases": [
+      "required_without_key",
+      "partial_configuration",
+      "mismatched_certificate",
+      "correct_key_password_and_certificate"
+    ]
+  },
+  "lint_debug": "passed",
+  "normal_arm64_debug": "passed",
+  "r8_release_build": "passed; unsigned without permanent key",
+  "public_release_readback": "Both public APKs independently downloaded with HTTP 200 and matching SHA-256/bytes; see ota-release-verification-0.7.json",
+  "fast_ui_rendered_ms": [
+    507,
+    434,
+    417,
+    458,
+    626
+  ],
+  "fast_ui_p50_ms": 458,
+  "fast_ui_p95_ms": 626,
+  "free_online_AI": {
+    "controlled_protocol_tests": 21,
+    "live_authenticated_generation_performed": false,
+    "cloud_quality_approved": false,
+    "cloud_phone_latency_verified": false,
+    "personal_key_available_in_work_environment": false,
+    "requests_made_to_public_key_metadata_without_credentials": 1,
+    "metadata_status": 401,
+    "metadata_report": "openrouter-auth-gate-20261024.json",
+    "model": "openrouter/free",
+    "paid_model_fallback": false,
+    "max_price_prompt": 0,
+    "max_price_completion": 0,
+    "total_deadline_ms": 15000,
+    "android_acceptance": [
+      "Personal key and explicit data consent required; modal form becomes enabled only with both; fake key is never submitted to provider",
+      "Real Android Keystore encrypts key independently of game progress and portable backup; tampering is rejected",
+      "Missing key offers explicit Fast continuation preserving the same story and progress"
+    ],
+    "first_two_form_attempts_failed": true,
+    "form_fix": "Moved key form outside the LazyColumn into an ephemeral scrollable AlertDialog; final Android activation/consent test passed",
+    "claim": "Controlled responses prove protocol/error/recovery behavior; they do not prove real model humor, reasoning or speed."
+  },
+  "local_AI": {
+    "quality_approved": false,
+    "new_default_model_promoted": false,
+    "screening_report": "local-model-screening-20261024.json",
+    "screening_scope": "One synthetic alarm case per three real weights on host using shared native generation and experimental compact prompt; not broad acceptance or phone timings",
+    "existing_acceptance": "AI_NATIVE_REVIEW_0.5.md"
+  },
+  "remaining_limits": {
+    "permanent_signing": false,
+    "current_signer_sha256": "92ac5830a73babd14fd31b12a3831d87a99db8cbbbdce418fa991a752a1d78fb",
+    "old_0_6_signer_differs": true,
+    "physical_phone_tested": false,
+    "five_simultaneous_active_stories": false,
+    "crashlytics_configured": false
+  },
+  "artifacts": {
+    "quality": {
+      "id": 12565001228,
+      "sha256": "b84608765545114a3d2b4e98975922aa46846dff6ef7ab4b7d7391e9853e0f72"
+    },
+    "ui": {
+      "id": 12564428938,
+      "sha256": "37d90d226660984effeff5366f265761d6c9d98eb0dc23812320c093a1a2f405"
+    },
+    "apks": {
+      "id": 12565095780,
+      "sha256": "2d952eaa63bb378ae555de9091897c43976a5cdb1549082659352e08ee7ec683"
+    }
+  }
+}
