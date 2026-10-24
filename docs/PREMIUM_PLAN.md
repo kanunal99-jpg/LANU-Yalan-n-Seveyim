@@ -37,3 +37,7 @@ Kaynak `26fb0c5`, CI `40014129839`: 77 JVM testi, lint, normal ARM64 native debu
 5. Kayıt/OTA: parolalı yedek, yanlış parolada mevcut kayıt korunması, cihaz anahtarı kaybolduktan sonra geri yükleme, APK imza/hash/paket/sürüm kontrolleri ve gerçek yükseltme başarılı. Kalıcı özel anahtar kullanıcı hesabındaki GitHub secrets kurulumunu bekler. Test ikilisinin kendi içindeki imza eşitliği gelecekteki CI anahtar sürekliliği sayılmaz.
 
 Yukarıdaki 77 testli kayıt yayın öncesi tarihsel kontroldür. Son teslimin 85 testli ve iki yayımlanmış APK'lı kanıtı bu belgenin teslim bölümündedir. Eksik gerçek AI, fiziksel cihaz veya kalıcı imza kanıtı tamamlanmış gibi gösterilmez.
+
+## 0.5 son teslim
+
+`5f2cff8` kaynağı ve `40026975283` yayın koşusunda 102 JVM testi, 14 Android yöntemi, 4 imza kontrolü, lint, ARM64 debug/R8 release başarılı. v0.5.0/v0.5.1 aynı test anahtarıyla yayımlandı, açık adreslerden yeniden indirilip hashleri doğrulandı. Mantık itirazı, geçer puanın engellenmesi ve yorum/sorunun tamamının görünmesi düzeltildi. Hızlı oyun emülatör p50 427 ms, p95 466 ms. [Kanıt](release-validation-0.5.json). Gerçek AI 11/15 otomatik geçişe rağmen anlam ve Türkçe hataları üretiyor; kalite onayı yok. Kalıcı imza ile fiziksel cihaz kabulü de açık kalır. [AI incelemesi](AI_NATIVE_REVIEW_0.5.md).

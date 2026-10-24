@@ -1,0 +1,42 @@
+{
+  "source_commit": "5f2cff8684fb9beac080bed77fd7a2415812d95c",
+  "ci_run": 40026975283,
+  "release_artifact_id": 12533711158,
+  "sameCertificate": true,
+  "artifactCopiesVerifiedLocally": true,
+  "publicDownloadCheckJob": 120667799590,
+  "records": [
+    {
+      "version": "v0.5.0-alpha",
+      "versionCode": 7,
+      "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.5.0-alpha/LANU-Yalanini-Seveyim-v0.5.0-alpha-arm64-test.apk",
+      "bytes": 25612966,
+      "sha256": "164bec1eb4deb511d9ccc0e259a5901e26bd1d43a4f4465601678bfb815cd410",
+      "signerSha256": [
+        "3383f8091c836cc4ce3168979ceca9f68534291f5cc030f6543cbb032acac375"
+      ],
+      "permanentSigning": false,
+      "platformSignatureVerifiedByCI": true,
+      "publicDownloadVerifiedByCI": true,
+      "httpStatus": 200,
+      "publicDownloadVerifiedIndependently": true
+    },
+    {
+      "version": "v0.5.1-alpha",
+      "versionCode": 8,
+      "apkUrl": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/releases/download/v0.5.1-alpha/LANU-Yalanini-Seveyim-v0.5.1-alpha-arm64-test.apk",
+      "bytes": 25612966,
+      "sha256": "76e8907a416bec2c44e816ae84230984a507d76df167381c53a4b2665dc24a2a",
+      "signerSha256": [
+        "3383f8091c836cc4ce3168979ceca9f68534291f5cc030f6543cbb032acac375"
+      ],
+      "permanentSigning": false,
+      "platformSignatureVerifiedByCI": true,
+      "publicDownloadVerifiedByCI": true,
+      "httpStatus": 200,
+      "publicDownloadVerifiedIndependently": true
+    }
+  ],
+  "publicDownloadsVerifiedIndependently": true,
+  "verificationNote": "Both public APK URLs were independently downloaded with HTTP 200 and matched manifest SHA-256/size; artifact copies were also hashed locally. Android platform signature verification ran in the successful CI build before publishing."
+}

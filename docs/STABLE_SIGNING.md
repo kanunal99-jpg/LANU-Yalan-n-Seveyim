@@ -21,3 +21,7 @@ Depo zaten varsa önce o klasörde `git pull --ff-only` yap. Termux araçları e
 Beş secret: `LANU_KEYSTORE_BASE64`, `LANU_STORE_PASSWORD`, `LANU_KEY_ALIAS`, `LANU_KEY_PASSWORD`, `LANU_CERT_SHA256`. CI bunları geçici özel dizinde açar. Gradle anahtar/parola/sertifika hashini doğrular. Kısmi yapılandırma veya sertifika uyuşmazlığı yayını durdurur; debug imzasına sessiz dönüş yoktur. `-Planu.requireProductionSigning=true` hiçbir anahtar yokken de derlemeyi durdurur.
 
 Kurulumdan sonraki ilk kalıcı imzalı APK eski test sertifikasından farklı olabilir. O geçişten önce v0.4 üzerindeki ilerlemeyi parolalı yedekle koru. Bir kez kalıcı sürüme geçildikten sonra aynı anahtar saklandığı ve sürüm kodları arttığı sürece sonraki OTA yayınları aynı güven zincirini kullanır.
+
+## Yayımlanan 0.5 ikilisinin durumu
+
+v0.5.0-alpha (kod 7) ve v0.5.1-alpha (kod 8), `5f2cff8` kaynağından aynı test sertifikasıyla yayımlandı: `3383f8091c836cc4ce3168979ceca9f68534291f5cc030f6543cbb032acac375`. `permanentSigning=false`. 0.5 ikilisi içinde OTA mümkündür; bu sertifika önceki 0.4 ikilisinin test sertifikasından farklıdır. 0.4 üzerine doğrudan yerinde kurulum yapılamaz. Önce 0.4 içinden parolalı yedek oluştur; eski uygulamayı yedeksiz kaldırma. Kalıcı anahtar kurulumu bundan sonraki yayınların sürekliliği için hâlâ gereklidir. [İndirme ve doğrulama kaydı](ota-release-verification-0.5.json).

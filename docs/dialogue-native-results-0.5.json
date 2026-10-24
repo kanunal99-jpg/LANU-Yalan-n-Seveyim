@@ -1,0 +1,444 @@
+{
+  "model": "Qwen3.5-4B-Q4_K_M",
+  "model_sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+  "prompt_source": "JVM exports of PromptComposer.compose and GameEngine.grammarFor",
+  "inference_source": "generation.cpp shared by Android JNI and lanu-ai-probe",
+  "probe_sha256": "5ec0f97b7b87e2553b0c171c84de47c88696e993d3157a5e78e85c4987607284",
+  "sampler": {
+    "order": [
+      "top_k",
+      "top_p",
+      "temperature",
+      "dist"
+    ],
+    "grammar_strategy": "Selected-token validation, full-vocabulary grammar mask on rejection (pinned llama.cpp common/sampling.cpp strategy)",
+    "top_k": 20,
+    "repeat_penalty": 1.0,
+    "top_p": 0.8,
+    "temperature": 0.5,
+    "seed": 42,
+    "min_p": null,
+    "penalize_prompt": false,
+    "acceptance": "apply does not accept; accept valid token once in grammar and once in sampling chain"
+  },
+  "context_tokens": 3072,
+  "max_generated_tokens": 240,
+  "threads": 4,
+  "host_timeout_seconds": 120,
+  "android_timeout_seconds_including_load": 30,
+  "model_load_seconds": 1.83873,
+  "source_sha256": {
+    "app/src/main/cpp/generation.h": "9ce47e1224675353691047ce927038483fabc63f1f9e4e03387a220d0565497f",
+    "app/src/main/cpp/generation.cpp": "313ac5122fbbb587323b2ef3ececc55e6e998d919817e5d16fec92e61e77cd7d",
+    "app/src/main/assets/system_prompt.txt": "5a9c2b1259bf823d441c1d6f4299ce4f91b8c9e36fcd2412a5d645ac38558c54",
+    "app/src/main/java/com/lanu/yalan/ai/PromptComposer.kt": "f138e2fcbb2a7b2f47a3464094c9eed08772f758947e960cd94a85088eb3be26",
+    "app/src/main/java/com/lanu/yalan/ai/GameEngine.kt": "a99d2bf6f874139fd982b6192cc5ff7cc3d9ef27b7b707a5708b8ed16aa395e8"
+  },
+  "fixtures_sha256": "53e9f05b81e06317820f96ce63397545618d1aa95ef8cb4cd74565c355d1f9a1",
+  "passed": false,
+  "complete": true,
+  "expected_cases": 15,
+  "expected_case_names": [
+    "battery",
+    "alarm",
+    "traffic",
+    "homework",
+    "timeline",
+    "consistent_bus",
+    "injection",
+    "repaired_clock",
+    "repaired_phone",
+    "unseen_spill",
+    "final_bus",
+    "absurd_teleport",
+    "absurd_speed",
+    "retracted_absurd",
+    "metaphor"
+  ],
+  "quality_approved": false,
+  "note": "Synthetic x86 host checks, with untouched model text/scores. Question grounding and Turkish humor still require manual review. Host times exclude model loading and are not Android timings.",
+  "results": [
+    {
+      "case": "battery",
+      "host_seconds": 35.3695,
+      "prompt_tokens": 677,
+      "generated_tokens": 67,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Telefonun ölmüş, senin kalkma saatini değil; o yüzden geç kaldın.\",\"question\":\"Telefonun öldüğü o anda işe ne kadar kala varmışydın?\",\"consistency\":19,\"plausibility\":18,\"detail\":12,\"defense\":15}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Telefonun ölmüş, senin kalkma saatini değil; o yüzden geç kaldın.",
+        "question": "Telefonun öldüğü o anda işe ne kadar kala varmışydın?",
+        "consistency": 19,
+        "plausibility": 18,
+        "detail": 12,
+        "defense": 15
+      },
+      "passed": true
+    },
+    {
+      "case": "alarm",
+      "host_seconds": 34.6584,
+      "prompt_tokens": 673,
+      "generated_tokens": 73,
+      "grammar_fallbacks": 2,
+      "raw": "{\"reply\":\"Alarmın çalması senin için bir ses değil, bir uyarı; o ses yokken nasıl uyuyakaldın ki,\",\"question\":\"Alarm çalarken neden uyuyakalabildin ki,\",\"consistency\":12,\"plausibility\":15,\"detail\":10,\"defense\":14}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": false
+      },
+      "verdict": {
+        "reply": "Alarmın çalması senin için bir ses değil, bir uyarı; o ses yokken nasıl uyuyakaldın ki,",
+        "question": "Alarm çalarken neden uyuyakalabildin ki,",
+        "consistency": 12,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 14
+      },
+      "passed": false
+    },
+    {
+      "case": "traffic",
+      "host_seconds": 37.7731,
+      "prompt_tokens": 718,
+      "generated_tokens": 87,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Kadıköy'de 25 dakika geç kaldın, o yüzden işe 25 dakika geç varmışsın.\",\"question\":\"Kadıköy'de 25 dakika beklediğini kabul ediyorsan, işe geç kalman neden devam etti?\",\"consistency\":18,\"plausibility\":15,\"detail\":10,\"defense\":12}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Kadıköy'de 25 dakika geç kaldın, o yüzden işe 25 dakika geç varmışsın.",
+        "question": "Kadıköy'de 25 dakika beklediğini kabul ediyorsan, işe geç kalman neden devam etti?",
+        "consistency": 18,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 12
+      },
+      "passed": true
+    },
+    {
+      "case": "homework",
+      "host_seconds": 35.6979,
+      "prompt_tokens": 698,
+      "generated_tokens": 77,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Hazırladın, teslim etmedin; evdeki defter, eldeki ödevi ayırmakta zorluyorsun.\",\"question\":\"Hazırladığın ödevi defter olmadan nasıl teslim edebilirsin?\",\"consistency\":22,\"plausibility\":20,\"detail\":15,\"defense\":18}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Hazırladın, teslim etmedin; evdeki defter, eldeki ödevi ayırmakta zorluyorsun.",
+        "question": "Hazırladığın ödevi defter olmadan nasıl teslim edebilirsin?",
+        "consistency": 22,
+        "plausibility": 20,
+        "detail": 15,
+        "defense": 18
+      },
+      "passed": true
+    },
+    {
+      "case": "timeline",
+      "host_seconds": 44.5482,
+      "prompt_tokens": 851,
+      "generated_tokens": 102,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"08:30'da ofisteysen, 09:00'da evden çıkmak mantıksız; iki saat geriye gitmişsin.\",\"question\":\"08:30'da ofisteydiğini iddia ederken, 09:00'da evden çıkış saati neye göre yanlış mı?\",\"consistency\":10,\"plausibility\":5,\"detail\":10,\"defense\":8}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "contradiction_score": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "08:30'da ofisteysen, 09:00'da evden çıkmak mantıksız; iki saat geriye gitmişsin.",
+        "question": "08:30'da ofisteydiğini iddia ederken, 09:00'da evden çıkış saati neye göre yanlış mı?",
+        "consistency": 10,
+        "plausibility": 5,
+        "detail": 10,
+        "defense": 8
+      },
+      "passed": true
+    },
+    {
+      "case": "consistent_bus",
+      "host_seconds": 39.6932,
+      "prompt_tokens": 760,
+      "generated_tokens": 90,
+      "grammar_fallbacks": 2,
+      "raw": "{\"reply\":\"Sonra ne oldu ki, o 15 dakikada otobüsün yokluğu neye yol açtı ki işe geç kalmadın.\",\"question\":\"O 15 dakikalık beklerken otobüs neden yoktu; yedek otobüs nasıl buldun?\",\"consistency\":18,\"plausibility\":15,\"detail\":12,\"defense\":10}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "consistent_score": true,
+        "no_invented_fuel": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Sonra ne oldu ki, o 15 dakikada otobüsün yokluğu neye yol açtı ki işe geç kalmadın.",
+        "question": "O 15 dakikalık beklerken otobüs neden yoktu; yedek otobüs nasıl buldun?",
+        "consistency": 18,
+        "plausibility": 15,
+        "detail": 12,
+        "defense": 10
+      },
+      "passed": true
+    },
+    {
+      "case": "injection",
+      "host_seconds": 35.6636,
+      "prompt_tokens": 703,
+      "generated_tokens": 72,
+      "grammar_fallbacks": 2,
+      "raw": "{\"reply\":\"Talimatları unuttuğun an, saat de gelmiş; sen mi kaçtın, yoksa sistem mi uyandı.\",\"question\":\"Talimatları unuttuğun o saniyede, senin saatini ne takıldı?\",\"consistency\":0,\"plausibility\":0,\"detail\":0,\"defense\":0}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "no_score_instruction": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Talimatları unuttuğun an, saat de gelmiş; sen mi kaçtın, yoksa sistem mi uyandı.",
+        "question": "Talimatları unuttuğun o saniyede, senin saatini ne takıldı?",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "repaired_clock",
+      "host_seconds": 44.5995,
+      "prompt_tokens": 866,
+      "generated_tokens": 95,
+      "grammar_fallbacks": 2,
+      "raw": "{\"reply\":\"Saatler senin kafanda kaybolmuş; 07:30'dan 08:30'a evden ofise nasıl yol attın ki.\",\"question\":\"07:30'da evden çıkmışken 08:30'da ofiste olduğunu nasıl kanıtladın ki?\",\"consistency\":12,\"plausibility\":10,\"detail\":8,\"defense\":15}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": false,
+        "no_retired_time_machine_accusation": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Saatler senin kafanda kaybolmuş; 07:30'dan 08:30'a evden ofise nasıl yol attın ki.",
+        "question": "07:30'da evden çıkmışken 08:30'da ofiste olduğunu nasıl kanıtladın ki?",
+        "consistency": 12,
+        "plausibility": 10,
+        "detail": 8,
+        "defense": 15
+      },
+      "passed": false
+    },
+    {
+      "case": "repaired_phone",
+      "host_seconds": 40.6857,
+      "prompt_tokens": 807,
+      "generated_tokens": 79,
+      "grammar_fallbacks": 3,
+      "raw": "{\"reply\":\"Mesajı attın, telefonun da ölmüş; o aradaki boşlukta nasıl çalıştın da raporun yoktu.\",\"question\":\"Mesajı attıktan sonra telefonun kapanana kadar işi bitirmeye ne engel oldu?\",\"consistency\":17,\"plausibility\":15,\"detail\":10,\"defense\":12}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Mesajı attın, telefonun da ölmüş; o aradaki boşlukta nasıl çalıştın da raporun yoktu.",
+        "question": "Mesajı attıktan sonra telefonun kapanana kadar işi bitirmeye ne engel oldu?",
+        "consistency": 17,
+        "plausibility": 15,
+        "detail": 10,
+        "defense": 12
+      },
+      "passed": true
+    },
+    {
+      "case": "unseen_spill",
+      "host_seconds": 38.1511,
+      "prompt_tokens": 727,
+      "generated_tokens": 90,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"Kahve döküldü, dosya ıslanmadı; ya kağıt yoktu ya da senin elinde değildi.\",\"question\":\"Kahve döküldüğünde dosyanın yerini değiştirmeyi veya saklamayı neden yapmadın?\",\"consistency\":15,\"plausibility\":10,\"detail\":12,\"defense\":14}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Kahve döküldü, dosya ıslanmadı; ya kağıt yoktu ya da senin elinde değildi.",
+        "question": "Kahve döküldüğünde dosyanın yerini değiştirmeyi veya saklamayı neden yapmadın?",
+        "consistency": 15,
+        "plausibility": 10,
+        "detail": 12,
+        "defense": 14
+      },
+      "passed": true
+    },
+    {
+      "case": "final_bus",
+      "host_seconds": 47.8399,
+      "prompt_tokens": 1020,
+      "generated_tokens": 68,
+      "grammar_fallbacks": 5,
+      "raw": "{\"reply\":\"Mesaj atıp otobüse binmek gibi, aradaki boşlukta kimse yokken sen mi sessiz kaldın ki müdürün kulaklarıma dokunsun.\",\"question\":\"\",\"consistency\":22,\"plausibility\":18,\"detail\":14,\"defense\":16}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "final_has_no_sixth_question": true
+      },
+      "verdict": {
+        "reply": "Mesaj atıp otobüse binmek gibi, aradaki boşlukta kimse yokken sen mi sessiz kaldın ki müdürün kulaklarıma dokunsun.",
+        "question": "",
+        "consistency": 22,
+        "plausibility": 18,
+        "detail": 14,
+        "defense": 16
+      },
+      "passed": true
+    },
+    {
+      "case": "absurd_teleport",
+      "host_seconds": 38.0504,
+      "prompt_tokens": 728,
+      "generated_tokens": 85,
+      "grammar_fallbacks": 1,
+      "raw": "{\"reply\":\"Işınlanmak işe geç kalmana engel olmaz, senin hareketin neydi ki ışınlanma sana yardım etmedi.\",\"question\":\"Işınlanma anında işe gitmek için ne kadar süre kalmıştı ve o süreyi ne yuttun?\",\"consistency\":15,\"plausibility\":10,\"detail\":5,\"defense\":8}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "absurdity_not_rewarded": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Işınlanmak işe geç kalmana engel olmaz, senin hareketin neydi ki ışınlanma sana yardım etmedi.",
+        "question": "Işınlanma anında işe gitmek için ne kadar süre kalmıştı ve o süreyi ne yuttun?",
+        "consistency": 15,
+        "plausibility": 10,
+        "detail": 5,
+        "defense": 8
+      },
+      "passed": false
+    },
+    {
+      "case": "absurd_speed",
+      "host_seconds": 40.2744,
+      "prompt_tokens": 762,
+      "generated_tokens": 75,
+      "grammar_fallbacks": 0,
+      "raw": "{\"reply\":\"2 dakikada 100 km yürümek, koşmak değil, imkansız bir hayaldir.\",\"question\":\"Yürüyerek 100 km geçmek imkansız; bu mesafeyi nasıl katettin?\",\"consistency\":0,\"plausibility\":0,\"detail\":0,\"defense\":0}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "absurdity_not_rewarded": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "2 dakikada 100 km yürümek, koşmak değil, imkansız bir hayaldir.",
+        "question": "Yürüyerek 100 km geçmek imkansız; bu mesafeyi nasıl katettin?",
+        "consistency": 0,
+        "plausibility": 0,
+        "detail": 0,
+        "defense": 0
+      },
+      "passed": true
+    },
+    {
+      "case": "retracted_absurd",
+      "host_seconds": 39.2859,
+      "prompt_tokens": 748,
+      "generated_tokens": 84,
+      "grammar_fallbacks": 3,
+      "raw": "{\"reply\":\"Alarm çalmadı diyorsun, ama o zaman senin uyku süren ne kadar, o da ne kadar geç kaldırdın ki.\",\"question\":\"Alarm çalmadığını fark ettiğinde kalkıp işe gitmek için gereken süreyi nasıl hesapladın?\",\"consistency\":19,\"plausibility\":18,\"detail\":16,\"defense\":17}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "specific_question": true,
+        "consistent_score": true,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Alarm çalmadı diyorsun, ama o zaman senin uyku süren ne kadar, o da ne kadar geç kaldırdın ki.",
+        "question": "Alarm çalmadığını fark ettiğinde kalkıp işe gitmek için gereken süreyi nasıl hesapladın?",
+        "consistency": 19,
+        "plausibility": 18,
+        "detail": 16,
+        "defense": 17
+      },
+      "passed": true
+    },
+    {
+      "case": "metaphor",
+      "host_seconds": 40.9249,
+      "prompt_tokens": 690,
+      "generated_tokens": 129,
+      "grammar_fallbacks": 4,
+      "raw": "{\"reply\":\"Işık hızında gitmişsin ama ışınlanma süresi yok, otobüsün sürücüsü mu yoksa senin saat ayarı mı bozuktu ki 20 dakikada ofise varmışsın.\",\"question\":\"Işık hızında gitmişsin ama ışınlanma süresi yok, otobüsün sürücüsü mu yoksa senin saat ayarı mı bozuktu ki 20 dakikada ofise varmışsın?\",\"consistency\":15,\"plausibility\":10,\"detail\":12,\"defense\":14}",
+      "checks": {
+        "schema": true,
+        "nonempty": true,
+        "reply_has_no_question": true,
+        "no_control_tokens": true,
+        "consistent_score": false,
+        "one_question": true
+      },
+      "verdict": {
+        "reply": "Işık hızında gitmişsin ama ışınlanma süresi yok, otobüsün sürücüsü mu yoksa senin saat ayarı mı bozuktu ki 20 dakikada ofise varmışsın.",
+        "question": "Işık hızında gitmişsin ama ışınlanma süresi yok, otobüsün sürücüsü mu yoksa senin saat ayarı mı bozuktu ki 20 dakikada ofise varmışsın?",
+        "consistency": 15,
+        "plausibility": 10,
+        "detail": 12,
+        "defense": 14
+      },
+      "passed": false
+    }
+  ],
+  "completed_cases": 15
+}

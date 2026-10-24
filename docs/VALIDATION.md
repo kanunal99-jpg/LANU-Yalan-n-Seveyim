@@ -1,5 +1,15 @@
 # Doğrulama kaydı
 
+## Yayımlanan 0.5 test ikilisi — 24 Ekim 2026
+
+Kaynak `5f2cff8684fb9beac080bed77fd7a2415812d95c`, [yayın koşusu 40026975283](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40026975283): **102 JVM testi, 0 hata/başarısızlık/atlama; 14 Android yöntemi ve 4 imza kapısı senaryosu geçti**. Android yöntemlerinin 12'si normal koşuda, iki yükseltme yöntemi ayrı gerçek 7 → 8 paket değiştirme aşamalarında başarılı çalıştı. Şifreli ilerleme korundu; lint, ARM64 debug ve R8 release başarılı.
+
+Tanınan mantıksız iddiaya özgü espri ve sorgu, açıklama gelene kadar itirazın korunması ve geçer toplam puanın engellenmesi eklendi. İlk ekran kontrolünün kısmi görünürlükle yetinmesi gerçek görüntüde fark edildi; tekrar eden açıklama kısaltıldı ve iki turda yorum/sorunun tam sınırları araç çubuğu ile cevap alanı arasında doğrulandı. Font ölçeği 1,3, Google hizmetsiz AOSP API 30. Hızlı oyun yanıtları **363 / 427 / 400 / 466 / 431 ms**, p50 427 ms, p95 466 ms. Bu küçük emülatör örneklemi fiziksel A55/Huawei/Xiaomi veya gerçek AI hızı değildir.
+
+v0.5.0-alpha ve v0.5.1-alpha APK'ları yayımlandı; herkese açık indirmeleri CI'da ve ayrıca dışarıdan yeniden indirilip SHA-256 ile doğrulandı. Android imzaları CI'da platform aracıyla doğrulandı; iki paket aynı test sertifikasını kullanır. Eski 0.4 test anahtarıyla aynı değildir; yedek almadan eski uygulamayı kaldırma. Kalıcı imza hâlâ kullanıcı hesabında kurulmalıdır. [APK kanıtı](ota-release-verification-0.5.json), [son test özeti](release-validation-0.5.json).
+
+Gerçek AI'nın 15 ham örneğinde 11 otomatik geçiş var; buna rağmen Türkçe, muhakeme ve mizah kusurları sürüyor. **AI kalite onayı verilmedi.** Olay kaydından espri taslağı çıkarıldı, fakat bağımsız örneğin içeriğini gerçek olaya taşıma gibi hatalar hâlâ gözlendi. [Ayrıntılı değerlendirme](AI_NATIVE_REVIEW_0.5.md). Fiziksel cihaz kabulü ve istenen gerçek AI hız/kalitesi açık kalır.
+
 ## Yayımlanan 0.4 test ikilisi — 23 Ekim 2026
 
 Kaynak `1db42845827fe12e0458b147e1306e0b09b09ec6`, [yayın koşusu 40016842962](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40016842962): derleme, AOSP ve yayın işleri başarılı. **85 JVM testi; 0 başarısızlık, hata veya atlama.** Lint, ARM64 debug ve R8 release derlemesi geçti. İmza kapısının dört gerçek Gradle senaryosu da geçti: anahtar zorunluyken eksik anahtar, kısmi yapılandırma ve yanlış sertifika reddedildi; doğru geçici anahtar/parola/sertifika kabul edildi. Bu test geçici anahtar kullandı; kalıcı anahtar kurulumu sayılmaz.

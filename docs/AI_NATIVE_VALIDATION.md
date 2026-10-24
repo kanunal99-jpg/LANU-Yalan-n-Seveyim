@@ -1,5 +1,7 @@
 # Cihaz içi AI doğrulaması
 
+Güncel 0.5 ölçümü: 15 ham vaka, 11 otomatik geçiş; Türkçe/mantık/mizah kalitesi onaylanmadı. Native kaynak `61e767b`, yayımlanan kaynak `5f2cff8`; üretim fixture dosyalarının SHA-256 değerleri eşleşti. Host p50 39,29 saniye; telefon ölçümü değildir. [Güncel ayrıntılı değerlendirme](AI_NATIVE_REVIEW_0.5.md), [ham üretimler](dialogue-native-results-0.5.json). Aşağıdaki 11 vakalı eski ölçüm tarihsel kayıttır.
+
 Güncel AI metni ve puanları GGUF modelinden gelir. Yerel kurallar yalnızca ayrı etiketlenen ipuçları, önerilen sorgu açısı ve espri başlangıcı sağlar. Başarısız üretimin yerine kurallardan cevap veya puan konmaz. Model üretmediği için AI sonuçlarına yerel puan gerekçeleri eklenmez.
 
 ## Aynı üretim yolu
