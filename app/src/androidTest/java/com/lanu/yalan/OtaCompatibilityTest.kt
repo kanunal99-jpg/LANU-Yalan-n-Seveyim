@@ -118,7 +118,8 @@ class OtaCompatibilityTest {
     private fun upgradeFixture() = GameSave(unlocked = 3, best = mapOf(1 to 83, 2 to 77), spicy = false,
         onboarding = true, mode = PlayMode.FAST, recentJokeKeys = listOf("ota-before-upgrade"),
         session = Session(id = "ota-upgrade-preserved-story", level = 3, topic = "İşe geç kaldım",
-            opening = "Tam olarak ne oldu?", mode = PlayMode.FAST))
+            opening = "Tam olarak ne oldu?", mode = PlayMode.FAST,draftAnswer="Güncellemeden önce yazılan cevap"),
+        parkedSessions=(1..4).map {n -> Session("ota-parked-$n",2,"Diğer konu $n","Nerede oldu?",mode=PlayMode.entries[n%3],draftAnswer="Ayrı taslak $n")})
     private fun manifestFor(file: File, versionCode: Long): UpdateManifest {
         val digest = MessageDigest.getInstance("SHA-256")
         file.inputStream().use { input ->

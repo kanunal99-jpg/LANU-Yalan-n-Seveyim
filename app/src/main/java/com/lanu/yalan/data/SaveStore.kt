@@ -57,7 +57,11 @@ class SaveStore @Inject constructor(@ApplicationContext context: Context) {
         SaveValidation.validate(save)
         val cipher = Cipher.getInstance("AES/GCM/NoPadding")
         cipher.init(Cipher.ENCRYPT_MODE, key())
-        val bytes = cipher.iv + cipher.doFinal(json.encodeToString(save).encodeToByteArray())
+        val plain=json.encodeToString(save).encodeToByteArray()
+        val bytes=try {
+            require(plain.size<=PortableBackup.MAX_PAYLOAD_BYTES) { "Kayıt boyutu sınırı aşıldı" }
+            cipher.iv+cipher.doFinal(plain)
+        } finally {plain.fill(0)}
         val stream = file.startWrite()
         try { stream.write(bytes); file.finishWrite(stream) }
         catch (e: Exception) { file.failWrite(stream); throw e }

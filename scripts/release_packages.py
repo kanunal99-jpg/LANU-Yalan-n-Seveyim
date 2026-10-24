@@ -9,7 +9,7 @@ from pathlib import Path
 repo=os.environ.get('GITHUB_REPOSITORY','kanunal99-jpg/LANU-Yalan-n-Seveyim')
 tools=Path(os.environ['ANDROID_HOME'])/'build-tools/35.0.0'
 certificate=None
-for code,version in [(11,'0.7.0-alpha'),(12,'0.7.1-alpha')]:
+for code,version in [(13,'0.8.0-alpha'),(14,'0.8.1-alpha')]:
  tag=f'v{version}';folder=Path('release-packages')/tag
  filename=f'LANU-Yalanini-Seveyim-{tag}-arm64-test.apk';apk=folder/filename
  package=subprocess.check_output([str(tools/'aapt'),'dump','badging',str(apk)],text=True)

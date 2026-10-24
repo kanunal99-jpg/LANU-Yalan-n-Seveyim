@@ -2,6 +2,7 @@ package com.lanu.yalan.data
 
 import com.lanu.yalan.domain.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.encodeToString
 import org.junit.Assert.*
 import org.junit.Test
 import java.io.ByteArrayInputStream
@@ -26,6 +27,27 @@ class PortableBackupTest {
         assertFalse(first.contentEquals(second))
         assertEquals(save(),PortableBackup.decode(first,password))
         assertEquals(save(),PortableBackup.decode(second,password))
+    }
+    @Test fun fiveStoriesKeepEveryDraftAndModeInAPortableEncryptedBackup() {
+        val base=save()
+        val stories=(1..5).map { n -> base.session!!.copy(id="backup-story-$n",topic="Yedek konu $n",mode=PlayMode.entries[(n-1)%3],draftAnswer="Gönderilmemiş cevap $n") }
+        val original=base.copy(session=stories.first(),parkedSessions=stories.drop(1))
+        val bytes=PortableBackup.encode(original,password)
+        assertEquals(original,PortableBackup.decode(bytes,password))
+        assertFalse(bytes.decodeToString().contains("backup-story"))
+    }
+    @Test fun fiveLongValidTranscriptsExceedingTheOldSingleStoryLimitRemainReadable() {
+        val q="ş".repeat(500)
+        val v=Verdict("ğ".repeat(700),q,20,20,20,20,
+            explanations=ScoreReasons("ö".repeat(400),"ö".repeat(400),"ö".repeat(400),"ö".repeat(400)),
+            evidence=EvidenceCard(EvidenceStatus.NEEDS_EXPLANATION,"ı".repeat(280),"ü".repeat(280),"ş".repeat(400)))
+        val stories=(1..5).map { n -> Session("large-$n",1,"Uzun konu $n",q,List(4) {Turn(q,"ç".repeat(280),v)},mode=PlayMode.FAST,
+            draftAnswer="Taslak $n",recentJokeKeys=List(40) {"$it"+"ş".repeat(115)}) }
+        val original=GameSave(session=stories.first(),parkedSessions=stories.drop(1))
+        assertTrue(Json.encodeToString(original).encodeToByteArray().size>128*1024)
+        val bytes=PortableBackup.encode(original,password)
+        assertEquals(bytes.size,PortableBackup.readBounded(ByteArrayInputStream(bytes)).size)
+        assertEquals(original,PortableBackup.decode(bytes,password))
     }
     @Test fun wrongPasswordAndModifiedCiphertextAreTheSameAuthenticationFailure() {
         val bytes=PortableBackup.encode(save(),password)

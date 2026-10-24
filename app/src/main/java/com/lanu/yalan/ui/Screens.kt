@@ -40,6 +40,9 @@ import com.lanu.yalan.ai.FreeAiProtocol
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.lanu.yalan.BuildConfig
 import com.lanu.yalan.R
 import com.lanu.yalan.domain.*
@@ -62,9 +65,17 @@ fun LanuAppScreen(vm: GameViewModel,maintenance: MaintenanceViewModel) {
     LaunchedEffect(m.notice) { m.notice?.let { snackbar.showSnackbar(it);maintenance.clearNotice(it) } }
     LaunchedEffect(m.restored) { m.restored?.let { vm.useRestored(it);maintenance.restoredConsumed() } }
     val view=LocalView.current
+    val lifecycle=LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle,vm) {
+        val observer=LifecycleEventObserver { _,event -> if(event==Lifecycle.Event.ON_STOP) vm.saveDraft() }
+        lifecycle.addObserver(observer)
+        onDispose {lifecycle.removeObserver(observer)}
+    }
+    var storiesOpen by remember { mutableStateOf(false) }
     DisposableEffect(s.busy) { view.keepScreenOn=s.busy; onDispose { view.keepScreenOn=false } }
     BackHandler(s.screen!=Screen.HOME || s.busy || m.busy) { if(!s.busy && !m.busy) vm.navigate(Screen.HOME) }
     MaterialTheme(colorScheme=Palette,typography=Typography()) {
+        if(storiesOpen) StoryManager(s,vm,onDismiss={storiesOpen=false})
         Scaffold(containerColor=Ink, snackbarHost={SnackbarHost(snackbar)}, bottomBar={
             if(s.screen!=Screen.GAME) NavigationBar(containerColor=Ink) {
                 listOf(Screen.HOME to "Oyna",Screen.LEVELS to "Seviyeler",Screen.SETTINGS to "Ayarlar").forEachIndexed { i,pair ->
@@ -93,25 +104,23 @@ fun LanuAppScreen(vm: GameViewModel,maintenance: MaintenanceViewModel) {
                 }
                 when {
                     s.loading -> Box(Modifier.fillMaxSize(),contentAlignment=Alignment.Center) { CircularProgressIndicator() }
-                    s.screen==Screen.HOME -> Home(s,vm)
+                    s.screen==Screen.HOME -> Home(s,vm,onStories={storiesOpen=true})
                     s.screen==Screen.LEVELS -> Levels(s,vm)
                     s.screen==Screen.SETTINGS -> Settings(s.copy(busy=s.busy || m.busy),vm,m,maintenance)
-                    else -> Game(s,vm)
+                    else -> Game(s,vm,onStories={storiesOpen=true})
                 }
             }
         }
     }
 }
 @Composable
-private fun Home(s: UiState,vm: GameViewModel) {
+private fun Home(s: UiState,vm: GameViewModel,onStories: () -> Unit) {
     val keyboard=LocalSoftwareKeyboardController.current
     val focus=LocalFocusManager.current
     var topic by rememberSaveable { mutableStateOf("") }
-    var confirm by remember { mutableStateOf(false) }
     val onlineDraft=remember {OnlineConnectionDraft()}
     DisposableEffect(onlineDraft) {onDispose {onlineDraft.clear()}}
     OnlineConnectionDialog(s,vm,onlineDraft)
-    if(confirm) AlertDialog(onDismissRequest={confirm=false},title={Text("Yeni hikâye açılsın mı?")},text={Text("Devam eden turun yerini yeni hikâye alacak. Kazandığın seviyeler korunur.")},confirmButton={TextButton(onClick={confirm=false;vm.start(topic)}){Text("Yeni hikâye")}},dismissButton={TextButton(onClick={confirm=false}){Text("Vazgeç")}})
     LazyColumn(Modifier.fillMaxSize().testTag("screen-content"),contentPadding=PaddingValues(24.dp),verticalArrangement=Arrangement.spacedBy(22.dp)) {
         item {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(Brush.linearGradient(listOf(Color(0xFF412161),Panel))).padding(24.dp)) {
@@ -136,8 +145,13 @@ private fun Home(s: UiState,vm: GameViewModel) {
             }
         }
         if(s.save.session!=null) item {
-            OutlinedButton(onClick={vm.navigate(Screen.GAME)},Modifier.fillMaxWidth(),enabled=!s.busy) {
-                Text(if(s.save.session.finished) "Son sonucu gör" else "Hikâyeye devam et · ${if(s.save.session.mode==PlayMode.FAST) "Hızlı" else "AI"} · ${s.save.session.turns.size}/5")
+            Column(verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick={vm.navigate(Screen.GAME)},Modifier.fillMaxWidth(),enabled=!s.busy) {
+                    Text(if(s.save.session.finished) "Son sonucu gör" else "Hikâyeye devam et · ${if(s.save.session.mode==PlayMode.FAST) "Hızlı" else "AI"} · ${s.save.session.turns.size}/5")
+                }
+                TextButton(onClick={keyboard?.hide();focus.clearFocus();onStories()},enabled=!s.busy,modifier=Modifier.fillMaxWidth().testTag("manage-stories")) {
+                    Text("Konularım · ${StoryShelf.activeCount(s.save)}/5 aktif")
+                }
             }
         }
         item {
@@ -147,11 +161,39 @@ private fun Home(s: UiState,vm: GameViewModel) {
             Row(horizontalArrangement=Arrangement.spacedBy(6.dp)) {
                 listOf("İşe geç kaldım","Ödevi unuttum").forEach { example -> SuggestionChip(onClick={topic=example},label={Text(example,fontSize=12.sp)},enabled=!s.busy) }
             }
-            Button(onClick={keyboard?.hide();focus.clearFocus();if(s.save.session?.finished==false) confirm=true else vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
+            if(!StoryShelf.canStart(s.save)) Text("Beş aktif hikâyen var. Yeni konu için Konularım’dan birini kapat. Hikâyeler kendiliğinden silinmez.",color=Gold,fontSize=13.sp,modifier=Modifier.testTag("story-limit"))
+            else if(s.save.session?.finished==false) Text("Yeni konu açabilirsin; bu hikâye ve taslağın Konularım’da korunur.",color=Muted,fontSize=12.sp)
+            Button(onClick={keyboard?.hide();focus.clearFocus();vm.start(topic)},Modifier.fillMaxWidth().heightIn(min=58.dp).padding(top=6.dp).testTag("start-game"),enabled=s.canStart && !s.busy && !s.recovery && topic.trim().length>=3,shape=RoundedCornerShape(18.dp)) { Text("LANU’yu ikna et  →",fontWeight=FontWeight.Bold,fontSize=17.sp) }
         }
         if(s.busy && !s.downloading) item { Busy(s,vm) }
         item { Text("Puanlar eğlence amaçlıdır. Gerçek bir yalan testi değildir. "+if(s.save.mode==PlayMode.FREE_ONLINE_AI) "Çevrimiçi AI seçeneğinde konu ve bu hikâyenin cevapları OpenRouter üzerinden model sağlayıcısına gönderilir." else "Hızlı oyun ve Cihazda AI konuşmaları bu cihazda kalır.",color=Muted,fontSize=12.sp,lineHeight=18.sp) }
     }
+}
+@Composable private fun StoryManager(s:UiState,vm:GameViewModel,onDismiss: () -> Unit) {
+    var closing by remember { mutableStateOf<Session?>(null) }
+    val target=closing
+    if(target!=null) AlertDialog(onDismissRequest={if(!s.busy) closing=null},title={Text("Bu hikâye kapatılsın mı?")},
+        text={Text("“${target.topic}” konuşması ve gönderilmemiş taslağı silinir. Kazandığın seviyeler ve en iyi puanların korunur.")},
+        confirmButton={TextButton(onClick={vm.closeStory(target.id);closing=null},enabled=!s.busy,modifier=Modifier.testTag("confirm-close-story")) {Text("Hikâyeyi kapat")}},
+        dismissButton={TextButton(onClick={closing=null},enabled=!s.busy) {Text("Vazgeç")}})
+    else AlertDialog(onDismissRequest={if(!s.busy) onDismiss()},title={Text("Konularım · ${StoryShelf.activeCount(s.save)}/5 aktif")},
+        text={
+            LazyColumn(Modifier.heightIn(max=420.dp).testTag("story-list"),verticalArrangement=Arrangement.spacedBy(8.dp)) {
+                item {Text("Her hikâyenin soruları, puanı ve cevap taslağı ayrı tutulur. Tamamlanan sonucun yerine yeni konu açılabilir; seviye puanı korunur.",fontSize=12.sp)}
+                items(StoryShelf.stories(s.save),key={it.id}) { story ->
+                    Card(Modifier.fillMaxWidth()) {Column(Modifier.padding(12.dp),verticalArrangement=Arrangement.spacedBy(4.dp)) {
+                        Text(story.topic,fontWeight=FontWeight.Bold,fontSize=14.sp)
+                        Text("Seviye ${story.level} · "+if(story.finished) "Tamamlandı · ${story.finalScore}/100" else "${story.turns.size}/5 cevap · ${when(story.mode) {PlayMode.FAST -> "Hızlı";PlayMode.LOCAL_AI -> "Cihazda AI";PlayMode.FREE_ONLINE_AI -> "Çevrimiçi AI"}}",fontSize=12.sp,color=Muted)
+                        Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                            TextButton(onClick={vm.resumeStory(story.id);onDismiss()},enabled=!s.busy,modifier=Modifier.testTag("resume-story-${story.id}")) {Text(if(story.finished) "Sonucu gör" else "Devam et")}
+                            TextButton(onClick={closing=story},enabled=!s.busy,modifier=Modifier.testTag("close-story-${story.id}")) {Text("Kapat")}
+                        }
+                    }}
+                }
+            }
+        },
+        confirmButton={TextButton(onClick={vm.navigate(Screen.HOME);onDismiss()},enabled=!s.busy && StoryShelf.canStart(s.save),modifier=Modifier.testTag("new-story")) {Text("Yeni konu")}},
+        dismissButton={TextButton(onClick=onDismiss,enabled=!s.busy) {Text("Kapat")}})
 }
 @Composable private fun Tag(text: String) { Surface(color=Color(0xFF50346A),shape=RoundedCornerShape(8.dp)) { Text(text,Modifier.padding(horizontal=9.dp,vertical=6.dp),color=Color(0xFFF5E6FF),fontSize=11.sp) } }
 @Composable private fun ModeCard(s:UiState,vm:GameViewModel) {
@@ -253,7 +295,7 @@ internal class OnlineConnectionDraft {
         }
     }
 }
-@Composable private fun Game(s:UiState,vm:GameViewModel) {
+@Composable private fun Game(s:UiState,vm:GameViewModel,onStories: () -> Unit) {
     val keyboard=LocalSoftwareKeyboardController.current
     val focus=LocalFocusManager.current
     val send: () -> Unit = { keyboard?.hide();focus.clearFocus();vm.submit() }
@@ -261,18 +303,19 @@ internal class OnlineConnectionDraft {
     if(session==null) { Text("Henüz hikâye yok.",Modifier.padding(24.dp)); return }
     if(session.finished) { Result(session,s,vm); return }
     val scroll=rememberLazyListState()
-    LaunchedEffect(session.turns.size,s.busy) {
+    LaunchedEffect(session.id,session.turns.size,s.busy) {
         scroll.scrollToItem(if(session.turns.isEmpty() && !s.busy) 0 else session.turns.size + 1 + if(s.busy) 1 else 0)
     }
     Column(Modifier.fillMaxSize()) {
         // Keep the composer reachable with the keyboard open, even at large font scales.
-        Row(Modifier.fillMaxWidth().testTag("game-toolbar").padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(10.dp)) {
+        Row(Modifier.fillMaxWidth().testTag("game-toolbar").padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)) {
             Column(Modifier.weight(1f)) {
                 Text("LANU · SEVİYE ${session.level}",color=Gold,fontWeight=FontWeight.Bold,fontSize=12.sp)
                 Text(session.mode.label(),color=Mint,fontSize=10.sp)
             }
             Text("SORU ${session.turns.size+1} / 5",Modifier.testTag("question-number"),color=Muted,fontSize=12.sp)
-            TextButton(onClick={keyboard?.hide();focus.clearFocus();vm.navigate(Screen.HOME)},enabled=!s.busy,contentPadding=PaddingValues(8.dp)) { Text("Çık") }
+            TextButton(onClick={keyboard?.hide();focus.clearFocus();onStories()},enabled=!s.busy,modifier=Modifier.testTag("manage-stories"),contentPadding=PaddingValues(4.dp)) { Text("Konular",fontSize=12.sp) }
+            TextButton(onClick={keyboard?.hide();focus.clearFocus();vm.navigate(Screen.HOME)},enabled=!s.busy,contentPadding=PaddingValues(4.dp)) {Text("Çık",fontSize=12.sp)}
         }
         LazyColumn(Modifier.weight(1f),state=scroll,contentPadding=PaddingValues(20.dp),verticalArrangement=Arrangement.spacedBy(16.dp)) {
             item {
@@ -312,7 +355,10 @@ internal class OnlineConnectionDraft {
                     placeholder={Text("Hadi, hikâyeyi kurtar…")},maxLines=4,shape=RoundedCornerShape(18.dp),
                     keyboardOptions=KeyboardOptions(imeAction=ImeAction.Send),keyboardActions=KeyboardActions(onSend={send()}))
                 Row(Modifier.fillMaxWidth().padding(top=8.dp),horizontalArrangement=Arrangement.SpaceBetween,verticalAlignment=Alignment.CenterVertically) {
-                    Text("${s.answer.length}/280",color=Muted,fontSize=12.sp)
+                    Column(Modifier.weight(1f)) {
+                        Text("${s.answer.length}/280",color=Muted,fontSize=12.sp)
+                        if(s.answer.isNotEmpty()) Text(if(session.draftAnswer==s.answer) "Taslak kaydedildi" else "Taslak kaydediliyor…",color=Muted,fontSize=10.sp,modifier=Modifier.testTag("draft-save-status"))
+                    }
                     Button(onClick=send,modifier=Modifier.testTag("send-answer"),enabled=!s.busy && s.canAnswer && s.answer.trim().length>=3) { Text(if(session.turns.size==4) "Son sözü söyle" else "Cevabı gönder  ↑") }
                 }
             }

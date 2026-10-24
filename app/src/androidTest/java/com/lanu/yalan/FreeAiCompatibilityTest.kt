@@ -27,7 +27,8 @@ class FreeAiCompatibilityTest {
     private val fixture=GameSave(unlocked=2,best=mapOf(1 to 80),mode=PlayMode.FREE_ONLINE_AI,onboarding=true,
         session=Session("online-fallback",2,"İşe geç kaldım","Seni geciktiren olay neydi?",turns=listOf(
             Turn("Seni geciktiren olay neydi?","Telefonumun şarjı bitti.",Verdict("Telefon mesaiyi bırakmış.","Telefon kapandığında neredeydin?",17,18,14,12))
-        ),mode=PlayMode.FREE_ONLINE_AI))
+        ),mode=PlayMode.FREE_ONLINE_AI),
+        parkedSessions=listOf(Session("online-other-story",1,"Diğer bağımsız konu","Ayrı soruda ne oldu?",mode=PlayMode.LOCAL_AI,draftAnswer="Diğer konunun taslağı")))
     private fun allowed()=BuildConfig.UI_SMOKE && Build.HARDWARE in setOf("ranchu","goldfish") &&
         InstrumentationRegistry.getArguments().getString("lanu.allowProgressReset")=="true"
     @get:Rule val rules: TestRule=RuleChain.outerRule(object: ExternalResource() {
@@ -67,6 +68,7 @@ class FreeAiCompatibilityTest {
         assertEquals(fixture.session.turns.first(),saved.session.turns.first())
         assertEquals(fixture.unlocked,saved.unlocked);assertEquals(fixture.best,saved.best)
         assertEquals(PlayMode.FAST,saved.session.mode)
+        assertEquals(fixture.parkedSessions,saved.parkedSessions)
         println("LANU_ONLINE_TO_FAST_KEPT_HISTORY_AND_PROGRESS")
     }
     @Test fun thePersonalKeyIsEncryptedSeparateFromProgressAndPortableBackup()=runBlocking {

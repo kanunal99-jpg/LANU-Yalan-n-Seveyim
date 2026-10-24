@@ -139,4 +139,16 @@ class FreeAiTest {
         val failure=assertThrows(AiException::class.java) {runBlocking {FreeAiExchange(fake).ask(key,story(),"Yanlışlıkla yapıştırdım: $key",false)}}
         assertEquals(AiFailure.ONLINE_SECRET,failure.reason);assertTrue(fake.bodies.isEmpty())
     }
+    @Test fun switchingAmongFiveStoriesSendsOnlyTheSelectedHistory() {
+        val stories=(1..5).map {n -> story().copy(id="isolated-$n",topic="Konu-$n-isolated",opening="Soru-$n-isolated?",draftAnswer="Saklı-taslak-$n")}
+        val shelf=GameSave(session=stories.first(),parkedSessions=stories.drop(1))
+        for(n in 1..5) {
+            val selected=StoryShelf.select(shelf,"isolated-$n").session!!
+            val request=FreeAiProtocol.request(selected,"Güncel-yanıt-$n",false)
+            assertTrue(request.contains(selected.topic))
+            assertTrue(request.contains("Güncel-yanıt-$n"))
+            assertFalse(request.contains("Saklı-taslak"))
+            stories.filterNot {it.id==selected.id}.forEach {assertFalse(request.contains(it.topic));assertFalse(request.contains(it.opening))}
+        }
+    }
 }

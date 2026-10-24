@@ -78,7 +78,8 @@ data class Session(
     val credited: Boolean = false,
     // Old saved stories were evaluated by Qwen. Never silently change their scorer.
     val mode: PlayMode = PlayMode.LOCAL_AI,
-    val recentJokeKeys: List<String> = emptyList()
+    val recentJokeKeys: List<String> = emptyList(),
+    val draftAnswer: String = ""
 ) {
     val finished: Boolean get() = turns.size >= 5
     val question: String get() = turns.lastOrNull()?.verdict?.question ?: opening
@@ -93,7 +94,9 @@ data class GameSave(
     val spicy: Boolean = true,
     val onboarding: Boolean = false,
     val mode: PlayMode = PlayMode.FAST,
-    val recentJokeKeys: List<String> = emptyList()
+    val recentJokeKeys: List<String> = emptyList(),
+    // The selected story stays in the legacy field; old single-story saves need no destructive migration.
+    val parkedSessions: List<Session> = emptyList()
 )
 object Rules {
     fun threshold(level: Int) = 40 + (level.coerceIn(1, 100) - 1) / 3

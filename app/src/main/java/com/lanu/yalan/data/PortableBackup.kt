@@ -26,8 +26,8 @@ class BackupException(val reason: BackupFailure, message: String=when(reason) {
 object PortableBackup {
     const val MIN_PASSPHRASE_CHARS=12
     const val MAX_PASSPHRASE_CHARS=128
-    const val MAX_FILE_BYTES=256*1024
-    const val MAX_PAYLOAD_BYTES=128*1024
+    const val MAX_FILE_BYTES=2*1024*1024
+    const val MAX_PAYLOAD_BYTES=1024*1024
     const val KDF_ITERATIONS=600_000
     private const val SALT_BYTES=16
     private const val IV_BYTES=12
