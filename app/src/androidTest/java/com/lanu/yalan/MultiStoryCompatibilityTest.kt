@@ -132,7 +132,8 @@ class MultiStoryCompatibilityTest {
             compose.onNodeWithTag("answer-input").performTextReplacement("Yeniden adlandırılamayan taslak")
             manager();choose(2,succeeds=false)
             compose.onNodeWithTag("answer-input").assertTextContains("Yeniden adlandırılamayan taslak")
-            compose.onNode(hasText("Konu 1 için sonra ne oldu?") and hasAnyAncestor(hasTestTag("current-question"))).assertExists()
+            compose.onNodeWithTag("story-view-shelf-1").assertIsDisplayed()
+            capture("lanu-multi-write-failure.png")
         } finally {
             progress.deleteRecursively();progress.writeBytes(original)
         }
@@ -142,7 +143,7 @@ class MultiStoryCompatibilityTest {
         println("LANU_ATOMIC_RENAME_FAILURE_NOT_ACKNOWLEDGED_RETRY_PRESERVED_DRAFT")
     }
     private fun capture(name: String) {
-        require(name in setOf("lanu-multi-stories.png","lanu-multi-draft.png"))
+        require(name in setOf("lanu-multi-stories.png","lanu-multi-draft.png","lanu-multi-write-failure.png"))
         compose.waitForIdle()
         val fd=InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("screencap -p /data/local/tmp/$name")
         ParcelFileDescriptor.AutoCloseInputStream(fd).use {it.readBytes()}

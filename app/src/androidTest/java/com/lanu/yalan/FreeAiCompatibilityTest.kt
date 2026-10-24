@@ -47,6 +47,7 @@ class FreeAiCompatibilityTest {
         compose.onNodeWithTag("connect-online").assertIsNotEnabled()
         compose.onNodeWithTag("online-key").performTextInput("test-personal-key-"+"x".repeat(32))
         compose.onNodeWithTag("connect-online").assertIsNotEnabled()
+        compose.onNodeWithTag("online-key").performImeAction()
         compose.onNodeWithTag("online-consent").performScrollTo().assertIsDisplayed().performClick().assertIsOn()
         compose.onNodeWithTag("connect-online").assertIsDisplayed().assertIsEnabled()
         // Do NOT press: this is a fake key, not a live provider or quality test.

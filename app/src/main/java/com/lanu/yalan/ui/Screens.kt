@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -30,6 +31,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -245,6 +247,7 @@ internal class OnlineConnectionDraft {
 }
 @Composable private fun OnlineConnectionDialog(s:UiState,vm:GameViewModel,draft: OnlineConnectionDraft) {
     val keyboard=LocalSoftwareKeyboardController.current
+    val focus=LocalFocusManager.current
     LaunchedEffect(s.onlineReady) {if(s.onlineReady) draft.clear()}
     if(draft.open) AlertDialog(
         onDismissRequest={if(s.busy) vm.cancel();draft.clear()},
@@ -252,11 +255,12 @@ internal class OnlineConnectionDraft {
         text={Column(Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
             OutlinedTextField(value=draft.key,onValueChange={draft.key=it.trim().take(256)},modifier=Modifier.fillMaxWidth().testTag("online-key"),enabled=!s.busy,
                 label={Text("Kişisel API anahtarın")},singleLine=true,visualTransformation=PasswordVisualTransformation(),
-                keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false),
+                keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Password,autoCorrectEnabled=false,imeAction=ImeAction.Done),
+                keyboardActions=KeyboardActions(onDone={keyboard?.hide();focus.clearFocus()}),
                 supportingText={Text("Anahtarı sohbete veya başka kişilere gönderme.")})
-            Row(verticalAlignment=Alignment.CenterVertically) {
-                Checkbox(checked=draft.consent,onCheckedChange={draft.consent=it;keyboard?.hide()},enabled=!s.busy,modifier=Modifier.testTag("online-consent"))
-                Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",fontSize=12.sp,lineHeight=18.sp)
+            Row(Modifier.fillMaxWidth().testTag("online-consent").toggleable(value=draft.consent,enabled=!s.busy,role=Role.Checkbox,onValueChange={draft.consent=it;keyboard?.hide();focus.clearFocus()}),verticalAlignment=Alignment.CenterVertically) {
+                Checkbox(checked=draft.consent,onCheckedChange=null,enabled=!s.busy)
+                Text("Konu ve bu hikâyedeki cevaplarımın OpenRouter üzerinden model sağlayıcısına gönderilmesini kabul ediyorum.",Modifier.weight(1f),fontSize=12.sp,lineHeight=18.sp)
             }
             if(s.busy) LinearProgressIndicator(Modifier.fillMaxWidth())
             s.error?.let {Text(it,color=MaterialTheme.colorScheme.error,fontSize=12.sp,lineHeight=18.sp)}
@@ -306,7 +310,7 @@ internal class OnlineConnectionDraft {
     LaunchedEffect(session.id,session.turns.size,s.busy) {
         scroll.scrollToItem(if(session.turns.isEmpty() && !s.busy) 0 else session.turns.size + 1 + if(s.busy) 1 else 0)
     }
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().testTag("story-view-${session.id}")) {
         // Keep the composer reachable with the keyboard open, even at large font scales.
         Row(Modifier.fillMaxWidth().testTag("game-toolbar").padding(horizontal=16.dp,vertical=4.dp),verticalAlignment=Alignment.CenterVertically,horizontalArrangement=Arrangement.spacedBy(6.dp)) {
             Column(Modifier.weight(1f)) {
