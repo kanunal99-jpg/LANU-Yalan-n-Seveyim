@@ -1,0 +1,262 @@
+{
+  "source_commit": "18c03e6e004be4890890fcc78e39e1c31c2466ce",
+  "workflow_run_id": 40121092374,
+  "workflow_url": "https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40121092374",
+  "jobs": {
+    "build": 120952567439,
+    "ui_smoke": 120952567393,
+    "prerelease": 120954459364
+  },
+  "jvm": {
+    "tests": 150,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android": {
+    "distinct_methods": 22,
+    "normal_passed": 20,
+    "separately_passed_upgrade_methods": 2,
+    "failures": 0,
+    "methods": [
+      {
+        "classname": "com.lanu.yalan.AiFallbackCompatibilityTest",
+        "name": "missingModelCanContinueTheSameStoryWithExplicitFastChoice",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "completesFastStoryWithoutAModelAndRepliesWithinThreeSeconds",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "displaysDeviceDetailsAndSettingsInLargeFont",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "userScreenshotStoryTracksTheMealMotivePlanChangeAndNextCityWithoutAQuestionLoop",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "contradictoryClocksAreRenderedAsACrossCheckOfBothPlayerTimes",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "settingsExposeUpdatesAndRequireMatchingLongBackupPasswords",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "phoneAnswersRenderDifferentSpecificQuestionsInsteadOfGenericPrompts",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "absurdAnswerShowsItsComicObjectionAndSpecificQuestionTogetherWithoutManualScrolling",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.AndroidCompatibilityTest",
+        "name": "opensAndNavigatesToLockedLevelMapWithoutGoogleServices",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.BackupCompatibilityTest",
+        "name": "failedImportKeepsCurrentProgressAndValidBackupRecoversCorruptStorage",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.BackupCompatibilityTest",
+        "name": "portableBackupRestoresAfterTheDeviceKeyIsGone",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "name": "thePersonalKeyIsEncryptedSeparateFromProgressAndPortableBackup",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "name": "aMissingOnlineKeyCanContinueTheSameStoryWithExplicitFastChoice",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.FreeAiCompatibilityTest",
+        "name": "connectionRequiresAPersonalKeyAndExplicitDataConsent",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.MultiStoryCompatibilityTest",
+        "name": "fiveStorySwitchKeepsEveryHistoryModeAndDraftThroughRecreationAndBackup",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.MultiStoryCompatibilityTest",
+        "name": "aFailedDraftWriteCannotSwitchStoriesOrLoseTheTypedAnswer",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.MultiStoryCompatibilityTest",
+        "name": "sixthStoryIsBlockedAndClosingRequiresConfirmationBeforeANewStoryCanStart",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.MultiStoryCompatibilityTest",
+        "name": "aFailedAtomicRenameCannotBeAcknowledgedAsASavedDraft",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "name": "candidateUsesProductionVerificationAndInstallerProvider",
+        "normal_phase": "passed"
+      },
+      {
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "name": "afterUpgradeReadsProgress",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "classname": "com.lanu.yalan.OtaCompatibilityTest",
+        "name": "prepareUpgrade",
+        "normal_phase": "skipped_for_separate_upgrade"
+      },
+      {
+        "classname": "com.lanu.yalan.PerformancePersistenceTest",
+        "name": "metricsSurviveRestartAndCorruptionCannotBlockNewMeasurements",
+        "normal_phase": "passed"
+      }
+    ],
+    "real_emulator_package_upgrade": [
+      13,
+      14
+    ],
+    "upgrade_preserves_five_sessions_and_their_drafts": true,
+    "platform": "AOSP API 30 x86_64 without Google Play Services, font_scale 1.3; UI_SMOKE build without native AI",
+    "physical_A55_Huawei_Xiaomi_tested": false
+  },
+  "signing_guards": {
+    "passed": 4,
+    "cases": [
+      "required_without_key",
+      "partial_configuration",
+      "mismatched_certificate",
+      "correct_key_password_and_certificate"
+    ]
+  },
+  "lint_debug": "passed",
+  "normal_arm64_debug": "passed",
+  "r8_release_build": "passed; unsigned without permanent key",
+  "public_release_readback": "Both public APKs independently downloaded HTTP 200; bytes and SHA-256 match manifests and GitHub asset digests. See ota-release-verification-0.8.json",
+  "fast_ui_rendered_ms": [
+    566,
+    467,
+    518,
+    433,
+    517
+  ],
+  "fast_ui_p50_ms": 517,
+  "fast_ui_p95_ms": 566,
+  "multi_story": {
+    "max_unfinished_stories": 5,
+    "all_histories_drafts_and_modes_preserved": true,
+    "sixth_story_blocked_without_eviction": true,
+    "explicit_close_confirmation": true,
+    "finished_result_policy": "A finished selected conversation makes room on next story selection or creation; earned levels and best scores remain. This is not an unlimited finished conversation archive.",
+    "draft_autosave_debounce_ms": 400,
+    "draft_flush_before_navigation_and_operations": true,
+    "atomic_write_readback": true,
+    "shared_in_process_storage_mutex": true,
+    "storage_fault_tests": [
+      "Cannot begin atomic write",
+      "Cannot rename new file to committed file; no false acknowledgement"
+    ],
+    "storage_failure_keeps_selected_story_and_typed_answer": true,
+    "storage_retry_recovers": true,
+    "legacy_single_story_readable": true,
+    "portable_backup_preserves_five_histories_and_drafts": true,
+    "old_payload_limit_regression_covered": true,
+    "max_plain_payload_bytes": 1048576,
+    "max_file_read_bytes": 2097152,
+    "API_request_uses_only_selected_session": true
+  },
+  "free_online_AI": {
+    "controlled_protocol_tests": 22,
+    "live_authenticated_generation_performed": false,
+    "cloud_quality_approved": false,
+    "cloud_phone_latency_verified": false,
+    "personal_key_available_in_work_environment": false,
+    "model": "openrouter/free",
+    "paid_model_fallback": false,
+    "fallback_changes_only_selected_story": true,
+    "notes": "Protocol fixtures and Android consent/storage tests do not establish live model humor, reasoning or A55 latency."
+  },
+  "ui": {
+    "strict_exchange_visibility_assertion_unchanged": true,
+    "story_control_location": "Beside the answer send button",
+    "consent": "Whole label is toggleable; Done closes the keyboard. Real touch test still requires personal key plus consent.",
+    "screenshots_sha256": {
+      "comic-objection.png": "db766a922b0e1d7776f9f060623ac0d9d174477537afa9834dc67a911ff815cc",
+      "multi-stories.png": "d9f8bdcc6e3bdacffa2368fb9c354bbfb0b11a81d2792f66c22a998a30d4fa07",
+      "story-motive.png": "47828774cb01b54b38e259fe911f514c1d72a84e099f5702139086621d2bd30a",
+      "story-plan.png": "c24d8078e056f2cf741e11b4e9a34e71faa833e888984c712bd9fa61983599ec",
+      "multi-write-failure.png": "6388dd2cbfcb173794295397dc0779973c294e0ca4c0ed24236f5e9d3bbbaba6",
+      "story-meal.png": "78f04ca7966aef9d98a27ae81e86d19a86231338002e4a4ad3ac17bcf215165e",
+      "story-jump.png": "70c99a7baa2a87437ac096e000ba220cdbc5340b5b718fab5773bb7998802cfb",
+      "persistent-objection.png": "52da86ef5e088b9ea322ecfe677419c21220e566e74806593e66449b3cdd039e",
+      "multi-draft.png": "47add91a28e40e92fbe91663277e477bc5ca6836462ff6936ff9948b5c6abce3"
+    },
+    "inspected": [
+      "multi-stories.png (same dialog in previous failed run)",
+      "multi-draft.png",
+      "multi-write-failure.png",
+      "comic-objection.png"
+    ]
+  },
+  "iterations": [
+    {
+      "source": "7e45bbf914ed127603420bed2a7991a643543db3",
+      "run": 40119429763,
+      "result": "cancelled to add shared storage locks and committed-byte readback"
+    },
+    {
+      "source": "9b6fb6600c55d5407c868738465fbf6b1350a02b",
+      "run": 40119785747,
+      "result": "UI failed: strict question boundary overlapped composer; incorrect text assertion on a wrapper node"
+    },
+    {
+      "source": "5141af497389df8a9c423e3f81b980d6d9410582",
+      "run": 40120456406,
+      "result": "Build passed; UI consent touch stayed off and fault test question matcher absent. Moved to whole-label toggle with Done action and direct selected-story visibility assertion."
+    },
+    {
+      "source": "18c03e6e004be4890890fcc78e39e1c31c2466ce",
+      "run": 40121092374,
+      "result": "All jobs passed; 150 JVM tests and 22 distinct Android methods verified"
+    }
+  ],
+  "remaining_limits": {
+    "permanent_signing": false,
+    "old_0_7_signer_differs": true,
+    "physical_phone_tested": false,
+    "live_AI_quality_approved": false,
+    "crashlytics_configured": false
+  },
+  "artifacts": {
+    "ui": {
+      "id": 12571521297,
+      "sha256": "d5c9606370761ec7783cae559474eba33930f9849c0f54ff17a55bc71be09458"
+    },
+    "quality": {
+      "id": 12571113534,
+      "sha256": "34eca8f0484918ee7824bb73dceac7de4aa564da0c5ae36f0ea8832ef95f5ef5"
+    },
+    "apks": {
+      "id": 12570708730,
+      "sha256": "5785956f001481150ad557bcd414a8c9a178047ed0191d79eca9faa3f2da7a5a"
+    }
+  }
+}

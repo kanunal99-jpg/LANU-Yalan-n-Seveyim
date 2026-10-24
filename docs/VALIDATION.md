@@ -1,5 +1,17 @@
 # Doğrulama kaydı
 
+## 0.8: beş aktif hikâye ve doğrulanan taslak kaydı
+
+Kaynak `18c03e6e004be4890890fcc78e39e1c31c2466ce`, [CI 40121092374](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40121092374): **150 JVM testi, 22 ayrı Android yöntemi ve 4 imza senaryosu geçti**; lint, normal ARM64 debug/native ve R8 release başarılı. Android'de 20 olağan yöntem, 13 → 14 gerçek paket yükseltmesinin iki aşaması ayrı başarılı çalıştı. Beş hikâye ve ayrı taslaklar yükseltmede korundu. Hızlı oyun emülatör süreleri 566/467/518/433/517 ms; p50/p95 517/566 ms. Gerçek AI veya fiziksel A55 ölçümü değildir.
+
+Dört yeni Android kontrolü; beş hikâyede ayrı geçmiş/mod/taslak, Activity yeniden oluşturma ve gerçek parolalı yedek; altıncı konuyu engelleme ve kapatma onayı; atomik yazımın başlayamaması; yeniden adlandırma hatasında yanlış kayıt onayı verilmemesi ve sonradan yeniden denemeyi kapsar. Her iki hatada yazılan cevap ve seçilen hikâye korundu. AI fallback yalnız seçili hikâyeyi değiştirdi. Tüm bekleyen hikâyeler doğrulanır; eski tek hikâyeli kayıt açılır, eski 128 KiB sınırını geçen geçerli beş hikâye yedeklenebilir.
+
+İlk UI denemelerinde katı görünürlük ve yanlış test düğümü seçimi hataları yakalandı. Konular düğmesi cevap alanına taşındı; görünürlük sınırı gevşetilmedi. İzin kutusundaki dokunma sorunu tam satırın erişilebilir biçimde seçilebilir olması ve klavyede Bitti işlemiyle düzeltildi. Son koşuda anahtar + açık izin testi ve tüm depolama/konu testleri geçti. Ekran görüntüleri incelendi; kırmızı hata görüntüsü kontrollü dosya hatası enjeksiyonudur.
+
+v0.8.0/v0.8.1 açık APK'ları ayrıca indirildi; HTTP 200, boyut, manifest ve GitHub SHA-256 eşleşti. Sertifikaları aynı, `permanentSigning=false`; 0.7 ile imza farklı olduğundan eski sürümü kaldırmadan parolalı yedek gerekir. [Yayın kanıtı](release-validation-0.8.json), [APK kontrolü](ota-release-verification-0.8.json), [beş konu davranışı](MULTI_STORY.md).
+
+Canlı çevrimiçi AI Türkçesi/mizahı, istenen dedektif muhakemesi ve A55'te 2–3 saniye hedefi henüz onaylanmadı; ortamda kişisel model anahtarı yoktur. Kalıcı imza, fiziksel telefon testi ve aktif Crashlytics de açık kalır. Bu sürüm kayıt ve çok konu geliştirmesidir; premium AI kalite kabulü değildir.
+
 ## 0.7: isteğe bağlı ücretsiz çevrimiçi AI
 
 Kaynak `869cb356b7daa272da7212ceec613eb2d7712945`, [CI 40105882983](https://github.com/kanunal99-jpg/LANU-Yalan-n-Seveyim/actions/runs/40105882983): **136 JVM testi, 18 ayrı Android yöntemi ve 4 imza senaryosu geçti**. Lint, normal ARM64 debug/native ve R8 release başarılı. Android'de 16 olağan yöntem, gerçek 11 → 12 yükseltmesinin hazırlık/sonrası iki yöntem ayrı başarılı çalıştı. Hızlı oyun ekran süreleri 507/434/417/458/626 ms; p50 458, p95 626 ms. Bu küçük AOSP emülatör örneklemi gerçek çevrimiçi AI veya fiziksel telefon hızı değildir.

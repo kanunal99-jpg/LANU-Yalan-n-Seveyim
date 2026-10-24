@@ -1,5 +1,7 @@
 # Kalıcı imza ve güncelleme sürekliliği
 
+Güncel test ikilisi v0.8.0 (kod 13) / v0.8.1 (kod 14) durumunu belgenin son bölümünde bulabilirsin. Aşağıdaki eski sürüm açıklamaları tarihsel kayıttır.
+
 OTA güveninin kökü telefonda kurulu uygulamanın sertifikasıdır. Yalnız aynı paket, daha yüksek sürüm kodu, doğru boyut/hash ve aynı mevcut imza kabul edilir. Otomatik kaldırma veya imza kontrolünü atlama yolu yoktur. Android kullanıcının kurulum onayını ister.
 
 v0.4.0-alpha (kod 5) ile v0.4.1-alpha (kod 6) aynı CI çalıştırmasında aynı anahtarla üretilir. APK paket/sürümü ve iki sertifikanın eşitliği yayından önce kontrol edilir; her release kendi `lanu-update.json`, SHA256SUMS ve `signing-info.json` dosyasını içerir. `permanentSigning` değeri, kalıcı anahtarın kullanılıp kullanılmadığını açıklar.
@@ -33,3 +35,7 @@ v0.6.0-alpha (kod 9) ve v0.6.1-alpha (kod 10), `03166b3` kaynağından aynı tes
 ## Yayımlanan 0.7 ikilisinin durumu
 
 v0.7.0-alpha (kod 11) ve v0.7.1-alpha (kod 12), `869cb35` kaynağından aynı test sertifikasıyla yayımlandı: `92ac5830a73babd14fd31b12a3831d87a99db8cbbbdce418fa991a752a1d78fb`. Her biri 25.678.502 bayt; iki açık indirme tekrar doğrulandı. `permanentSigning=false`. 0.7 ikilisi içinde OTA mümkündür; 0.6 sertifikası farklı olduğundan 0.6 → 0.7 yerinde güncellenemez. Eski uygulamadan önce parolalı yedek oluştur; silmek ilerlemeyi ve varsa modeli kaldırır. Yeni kişisel AI anahtarı taşınabilir ilerleme yedeğine alınmaz; yeniden kurulumdan sonra uygulama içinde yeniden bağlanır. [Açık APK ve imza kaydı](ota-release-verification-0.7.json). Kalıcı imza kurulumu hâlâ gereklidir.
+
+## Yayımlanan 0.8 ikilisinin durumu
+
+v0.8.0-alpha (kod 13) ve v0.8.1-alpha (kod 14), `18c03e6` kaynağından aynı test sertifikasıyla yayımlandı: `a2183f340a80a0c1acd5958cdc4136c98c8b672c4a5d4f2f852633af6ce976d6`. Her biri 25.694.886 bayt. İki açık APK ayrıca HTTP 200 ile indirildi; hash/boyut ve GitHub asset özeti eşleşti. `permanentSigning=false`. 0.8 ikilisi içinde OTA mümkündür; 0.7 sertifikası farklı olduğundan 0.7 → 0.8 yerinde kurulamaz. Önce eski uygulamanın Ayarlar ekranında parolalı yedek oluştur. Kaldırma yerel ilerlemeyi ve varsa modeli siler. Yeni sürümde yedeği geri yükle, kişisel AI anahtarını yalnız uygulamada yeniden bağla. Kalıcı imza için yukarıdaki güvenilir cihaz/Termux adımı hâlâ gereklidir. [Doğrulama kaydı](ota-release-verification-0.8.json).
